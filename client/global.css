@@ -1,0 +1,318 @@
+/** @import must precede all other statements */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 259 72% 6%;
+    --foreground: 213 100% 96%;
+
+    --card: 252 64% 9%;
+    --card-foreground: 213 100% 96%;
+
+    --popover: 248 60% 8%;
+    --popover-foreground: 213 100% 96%;
+
+    --primary: 169 100% 60%;
+    --primary-foreground: 215 100% 12%;
+
+    --secondary: 259 94% 64%;
+    --secondary-foreground: 216 100% 97%;
+
+    --muted: 252 40% 18%;
+    --muted-foreground: 220 40% 78%;
+
+    --accent: 45 100% 60%;
+    --accent-foreground: 255 100% 16%;
+
+    --destructive: 353 92% 61%;
+    --destructive-foreground: 220 100% 96%;
+
+    --border: 258 74% 18%;
+    --input: 258 74% 18%;
+    --ring: 169 100% 60%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 258 70% 7%;
+    --sidebar-foreground: 213 100% 92%;
+    --sidebar-primary: 169 100% 60%;
+    --sidebar-primary-foreground: 215 100% 12%;
+    --sidebar-accent: 259 94% 64%;
+    --sidebar-accent-foreground: 213 100% 96%;
+    --sidebar-border: 258 60% 18%;
+    --sidebar-ring: 169 100% 60%;
+
+    --panel: 252 62% 8%;
+    --panel-ring: 169 100% 60%;
+    --panel-accent: 259 94% 64%;
+
+    --neon-teal: 169 100% 60%;
+    --neon-purple: 259 94% 64%;
+    --warning-gold: 45 100% 60%;
+
+    --glass-bg: rgba(18, 4, 40, 0.72);
+    --glass-border: rgba(124, 77, 255, 0.35);
+    --scanline-color: rgba(255, 255, 255, 0.06);
+    --grain-opacity: 0.16;
+  }
+
+  .light,
+  [data-theme="light"] {
+    --background: 275 100% 97%;
+    --foreground: 257 45% 18%;
+
+    --card: 272 64% 97%;
+    --card-foreground: 255 54% 18%;
+
+    --popover: 272 64% 97%;
+    --popover-foreground: 255 54% 18%;
+
+    --primary: 259 94% 54%;
+    --primary-foreground: 210 100% 97%;
+
+    --secondary: 169 100% 50%;
+    --secondary-foreground: 219 100% 16%;
+
+    --muted: 272 52% 93%;
+    --muted-foreground: 255 32% 35%;
+
+    --accent: 45 100% 56%;
+    --accent-foreground: 273 64% 12%;
+
+    --destructive: 353 92% 51%;
+    --destructive-foreground: 210 100% 98%;
+
+    --border: 272 60% 88%;
+    --input: 272 60% 88%;
+    --ring: 259 94% 54%;
+
+    --sidebar-background: 276 54% 95%;
+    --sidebar-foreground: 257 45% 18%;
+    --sidebar-primary: 259 94% 54%;
+    --sidebar-primary-foreground: 210 100% 97%;
+    --sidebar-accent: 169 100% 50%;
+    --sidebar-accent-foreground: 219 100% 16%;
+    --sidebar-border: 276 45% 84%;
+    --sidebar-ring: 259 94% 54%;
+
+    --panel: 276 54% 96%;
+    --panel-ring: 259 94% 54%;
+    --panel-accent: 169 100% 50%;
+
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(124, 77, 255, 0.22);
+    --scanline-color: rgba(124, 77, 255, 0.12);
+    --grain-opacity: 0.08;
+  }
+
+  [data-contrast="high"] {
+    --foreground: 210 100% 99%;
+    --card-foreground: 210 100% 99%;
+    --popover-foreground: 210 100% 99%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 60 100% 50%;
+    --muted-foreground: 210 100% 96%;
+    --secondary-foreground: 210 100% 16%;
+    --accent-foreground: 210 100% 16%;
+    --scanline-color: rgba(255, 255, 255, 0.2);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    min-height: 100vh;
+    background: linear-gradient(
+      135deg,
+      #0d0d0d 0%,
+      #1c1c1c 25%,
+      #4b0082 50%,
+      #8a2be2 75%,
+      #f0f0f0 100%
+    );
+    position: relative;
+    overflow-x: hidden;
+    font-family:
+      "Inter",
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
+  }
+
+  body::before {
+    content: none;
+    display: none;
+  }
+
+  body::after {
+    content: none;
+    display: none;
+  }
+
+  body[data-grain="off"]::after {
+    opacity: 0;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(18px);
+  }
+
+  .glow-outline {
+    box-shadow:
+      0 0 18px rgba(0, 255, 209, 0.45),
+      0 0 36px rgba(124, 77, 255, 0.35);
+  }
+
+  .crt-scanlines {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .crt-scanlines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      var(--scanline-color) 0,
+      var(--scanline-color) 2px,
+      transparent 2px,
+      transparent 5px
+    );
+    mix-blend-mode: soft-light;
+    animation: scanline-sweep 9s linear infinite;
+    opacity: 0.4;
+  }
+
+  .CRT-off .crt-scanlines::after {
+    opacity: 0;
+  }
+
+  .tilt-hover {
+    transform-style: preserve-3d;
+    transition:
+      transform 280ms ease,
+      box-shadow 280ms ease;
+  }
+
+  .tilt-hover:focus-visible,
+  .tilt-hover:hover {
+    transform: perspective(1200px) rotateX(6deg) rotateY(-4deg) translateZ(12px);
+    box-shadow:
+      0 18px 50px rgba(0, 255, 209, 0.35),
+      0 10px 30px rgba(124, 77, 255, 0.3);
+  }
+
+  .tilt-hover:active {
+    transform: perspective(1200px) rotateX(2deg) rotateY(-2deg) translateZ(6px);
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow:
+      0 0 18px rgba(124, 77, 255, 0.45),
+      0 0 30px rgba(0, 255, 209, 0.35);
+  }
+
+  .shadow-glass {
+    box-shadow:
+      inset 0 0 0 1px rgba(124, 77, 255, 0.25),
+      0 20px 50px rgba(10, 6, 30, 0.55);
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .gridlines {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 36px 36px;
+  }
+
+  .vertical-writing {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --grain-opacity: 0.04;
+    }
+
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    .tilt-hover,
+    .tilt-hover:focus-visible,
+    .tilt-hover:hover,
+    .tilt-hover:active {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .crt-scanlines::after {
+      animation: none !important;
+    }
+  }
+}
+
+/* Marquee animation used by preloader background */
+@keyframes marquee {
+  0% { background-position: 0% 0%; }
+  100% { background-position: -100% -100%; }
+}
+
+.animate-marquee {
+  animation: marquee 18s linear infinite;
+}
+
+@keyframes scanline-sweep {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* Mobile performance helpers: disable heavy backdrop-filter and reduce paint for small screens */
+@media (max-width: 1023px) {
+  .no-blur-on-mobile {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    will-change: auto !important;
+  }
+
+  /* Reduce heavy transitions/animations on mobile to avoid jank */
+  .tilt-hover {
+    transition: none !important;
+  }
+
+  /* Ensure touch interactions favor vertical panning */
+  .touch-none {
+    touch-action: pan-y !important;
+  }
+}
