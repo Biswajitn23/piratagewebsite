@@ -7,6 +7,7 @@ import HeroSection from "@/components/pirtatage/HeroSection";
 import MembersSection from "@/components/pirtatage/MembersSection";
 import MissionSection from "@/components/pirtatage/MissionSection";
 import Preloader from "@/components/pirtatage/Preloader";
+import BackgroundMusic from "@/components/BackgroundMusic";
 import ProgramsSection from "@/components/pirtatage/ProgramsSection";
 import ProjectsSection from "@/components/pirtatage/ProjectsSection";
 import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
@@ -30,6 +31,7 @@ const Index = () => {
 
   return (
     <div className="relative">
+      <BackgroundMusic />
       {!preloadComplete ? (
         <Preloader
           onFinish={() => {

@@ -12,7 +12,7 @@ export interface DemoResponse {
 }
 
 // Events API shared types
-export type EventStatus = "upcoming" | "past";
+export type EventStatus = "upcoming" | "ongoing" | "past";
 
 export interface EventSpeakerDTO {
   name: string;

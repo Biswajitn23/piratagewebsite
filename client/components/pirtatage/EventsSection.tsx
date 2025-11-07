@@ -14,8 +14,40 @@ if (typeof window !== "undefined") {
 
 const EventsSection = () => {
   const [allEvents, setAllEvents] = useState<EventRecord[]>(staticEvents);
-  const upcoming = useMemo(() => allEvents.filter((event) => event.status === "upcoming"), [allEvents]);
-  const past = useMemo(() => allEvents.filter((event) => event.status === "past"), [allEvents]);
+
+  // Derive upcoming / past by date first (more robust). Fall back to `status` when
+  // date is missing or invalid. Upcoming are events with date > now.
+  const upcoming = useMemo(() => {
+    const now = Date.now();
+    return [...allEvents]
+      .filter((event) => {
+        // Exclude explicit 'ongoing' events from upcoming (they have their own section)
+        if (event.status === "ongoing") return false;
+        const t = Date.parse(event.date);
+        if (Number.isNaN(t)) return event.status === "upcoming";
+        return t > now;
+      })
+      .sort((a, b) => (Date.parse(a.date) - Date.parse(b.date)));
+  }, [allEvents]);
+
+  const ongoing = useMemo(() => {
+    return [...allEvents]
+      .filter((event) => event.status === "ongoing")
+      .sort((a, b) => (Date.parse(a.date) - Date.parse(b.date)));
+  }, [allEvents]);
+
+  const past = useMemo(() => {
+    const now = Date.now();
+    return [...allEvents]
+      .filter((event) => {
+        // Ongoing events should not be treated as past
+        if (event.status === "ongoing") return false;
+        const t = Date.parse(event.date);
+        if (Number.isNaN(t)) return event.status === "past";
+        return t <= now;
+      })
+      .sort((a, b) => (Date.parse(b.date) - Date.parse(a.date)));
+  }, [allEvents]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [horizontalActive, setHorizontalActive] = useState(false);
   const [activeEvent, setActiveEvent] = useState<EventRecord | null>(null);
@@ -29,6 +61,10 @@ const EventsSection = () => {
         const data = (await res.json()) as ListEventsResponse;
         const mapped: EventRecord[] = data.events.map((e: EventRecordDTO) => ({
           ...e,
+          speakers: (e.speakers || []) as EventRecord['speakers'],
+          gallery: (e.gallery || []) as EventRecord['gallery'],
+          coverImage: e.coverImage || '',
+          description: e.description || '',
         }));
         if (!mapped.length) {
           setAllEvents(staticEvents);
@@ -110,6 +146,62 @@ const EventsSection = () => {
         </div>
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="space-y-6">
+              {ongoing.length > 0 ? (
+                <div className="space-y-4">
+                  <h3 className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                    <Timer className="h-4 w-4 text-neon-amber" /> Ongoing Operations
+                  </h3>
+                  <div className="space-y-6">
+                    {ongoing.map((event) => (
+                      <article
+                        key={event.id}
+                        className="glass-panel relative flex flex-col gap-4 rounded-3xl border border-white/10 p-6 shadow-glass"
+                      >
+                        {event.coverImage ? (
+                          <img
+                            src={event.coverImage}
+                            alt={event.title}
+                            className="h-48 w-full rounded-2xl object-cover"
+                          />
+                        ) : null}
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                              {new Date(event.date).toLocaleDateString(undefined, {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                                hour: "numeric",
+                              })}
+                            </p>
+                            <h4 className="font-display text-xl text-foreground">{event.title}</h4>
+                          </div>
+                          <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.24em] text-amber-300">
+                            Ongoing
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{event.description}</p>
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground/80">
+                          {(event.speakers || []).map((speaker) => (
+                            <span key={speaker.name} className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+                              {speaker.name} • {speaker.role}
+                            </span>
+                          ))}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="self-start gap-2 text-xs uppercase tracking-[0.24em] text-primary"
+                          asChild
+                        >
+                          <a href={event.registrationLink} target="_blank" rel="noreferrer">
+                            Register <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        </Button>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             <h3 className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
               <Timer className="h-4 w-4 text-neon-teal" /> Upcoming Operations
             </h3>
@@ -119,6 +211,13 @@ const EventsSection = () => {
                   key={event.id}
                   className="glass-panel relative flex flex-col gap-4 rounded-3xl border border-white/10 p-6 shadow-glass"
                 >
+                  {event.coverImage ? (
+                    <img
+                      src={event.coverImage}
+                      alt={event.title}
+                      className="h-48 w-full rounded-2xl object-cover"
+                    />
+                  ) : null}
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
@@ -137,7 +236,7 @@ const EventsSection = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">{event.description}</p>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground/80">
-                    {event.speakers.map((speaker) => (
+                    {(event.speakers || []).map((speaker) => (
                       <span key={speaker.name} className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
                         {speaker.name} • {speaker.role}
                       </span>
@@ -220,7 +319,7 @@ const EventsSection = () => {
                   className="h-64 w-full rounded-3xl object-cover"
                 />
                 <div className="flex flex-wrap gap-2 text-xs">
-                  {activeEvent.gallery.map((item) => (
+                  {(activeEvent.gallery || []).map((item) => (
                     <img
                       key={item}
                       src={item}
@@ -240,7 +339,7 @@ const EventsSection = () => {
                 <div>
                   <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Speakers</p>
                   <ul className="mt-2 space-y-2">
-                    {activeEvent.speakers.map((speaker) => (
+                    {(activeEvent.speakers || []).map((speaker) => (
                       <li key={speaker.name} className="flex items-center gap-3">
                         <img
                           src={speaker.avatar}

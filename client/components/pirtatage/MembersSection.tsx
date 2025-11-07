@@ -15,12 +15,10 @@ const roles: MemberRole[] = [
   "Outreach",
 ];
 
-if (
-  typeof window !== "undefined" &&
-  gsap &&
-  !gsap.core.globals()["ScrollTrigger"]
-) {
-  gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== "undefined" && gsap) {
+  try {
+    gsap.registerPlugin(ScrollTrigger);
+  } catch {}
 }
 
 const MembersSection = () => {

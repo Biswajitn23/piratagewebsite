@@ -1,214 +1,188 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
 
 export type PreloaderProps = {
   onFinish: () => void;
 };
 
-const STATUS_LINES = [
-  "INITIALIZING BOOTLOADER",
-  "PROBING NETWORK LAYER",
-  "DECRYPTING SIGNATURES",
-  "MOUNTING FIREWALLS",
-  "FINALIZING PROTOCOLS",
-];
-
-// Increase total animation duration for more dramatic hacking splash
-const DURATION = 4200; // total animation duration in ms
+const DURATION = 1800; // slightly shorter, smoother welcome
 
 const Preloader = ({ onFinish }: PreloaderProps) => {
   const [percent, setPercent] = useState(0);
   const [visible, setVisible] = useState(true);
-  const [statusIndex, setStatusIndex] = useState(0);
-  const rafRef = useRef<number | null>(null);
-  const startRef = useRef<number | null>(null);
+  const raf = useRef<number | null>(null);
+  const startAt = useRef<number | null>(null);
 
-  const statusLines = useMemo(() => STATUS_LINES, []);
+  const { settings } = useExperienceSettings();
 
   useEffect(() => {
-    let lastTick = 0;
-    // WebAudio context for beeps
-    let audioCtx: AudioContext | null = null;
-    let startOsc: OscillatorNode | null = null;
-    let endOsc: OscillatorNode | null = null;
+    // Create a WebAudio context and a continuous oscillator whose pitch
+    // and amplitude are subtly modulated by the visual progress. This gives
+    // a loading sound that tracks the progress bar.
+    let ctx: AudioContext | null = null;
+    let osc: OscillatorNode | null = null;
+    let gainNode: GainNode | null = null;
+    let lfo: OscillatorNode | null = null;
 
-    try {
-      audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      // start beep
-      startOsc = audioCtx.createOscillator();
-      const startGain = audioCtx.createGain();
-      startOsc.type = "sawtooth";
-      startOsc.frequency.value = 440;
-      startGain.gain.value = 0.0001;
-      startOsc.connect(startGain);
-      startGain.connect(audioCtx.destination);
-      startOsc.start();
-      // ramp up then fade
-      startGain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 0.02);
-      startGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.18);
-      setTimeout(() => {
-        try { startOsc && startOsc.stop(); } catch {}
-      }, 220);
-    } catch (err) {
-      // ignore audio errors
-      audioCtx = null;
-    }
+    const createAudio = () => {
+      // Respect user preference: if startup sound is disabled, don't create audio
+      if (!settings.startupSoundEnabled) return;
+      try {
+        const Ctor: any = (window as any).AudioContext || (window as any).webkitAudioContext;
+        if (!Ctor) return;
+        ctx = new Ctor();
 
-    function step(now: number) {
-      if (!startRef.current) startRef.current = now;
-      const elapsed = now - (startRef.current || 0);
+        gainNode = ctx.createGain();
+        // start muted, we'll ramp up quickly when available
+        gainNode.gain.value = 0.0001;
+        gainNode.connect(ctx.destination);
+
+        osc = ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.value = 220;
+        osc.connect(gainNode);
+
+        // subtle LFO to breathe the pad
+        lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.type = "sine";
+        lfo.frequency.value = 0.18;
+        lfoGain.gain.value = 6; // modulates frequency by a few Hz
+        lfo.connect(lfoGain);
+        lfoGain.connect((osc.frequency as unknown) as AudioParam);
+
+        osc.start();
+        lfo.start();
+
+        // small ramp to audible level
+        gainNode.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 0.03);
+
+        // Ensure context is resumed on user interaction if autoplay is blocked
+        if (ctx.state === "suspended") {
+          const resumeOnce = async () => {
+            try {
+              await ctx!.resume();
+            } catch {}
+            window.removeEventListener("pointerdown", resumeOnce);
+            window.removeEventListener("keydown", resumeOnce);
+          };
+          window.addEventListener("pointerdown", resumeOnce, { once: true });
+          window.addEventListener("keydown", resumeOnce, { once: true });
+        }
+      } catch (e) {
+        ctx = null;
+      }
+    };
+
+    createAudio();
+
+    const tick = (now: number) => {
+      if (!startAt.current) startAt.current = now;
+      const elapsed = now - (startAt.current || 0);
       const t = Math.min(1, elapsed / DURATION);
+      // smooth ease out for visual progress
+      const eased = 1 - Math.pow(1 - t, 2);
+      const next = Math.min(100, Math.round(eased * 100));
+      setPercent(next);
 
-      // eased progress for a more 'hacking' feel
-      const eased = 1 - Math.pow(1 - t, 3);
-      // add small randomness early on to feel dynamic
-      const jitter = t < 0.85 ? Math.floor(Math.random() * 3) : 0;
-      const next = Math.min(100, Math.floor(eased * 100) + jitter);
-
-      // only update state occasionally to avoid too many renders
-      if (now - lastTick > 30) {
-        setPercent(next);
-        lastTick = now;
-      }
-
-      // rotate status lines periodically
-      if (elapsed > (statusIndex + 1) * (DURATION / Math.max(1, statusLines.length))) {
-        setStatusIndex((i) => Math.min(statusLines.length - 1, i + 1));
-      }
+      // sync audio: map percent to frequency (low -> higher) and slightly raise gain on increments
+      try {
+        if (ctx && osc && gainNode) {
+          const targetFreq = 180 + next * 6; // 180Hz -> ~780Hz
+          // smooth frequency change
+          try {
+            (osc.frequency as any).linearRampToValueAtTime(targetFreq, ctx.currentTime + 0.06);
+          } catch {}
+          // quick transient on progress step
+          const transient = 0.006 + next / 1000;
+          try {
+            gainNode.gain.cancelScheduledValues(ctx.currentTime);
+            gainNode.gain.setValueAtTime(Math.max(0.002, gainNode.gain.value), ctx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.045, ctx.currentTime + transient);
+            gainNode.gain.exponentialRampToValueAtTime(0.02, ctx.currentTime + transient + 0.08);
+          } catch {}
+        }
+      } catch {}
 
       if (t < 1) {
-        rafRef.current = requestAnimationFrame(step);
+        raf.current = requestAnimationFrame(tick);
       } else {
-        setPercent(100);
-        // small delay for UX before closing
-        setTimeout(() => {
-          // completion beep
-          try {
-            if (!audioCtx) audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-            endOsc = audioCtx.createOscillator();
-            const endGain = audioCtx.createGain();
-            endOsc.type = "triangle";
-            endOsc.frequency.value = 880;
-            endGain.gain.value = 0.0001;
-            endOsc.connect(endGain);
-            endGain.connect(audioCtx.destination);
-            endOsc.start();
-            endGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 0.02);
-            endGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.28);
-            setTimeout(() => {
-              try { endOsc && endOsc.stop(); } catch {}
-            }, 320);
-          } catch (e) {
-            // ignore
+        // fade out audio and finish
+        try {
+          if (ctx && gainNode) {
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
           }
-
+        } catch {}
+        setTimeout(() => {
+          try {
+            if (osc) osc.stop();
+            if (lfo) lfo.stop();
+            if (ctx) ctx.close();
+          } catch {}
           setVisible(false);
           onFinish();
-        }, 300);
+        }, 260);
       }
-    }
+    };
 
-    rafRef.current = requestAnimationFrame(step);
+    raf.current = requestAnimationFrame(tick);
 
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (raf.current) cancelAnimationFrame(raf.current);
+      try {
+        if (osc) osc.stop();
+        if (lfo) lfo.stop();
+        if (ctx) ctx.close();
+      } catch {}
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onFinish, statusLines.length]);
+  }, [onFinish]);
 
   if (!visible) return null;
 
   return (
-    <div
-      id="preloader"
-      className="fixed inset-0 z-[999] flex items-center justify-center bg-[#030111] text-foreground"
-      role="status"
-      aria-live="polite"
-    >
-      {/* matrix-like moving background */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[length:200%_200%] bg-gradient-to-br from-[#001217] via-[#021026] to-[#0b0710] animate-[marquee_18s_linear_infinite] opacity-40" />
-        <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,#002a1a_0px,#002a1a_2px,transparent_2px,transparent_6px)] opacity-10 mix-blend-overlay" />
-      </div>
-
-      <div className="w-full max-w-xl px-6">
-        <div className="mx-auto flex w-full flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src="/piratagelogo.ico" alt="Piratage logo" className="h-10 w-10 rounded-full object-cover ring-1 ring-neon-teal/30 shadow-[0_0_24px_rgba(58,255,200,0.06)]" />
-              <div>
-                <div className="text-xs font-mono uppercase text-neon-teal/90">Piratage Bootloader</div>
-                <div className="text-[10px] font-mono text-muted-foreground">Secure initialization</div>
-              </div>
-            </div>
-            <div className="text-xs font-mono text-muted-foreground">{percent}%</div>
-          </div>
-
-          <div className="relative h-5 w-full overflow-hidden rounded-md bg-[#0b0b10]/60 ring-1 ring-white/2">
-            {/* main fill */}
-            <div
-              className="absolute left-0 top-0 h-full bg-gradient-to-r from-neon-teal via-neon-purple to-neon-teal blur-sm"
-              style={{ width: `${percent}%`, transition: 'width 140ms linear' }}
-              aria-hidden
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-gradient-to-b from-[#030217] via-[#04021a] to-[#060218] text-foreground">
+      <div className="w-full max-w-2xl px-6">
+        <div className="mx-auto flex w-full flex-col items-center gap-6 text-center">
+          <div className="rounded-full bg-gradient-to-br from-[#07292a] to-[#021026] p-1 shadow-lg">
+            <img
+              src="/piratagelogo.ico"
+              alt="Piratage"
+              className="h-28 w-28 rounded-full object-cover ring-2 ring-neon-teal/30"
             />
-
-            {/* subtle glitch overlay */}
-            <div className="absolute left-0 top-0 h-full w-full pointer-events-none">
-              <div
-                className="absolute left-0 top-0 h-full bg-neon-teal/10 mix-blend-screen"
-                style={{ width: `${Math.max(0, percent - 6)}%`, transform: 'translateX(4px)', opacity: 0.6 }}
-              />
-              <div
-                className="absolute left-0 top-0 h-full bg-neon-purple/8 mix-blend-screen"
-                style={{ width: `${Math.max(0, percent - 12)}%`, transform: 'translateX(-3px)', opacity: 0.5 }}
-              />
-            </div>
-
-            {/* centered typing status */}
-            <div className="absolute inset-0 flex items-center justify-center text-[11px] font-mono text-neon-teal/80">
-              <TypingStatus text={statusLines[statusIndex]} progress={percent} />
-            </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="text-[11px] font-mono text-muted-foreground">Initializing security protocols…</div>
-            <button
-              type="button"
-              className="text-xs font-mono uppercase text-primary underline-offset-4 hover:underline"
-              onClick={() => {
-                if (rafRef.current) cancelAnimationFrame(rafRef.current);
-                setVisible(false);
-                onFinish();
-              }}
-            >
-              Skip
-            </button>
+          <div>
+            <h1 className="font-display text-3xl sm:text-4xl text-glow">Piratage</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Hacker community • Workshops • CTFs</p>
+          </div>
+
+          <div className="w-full px-6">
+            <div className="relative h-3 w-full overflow-hidden rounded-full bg-white/6 ring-1 ring-white/6">
+              <div
+                aria-hidden
+                className="absolute left-0 top-0 h-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 transition-all duration-150 ease-linear"
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+            <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+              <span>{percent}%</span>
+              <button
+                type="button"
+                className="text-xs text-primary underline-offset-2 hover:underline"
+                onClick={() => {
+                  if (raf.current) cancelAnimationFrame(raf.current);
+                  setVisible(false);
+                  onFinish();
+                }}
+              >
+                Skip
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  );
-};
-
-// Simple typing reveal component for status lines
-const TypingStatus = ({ text, progress }: { text: string; progress: number }) => {
-  const [display, setDisplay] = useState("");
-
-  useEffect(() => {
-    setDisplay("");
-    let i = 0;
-    const speed = 18; // ms per character
-    const interval = setInterval(() => {
-      setDisplay((prev) => prev + text.charAt(i));
-      i += 1;
-      if (i >= text.length) clearInterval(interval);
-    }, speed);
-    return () => clearInterval(interval);
-  }, [text, progress]);
-
-  return (
-    <span className="font-mono text-[11px] text-neon-teal/80">
-      <span className="border-r-2 border-neon-teal/60 pr-1 animate-pulse">{display}</span>
-    </span>
   );
 };
 

@@ -34,7 +34,7 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Button
                 size="lg"
-                className="tilt-hover rounded-full bg-gradient-to-r from-neon-teal via-neon-purple to-accent px-8 py-6 text-base font-semibold text-primary-foreground shadow-glow"
+                className="tilt-hover rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-8 py-6 text-base font-semibold text-primary-foreground shadow-glow"
                 onClick={onJoin}
               >
                 Join the Crew

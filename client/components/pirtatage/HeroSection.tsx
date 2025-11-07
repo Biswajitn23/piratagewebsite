@@ -10,9 +10,10 @@ import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
 import { useLayoutBridge } from "@/contexts/LayoutBridgeContext";
 import useWebGL from "@/hooks/use-webgl";
 
-if (typeof window !== "undefined" && gsap && !gsap.core.globals()["ScrollTrigger"]) {
-  gsap.registerPlugin(ScrollTrigger);
-}
+// Register GSAP plugin safely (avoid typing issues with core.globals)
+try {
+  (gsap as any).registerPlugin(ScrollTrigger);
+} catch {}
 
 const HeroSection = () => {
   const { settings } = useExperienceSettings();
@@ -28,6 +29,9 @@ const HeroSection = () => {
     }
 
     const ctx = gsap.context(() => {
+      // Animate hero content when the section enters the viewport and also when
+      // re-entering from below (scrolling up). toggleActions ensures play on
+      // enter and play on enterBack.
       gsap.fromTo(
         ".hero-content > *",
         { opacity: 0, y: 30 },
@@ -37,6 +41,11 @@ const HeroSection = () => {
           duration: 1.2,
           ease: "power3.out",
           stagger: 0.15,
+          scrollTrigger: {
+            trigger: rootRef.current,
+            start: "top 60%",
+            toggleActions: "play reverse play reverse",
+          },
         },
       );
     }, rootRef);
@@ -85,24 +94,28 @@ const HeroSection = () => {
       </div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#060115] via-[#060115]/80 to-transparent" />
 
-      <div className="hero-content relative z-10 flex flex-col items-center gap-8">
-        <div className="inline-flex items-center gap-2 rounded-full border border-neon-teal/30 bg-neon-teal/10 px-4 py-2 text-xs uppercase tracking-[0.3em] text-neon-teal">
-          <Shield className="h-4 w-4" /> Campus Cyber Defenders
-        </div>
-        <div className="space-y-6">
+      <div className="relative z-0">
+  <div className="space-y-6 hero-content">
           <h1 className="hero-headline font-display text-4xl leading-tight text-glow drop-shadow-[0_0_28px_rgba(138,43,226,0.45)] sm:text-5xl lg:text-6xl">
-            We hack — so you don’t get hacked.
+            Piratage : The Ethical Hacking Club
           </h1>
+          <div className="mt-4 inline-block rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm px-4 py-2 shadow-sm">
+            <p className="m-0 text-xl sm:text-2xl lg:text-3xl font-display font-semibold uppercase tracking-[0.12em] text-accent/95">
+              Where Hackers become Protectors
+            </p>
+          </div>
           <p className="hero-subhead mx-auto max-w-2xl text-base text-muted-foreground sm:text-lg">
-            Pirtatage: university defenders turning curiosity into protection. We
+            Piratage: university defenders turning curiosity into protection. We
             are the campus guild of ethical hackers crafting defenses, designing
             CTFs, and teaching the next wave of guardians.
           </p>
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-4">
+
+          {/* WhatsApp panel removed per user request */}
+  </div>
+  <div className="flex flex-wrap items-center justify-center gap-4 mt-8 sm:mt-10">
           <Button
             size="lg"
-            className="hero-cta tilt-hover rounded-full bg-gradient-to-r from-neon-teal via-neon-purple to-accent px-8 py-6 text-base font-semibold text-primary-foreground shadow-glow"
+            className="hero-cta tilt-hover rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-8 py-6 text-base font-semibold text-primary-foreground shadow-glow"
             onClick={openJoinDialog}
           >
             Join the Crew

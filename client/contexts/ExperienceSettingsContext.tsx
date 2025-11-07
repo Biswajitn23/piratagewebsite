@@ -20,6 +20,8 @@ export type ExperienceSettings = {
   grainEnabled: boolean;
   audioEnabled: boolean;
   startupSoundEnabled: boolean;
+  backgroundMusicEnabled: boolean;
+  backgroundMusicVolume: number;
   webglPreferred: boolean;
 };
 
@@ -41,6 +43,8 @@ const DEFAULT_SETTINGS: ExperienceSettings = {
   grainEnabled: true,
   audioEnabled: false,
   startupSoundEnabled: false,
+  backgroundMusicEnabled: false,
+  backgroundMusicVolume: 0.35,
   webglPreferred: true,
 };
 
@@ -71,9 +75,15 @@ export const ExperienceSettingsProvider = ({
       }
 
       const parsed = JSON.parse(stored) as Partial<ExperienceSettings>;
+      // Force background music and startup sound to be off by default to avoid
+      // unexpected autoplay if a previous session had them enabled. Respect
+      // other parsed settings but always start with these audio settings
+      // disabled until the user explicitly enables them in the Accessibility panel.
       return {
         ...DEFAULT_SETTINGS,
         ...parsed,
+        backgroundMusicEnabled: false,
+        startupSoundEnabled: false,
         motionEnabled:
           typeof parsed.motionEnabled === "boolean"
             ? parsed.motionEnabled && !prefersReducedMotion

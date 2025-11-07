@@ -28,7 +28,7 @@ export function useLenisSmoothScroll(
       touchMultiplier: 1,
       autoRaf: false,
       ...options,
-    });
+    } as any);
 
     window.__lenis = lenis;
 
