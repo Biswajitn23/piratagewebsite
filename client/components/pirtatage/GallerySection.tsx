@@ -3,12 +3,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { gallery } from "@/data/pirtatage";
 
-if (
-  typeof window !== "undefined" &&
-  gsap &&
-  !gsap.core.globals()["ScrollTrigger"]
-) {
-  gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== "undefined" && gsap) {
+  try {
+    gsap.registerPlugin(ScrollTrigger);
+  } catch {}
 }
 
 const GallerySection = () => {
@@ -147,7 +145,7 @@ const GallerySection = () => {
                       className="w-full object-cover"
                       loading="lazy"
                       decoding="async"
-                      fetchpriority="low"
+                      fetchPriority="low"
                       sizes="100vw"
                     />
                     <figcaption className="p-4 text-sm text-muted-foreground">
@@ -192,7 +190,7 @@ const GallerySection = () => {
                     className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                     decoding="async"
-                    fetchpriority="low"
+                    fetchPriority="low"
                     sizes="(max-width: 640px) 100vw, 420px"
                   />
                   <figcaption className="flex flex-1 flex-col justify-end p-5 text-sm text-muted-foreground">

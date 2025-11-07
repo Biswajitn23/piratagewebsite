@@ -1,44 +1,8 @@
-import fs from "fs";
-import path from "path";
+// Stub DB adapter removed in favor of Firestore / JSON fallback.
+// Keep a lightweight stub export to avoid build-time type errors in environments
+// that still import getDb. Use the events routes which prefer Firestore or the
+// JSON file store instead.
 
-let db: any | null = null;
-
-export async function getDb() {
-  if (db) return db;
-  // Dynamically import to avoid compile-time dependency
-  let DatabaseMod: any;
-  try {
-    DatabaseMod = (await import("better-sqlite3")).default;
-  } catch (e) {
-    throw new Error(
-      "Database driver not installed. Please install 'better-sqlite3' to enable events persistence."
-    );
-  }
-
-  const dbPath = process.env.DATABASE_PATH || ".data/app.db";
-  const dir = path.dirname(dbPath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  db = new DatabaseMod(dbPath);
-  db.pragma("journal_mode = WAL");
-
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS events (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      date TEXT NOT NULL,
-      type TEXT NOT NULL,
-      status TEXT NOT NULL,
-      coverImage TEXT NOT NULL,
-      gallery TEXT NOT NULL, -- JSON array
-      description TEXT NOT NULL,
-      speakers TEXT NOT NULL, -- JSON array
-      registrationLink TEXT NOT NULL,
-      slug TEXT NOT NULL UNIQUE,
-      highlightScene TEXT
-    );
-  `);
-
-  return db;
+export async function getDb(): Promise<null> {
+  throw new Error("SQLite adapter removed. Use Firestore or JSON fallback (see server/routes/events.ts)");
 }

@@ -1,4 +1,4 @@
-export type EventStatus = "upcoming" | "past";
+export type EventStatus = "upcoming" | "ongoing" | "past";
 
 export type EventSpeaker = {
   name: string;
@@ -68,92 +68,9 @@ export type GalleryItem = {
   description: string;
 };
 
-export const events: EventRecord[] = [
-  {
-    id: "intro-ethical-hacking",
-    title: "Intro to Ethical Hacking",
-    date: "2025-11-15T18:00:00Z",
-    type: "Workshop",
-    status: "upcoming",
-    coverImage:
-      "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=1600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1600&q=80",
-    ],
-    description:
-      "Kickstart your ethical hacking journey with reconnaissance, threat modeling, and live exploit walkthroughs. Laptop required.",
-    speakers: [
-      {
-        name: "A. Student",
-        role: "President",
-        avatar:
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
-      },
-      {
-        name: "M. Analyst",
-        role: "Blue Team Lead",
-        avatar:
-          "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80",
-      },
-    ],
-    registrationLink: "https://pirtatage.club/register/intro",
-    slug: "intro-to-ethical-hacking",
-    highlightScene: "https://prod.spline.design/Rxs2iYlN9z5tf5ia/scene.splinecode",
-  },
-  {
-    id: "campus-scan-ctf",
-    title: "Campus Scan CTF",
-    date: "2025-03-09T17:00:00Z",
-    type: "Capture The Flag",
-    status: "upcoming",
-    coverImage:
-      "https://images.unsplash.com/photo-1526378722484-cc5c5100ca52?auto=format&fit=crop&w=1600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1600&q=80",
-    ],
-    description:
-      "48-hour campus-wide CTF with network forensics, binary exploitation, and hardware badge hacking challenges.",
-    speakers: [
-      {
-        name: "C. Defender",
-        role: "CTF Lead",
-        avatar:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
-      },
-    ],
-    registrationLink: "https://pirtatage.club/register/ctf",
-    slug: "campus-scan-ctf",
-    highlightScene: "https://prod.spline.design/J0O8P0VvSshz6Rlr/scene.splinecode",
-  },
-  {
-    id: "purple-team-retrospective",
-    title: "Purple Team Retrospective",
-    date: "2024-11-21T22:00:00Z",
-    type: "Research",
-    status: "past",
-    coverImage:
-      "https://images.unsplash.com/photo-1535229391455-0f82f16e8f3c?auto=format&fit=crop&w=1600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1580894906472-0f83c2d067ff?auto=format&fit=crop&w=1600&q=80",
-    ],
-    description:
-      "Breakdown of university-wide red/blue collaboration, with live demos of patched vulnerabilities and doc releases.",
-    speakers: [
-      {
-        name: "J. Archivist",
-        role: "Research Coordinator",
-        avatar:
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
-      },
-    ],
-    registrationLink: "https://pirtatage.club/events/purple-retro",
-    slug: "purple-team-retrospective",
-    highlightScene: "https://prod.spline.design/0rnGDFw7tns1yYCA/scene.splinecode",
-  },
-];
+// Intentionally empty — events are expected to be served by the API (Supabase/Firestore).
+// When you add events in Supabase they will appear in the Events radar via `/api/events`.
+export const events: EventRecord[] = [];
 
 export const members: MemberRecord[] = [
   {

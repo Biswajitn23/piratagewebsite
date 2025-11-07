@@ -262,7 +262,7 @@ const JoinCrewDialog = ({ open, onOpenChange }: JoinCrewDialogProps) => {
                     <Button
                       type="submit"
                       size="lg"
-                      className="tilt-hover rounded-full bg-gradient-to-r from-neon-teal via-neon-purple to-accent px-8 py-6 text-base font-semibold text-primary-foreground shadow-glow"
+                      className="tilt-hover rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-8 py-6 text-base font-semibold text-primary-foreground shadow-glow"
                       disabled={submitting}
                     >
                       {submitting ? (

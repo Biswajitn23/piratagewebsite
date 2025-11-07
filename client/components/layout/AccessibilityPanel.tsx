@@ -242,6 +242,29 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
                   }
                 />
               </PreferenceRow>
+
+              <PreferenceRow
+                label="Background Music"
+                description="Play a subtle ambient loop while browsing. Use volume to control loudness."
+              >
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={settings.backgroundMusicEnabled}
+                    onCheckedChange={(checked) =>
+                      updateSetting("backgroundMusicEnabled", Boolean(checked))
+                    }
+                  />
+                  <div className="w-40">
+                    <Slider
+                      value={[settings.backgroundMusicVolume ?? 0.35]}
+                      min={0}
+                      max={1}
+                      step={0.05}
+                      onValueChange={([v]) => updateSetting("backgroundMusicVolume", v)}
+                    />
+                  </div>
+                </div>
+              </PreferenceRow>
             </section>
 
             {/* Theme Mode section removed per request */}
