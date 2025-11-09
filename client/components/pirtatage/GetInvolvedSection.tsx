@@ -1,5 +1,5 @@
 import { useState, type SVGProps } from "react";
-import { CalendarDays, CheckCircle2, Mail } from "lucide-react";
+import { CalendarDays, CheckCircle2, Mail, Download, Plus } from "lucide-react";
 
 const WhatsApp = (props: SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
@@ -16,6 +16,41 @@ const GetInvolvedSection = () => {
   const [submitted, setSubmitted] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<string>("General help");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Email subscription state
+  const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState("");
+
+  const handleEmailSubscribe = async () => {
+    if (!email || !email.includes("@")) {
+      setSubscribeMessage("Please enter a valid email address");
+      return;
+    }
+
+    setSubscribing(true);
+    setSubscribeMessage("");
+
+    try {
+      const response = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setSubscribeMessage("Success! You'll receive notifications for new events.");
+        setEmail("");
+      } else {
+        const data = await response.json();
+        setSubscribeMessage(data.error || "Failed to subscribe. Please try again.");
+      }
+    } catch (error) {
+      setSubscribeMessage("Network error. Please try again.");
+    } finally {
+      setSubscribing(false);
+    }
+  };
 
   return (
     <section
@@ -152,12 +187,24 @@ const GetInvolvedSection = () => {
             <div>
               <h3 className="font-display text-lg text-foreground">Sync the calendar</h3>
               <p className="text-sm text-muted-foreground">
-                Subscribe to lab events (ICS) and never miss a drill, outreach day, or research log drop.
+                Auto-subscribe to lab events and get instant updates on drills, outreach days, and research logs.
               </p>
-              <Button variant="ghost" className="mt-3 gap-2 text-xs uppercase tracking-[0.24em]" asChild>
-                <a href="https://pirtatage.club/calendar.ics" target="_blank" rel="noreferrer">
-                  Download ICS
-                </a>
+              <Button 
+                variant="ghost" 
+                className="mt-3 gap-2 text-xs uppercase tracking-[0.24em]"
+                onClick={() => {
+                  // Get the full URL to the calendar.ics file
+                  const calendarUrl = `${window.location.protocol}//${window.location.host}/api/calendar.ics`;
+                  
+                  // Use Google Calendar's "Add by URL" feature
+                  const googleCalendarUrl = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(calendarUrl)}`;
+                  
+                  // Open in new window
+                  window.open(googleCalendarUrl, '_blank');
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Add to Calendar
               </Button>
             </div>
           </div>
@@ -165,14 +212,34 @@ const GetInvolvedSection = () => {
             <span className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/10 text-accent">
               <Mail className="h-6 w-6" />
             </span>
-            <div>
-              <h3 className="font-display text-lg text-foreground">Volunteer roles</h3>
+            <div className="flex-1">
+              <h3 className="font-display text-lg text-foreground">Email Notifications</h3>
               <p className="text-sm text-muted-foreground">
-                Need credit? We have graded mentorship tracks, outreach stipends, and research assistant slots.
+                Subscribe for email notifications about new events, workshops, and exclusive updates.
               </p>
-              <p className="mt-3 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                Email crew@pirtatage.club for role briefs.
-              </p>
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="email"
+                  placeholder="your.email@example.com"
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="gap-2 text-xs uppercase tracking-[0.24em]"
+                  onClick={handleEmailSubscribe}
+                  disabled={subscribing}
+                >
+                  {subscribing ? "..." : "Subscribe"}
+                </Button>
+              </div>
+              {subscribeMessage && (
+                <p className={`mt-2 text-xs ${subscribeMessage.includes('Success') ? 'text-green-400' : 'text-red-400'}`}>
+                  {subscribeMessage}
+                </p>
+              )}
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUpRight, ExternalLink, Github, Twitter } from "lucide-react";
+import { ArrowUpRight, ExternalLink, Linkedin, Instagram } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
               Ready to defend the campus?
             </h2>
             <p className="mt-4 max-w-2xl text-base text-muted-foreground">
-              Pirtatage blends curiosity and responsibility. Join the crew to get
+              Piratage blends curiosity and responsibility. Join the crew to get
               early invites to workshops, CTFs, and our security audit squads. We
               keep it ethical, we keep it playful, and we never stop learning.
             </p>
@@ -57,22 +57,26 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
               </h3>
               <div className="mt-6 flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <a
-                  href="mailto:crew@pirtatage.club"
+                  href="mailto:piratage.auc@gmail.com"
                   className="tilt-hover inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 transition-colors hover:text-primary"
                 >
-                  crew@pirtatage.club <ExternalLink className="h-3.5 w-3.5" />
+                  piratage.auc@gmail.com <ExternalLink className="h-3.5 w-3.5" />
                 </a>
                 <a
-                  href="https://github.com/pirtatage"
+                  href="https://www.instagram.com/piratage_club_auc/"
                   className="tilt-hover inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 transition-colors hover:text-primary"
+                  target="_blank"
+                  rel="noreferrer"
                 >
-                  <Github className="h-4 w-4" /> GitHub
+                  <Instagram className="h-4 w-4" /> Instagram
                 </a>
                 <a
-                  href="https://twitter.com/pirtatage"
+                  href="https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/"
                   className="tilt-hover inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 transition-colors hover:text-primary"
+                  target="_blank"
+                  rel="noreferrer"
                 >
-                  <Twitter className="h-4 w-4" /> X / Twitter
+                  <Linkedin className="h-4 w-4" /> LinkedIn
                 </a>
               </div>
             </div>
@@ -105,7 +109,7 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
           </div>
         </div>
         <div className="flex flex-col gap-3 text-xs uppercase tracking-[0.24em] text-muted-foreground/70 md:flex-row md:items-center md:justify-between">
-          <span>© {new Date().getFullYear()} Pirtatage Ethical Hacking Club</span>
+          <span>© {new Date().getFullYear()} Piratage : The Ethical Hacking Club</span>
           <span>Campus safe. Curiosity amplified.</span>
         </div>
       </div>

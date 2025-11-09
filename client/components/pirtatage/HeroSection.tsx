@@ -143,7 +143,7 @@ const FallbackHeroVisual = () => (
       stroke="currentColor"
       strokeWidth="12"
       role="img"
-      aria-label="Pirtatage shield"
+      aria-label="Piratage shield"
     >
       <path d="M256 32L96 96v120c0 107.452 70.236 206.967 160 264 89.764-57.033 160-156.548 160-264V96L256 32Z" />
       <path d="M192 256l64 64 96-128" strokeLinecap="round" strokeLinejoin="round" />

@@ -110,7 +110,7 @@ const JoinCrewDialog = ({ open, onOpenChange }: JoinCrewDialogProps) => {
             <div>
               <DialogHeader className="space-y-2 text-left">
                 <DialogTitle className="font-display text-3xl text-glow">
-                  Join the Pirtatage Crew
+                  Join the Piratage Crew
                 </DialogTitle>
                 <DialogDescription className="text-sm text-muted-foreground">
                   Tell us how you love to hack (ethically) and we will reach out
