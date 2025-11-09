@@ -1,7 +1,9 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { gallery } from "@/data/pirtatage";
+import type { GalleryItem } from "@/data/pirtatage";
+
+// We'll fetch gallery items from the server API so uploads in Supabase appear here.
 
 if (typeof window !== "undefined" && gsap) {
   try {
@@ -10,7 +12,31 @@ if (typeof window !== "undefined" && gsap) {
 }
 
 const GallerySection = () => {
-  const items = useMemo(() => gallery, []);
+  const [items, setItems] = useState<GalleryItem[]>([]);
+
+  // Load gallery items from API
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/gallery');
+        if (!res.ok) throw new Error('Failed to load gallery');
+        const json = await res.json();
+        const loaded: GalleryItem[] = (json.items || []).map((it: any) => ({
+          id: String(it.id),
+          title: it.title,
+          category: it.category || '',
+          media: it.media || '',
+          orientation: (it.orientation as any) || 'landscape',
+          description: it.description || '',
+        }));
+        if (mounted) setItems(loaded);
+      } catch (err) {
+        // keep empty
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
   const rootRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 

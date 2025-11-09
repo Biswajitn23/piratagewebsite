@@ -197,41 +197,6 @@ export const projects: ProjectRecord[] = [
   },
 ];
 
-export const gallery: GalleryItem[] = [
-  {
-    id: "gallery-ctf",
-    title: "CTF Control Center",
-    category: "Events",
-    media:
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80",
-    orientation: "landscape",
-    description: "Blue team parsing packets during Campus Scan CTF.",
-  },
-  {
-    id: "gallery-workshop",
-    title: "Zero Day Lab",
-    category: "Workshops",
-    media:
-      "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1600&q=80",
-    orientation: "landscape",
-    description: "Students reverse-engineering in the neon lab.",
-  },
-  {
-    id: "gallery-retreat",
-    title: "Guardian Retreat",
-    category: "Community",
-    media:
-      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1600&q=80",
-    orientation: "portrait",
-    description: "Mentor retreat brainstorming next-year defenses.",
-  },
-  {
-    id: "gallery-mentors",
-    title: "Mentor Council",
-    category: "Leadership",
-    media:
-      "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80",
-    orientation: "landscape",
-    description: "Exec team finalizing the audit strike plan.",
-  },
-];
+// Gallery is served by the API when Supabase is configured. Keep this empty so the
+// frontend will request `/api/gallery` and show stored images from Supabase Storage.
+export const gallery: GalleryItem[] = [];

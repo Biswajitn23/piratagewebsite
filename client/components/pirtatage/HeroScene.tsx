@@ -172,7 +172,7 @@ const FallbackVisual = () => (
   <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#4b0082]/20 via-[#8a2be2]/15 to-transparent">
     <div className="crt-scanlines glass-panel flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-white/10 p-8 text-center">
       <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-        Initializing Pirtatage Lab
+        Initializing Piratage Lab
       </span>
       <p className="text-sm text-muted-foreground">Loading immersive scene…</p>
     </div>
