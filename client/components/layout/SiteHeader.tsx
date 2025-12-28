@@ -4,12 +4,13 @@ import { Accessibility, Menu } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import { cn } from "@/lib/utils";
 import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
 
 const NAV_ITEMS = [
   { label: "Overview", hash: "overview" },
-  { label: "Mission", hash: "mission" },
+  { label: "About", hash: "about" },
   { label: "Events", hash: "events" },
   { label: "Get Involved", hash: "get-involved" },
 ];
@@ -194,9 +195,12 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
               compact && "scale-90"
             )}
           >
-            <img
+            <OptimizedImage
               src="/piratagelogo.ico"
               alt="Piratage logo"
+              width={140}
+              height={140}
+              priority
               className={cn(
                 "rounded-full object-cover sm:h-20 sm:w-20",
                 compact ? "h-12 w-12" : "h-24 w-24",
@@ -244,7 +248,7 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
                   to="/"
                   className="flex items-center gap-0 rounded-full font-display text-lg"
                 >
-                  <img src="/piratagelogo.ico" alt="Piratage logo" className="h-8 w-8" />
+                  <OptimizedImage src="/piratagelogo.ico" alt="Piratage logo" width={32} height={32} className="h-8 w-8" />
                 </Link>
                 {renderNavLinks("mobile")}
                 <div className="flex flex-col gap-4">

@@ -21,13 +21,12 @@ export type EventRecord = {
   highlightScene?: string;
 };
 
-export type MemberRole = "Exec" | "Mentor" | "DevSecOps" | "Research" | "Outreach";
+export type MemberRole = "Leadership" | "Events" | "Technical" | "Design" | "Operations";
 
 export type MemberRecord = {
   id: string;
   name: string;
   position: string;
-  bio: string;
   roles: MemberRole[];
   avatar3D?: string;
   avatarImage: string;
@@ -35,6 +34,7 @@ export type MemberRecord = {
     github?: string;
     linkedin?: string;
     twitter?: string;
+    instagram?: string;
   };
   notable: string;
 };
@@ -74,66 +74,299 @@ export const events: EventRecord[] = [];
 
 export const members: MemberRecord[] = [
   {
-    id: "a-student",
-    name: "A. Student",
+    id: "nitin-singh",
+    name: "Nitin Singh",
     position: "President",
-    bio: "Blueprints the campus defense strategy and leads cross-squad briefings.",
-    roles: ["Exec", "Mentor"],
-    avatar3D: undefined,
-    avatarImage:
-      "https://images.unsplash.com/photo-1507120410856-1f35574c3b45?auto=format&fit=crop&w=400&q=80",
+    roles: ["Leadership"],
+    avatarImage: "/nitin.webp",
     social: {
-      github: "https://github.com/astudent",
-      linkedin: "https://linkedin.com/in/astudent",
+      linkedin: "https://www.linkedin.com/in/nitin-singh-731793275?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      instagram: "https://www.instagram.com/singh.nitin01/",
     },
-    notable: "Architected the 2024 campus threat simulation",
+    notable: "",
   },
   {
-    id: "r-signal",
-    name: "R. Signal",
-    position: "DevSecOps Engineer",
-    bio: "Keeps our pipelines hardened and automates zero-dwell detection.",
-    roles: ["DevSecOps"],
-    avatarImage:
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80",
+    id: "biswajit-nayak",
+    name: "Biswajit Nayak",
+    position: "Vice President",
+    roles: ["Leadership"],
+    avatarImage: "/biswajit.webp",
     social: {
-      github: "https://github.com/rsignal",
-      twitter: "https://twitter.com/rsignal",
+      linkedin: "https://www.linkedin.com/in/biswajit-nayak-9a0b97321",
+      instagram: "https://www.instagram.com/biswajitgotnochill/",
     },
-    notable: "Published the campus dependency audit playbook",
+    notable: "",
   },
   {
-    id: "k-mentor",
-    name: "K. Mentor",
-    position: "Blue Team Lead",
-    bio: "Runs weekly incident response drills and trains new analysts.",
-    roles: ["Mentor", "Research"],
-    avatarImage:
-      "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=400&q=80",
+    id: "naman-kumar",
+    name: "Naman Kumar",
+    position: "Secretary",
+    roles: ["Leadership"],
+    avatarImage: "/naman.webp",
     social: {
-      linkedin: "https://linkedin.com/in/kmentor",
+      linkedin: "https://www.linkedin.com/in/naman-kumar-4ba6b3327?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      instagram: "https://www.instagram.com/_naman_kashyap24/",
     },
-    notable: "Led the 2024 phishing takedown simulation",
+    notable: "",
   },
   {
-    id: "n-outreach",
-    name: "N. Outreach",
-    position: "Community Hacker",
-    bio: "Hosts high school capture-the-flag camps and workshops.",
-    roles: ["Outreach", "Mentor"],
-    avatarImage:
-      "https://images.unsplash.com/photo-1531891437562-4301cf35b7e4?auto=format&fit=crop&w=400&q=80",
+    id: "yuti-sasane",
+    name: "Yuti Sasane",
+    position: "Joint Secretary",
+    roles: ["Leadership"],
+    avatarImage: "/yuti.webp",
     social: {
-      twitter: "https://twitter.com/noutreach",
+      linkedin: "https://www.linkedin.com/in/yuti-sasane-54420a340?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      instagram: "https://www.instagram.com/btw_itz_yuti/",
     },
-    notable: "Launched campus bug bounty education track",
+    notable: "",
+  },
+  {
+    id: "manisha-biswal",
+    name: "Manisha Biswal",
+    position: "Event Head",
+    roles: ["Events"],
+    avatarImage: "/manisha.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/manisha-biswal-7076b3325?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      instagram: "http://instagram.com/_manishaa14_/",
+    },
+    notable: "",
+  },
+  {
+    id: "ashutosh-sahu",
+    name: "Ashutosh Sahu",
+    position: "Event Coordinator",
+    roles: ["Events"],
+    avatarImage: "/ashutosh.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/ashutoshsahu-",
+      instagram: "https://www.instagram.com/_ashutosh.__.sahu_/",
+    },
+    notable: "",
+  },
+  {
+    id: "komal-meghani",
+    name: "Komal Meghani",
+    position: "Event Coordinator",
+    roles: ["Events"],
+    avatarImage: "/komal.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/komal-meghani-ab14a2327/",
+      instagram: "https://www.instagram.com/komalmeghani_/",
+    },
+    notable: "",
+  },
+  {
+    id: "gourav-behera",
+    name: "Gourav Behera",
+    position: "Programming Lead",
+    roles: ["Technical"],
+    avatarImage: "/gourav.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/gourav-kumar-behera",
+      instagram: "https://www.instagram.com/gouravkbehera/",
+    },
+    notable: "",
+  },
+  {
+    id: "ujjawal-singh",
+    name: "Ujjawal Singh",
+    position: "Programming Expert",
+    roles: ["Technical"],
+    avatarImage: "/ujjawal.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/ujjawal-singh-6a166a32a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      instagram: "https://www.instagram.com/rathorujjwalsingh/",
+    },
+    notable: "",
+  },
+  {
+    id: "aditya-chourasia",
+    name: "Aditya Chourasia",
+    position: "DBMS Lead",
+    roles: ["Technical"],
+    avatarImage: "/aditya.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/aditya-chourasia-5a4893327?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      instagram: "https://www.instagram.com/_aadi_chourasia/",
+    },
+    notable: "",
+  },
+  {
+    id: "shraddha-sahu",
+    name: "Shraddha Sahu",
+    position: "DBMS Expert",
+    roles: ["Technical"],
+    avatarImage: "/shraddha.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/shraddha-sahu-219bb3353/",
+      instagram: "",
+    },
+    notable: "",
+  },
+  {
+    id: "yash",
+    name: "Yash Bhikhwani",
+    position: "Networking Lead",
+    roles: ["Technical"],
+    avatarImage: "/yash.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/yash-bhikhwani-957200330/",
+      instagram: "",
+    },
+    notable: "",
+  },
+  {
+    id: "swati-agrawal",
+    name: "Swati Agrawal",
+    position: "Networking Expert",
+    roles: ["Technical"],
+    avatarImage: "/swati.jpeg",
+    social: {
+      linkedin: "",
+      instagram: "",
+    },
+    notable: "",
+  },
+  {
+    id: "yogesh-wathe",
+    name: "Yogesh Sunil Wathe",
+    position: "Malware Analyst",
+    roles: ["Technical"],
+    avatarImage: "/yogesh.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/yogesh-wathe-b06546325?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+      instagram: "https://www.instagram.com/yogesh_wate/",
+    },
+    notable: "",
+  },
+  {
+    id: "nibedita-patel",
+    name: "Nibedita Patel",
+    position: "Cryptography Lead",
+    roles: ["Technical"],
+    avatarImage: "/nibedita.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/nibedita-patel-57863532b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      instagram: "",
+    },
+    notable: "",
+  },
+  {
+    id: "kartik-shreekumar",
+    name: "Kartik Shreekumar",
+    position: "Cryptography Expert",
+    roles: ["Technical"],
+    avatarImage: "/kartik.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/kartik-shreekumar-1a4831245?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+      instagram: "http://instagram.com/kartikvortex/",
+    },
+    notable: "",
+  },
+  {
+    id: "athrav-singh",
+    name: "Athrav Pratap Singh",
+    position: "UI/UX Lead",
+    roles: ["Design"],
+    avatarImage: "/athrav.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/atharv-pratap-singh-a787a4320/",
+      instagram: "https://www.instagram.com/athar_v019/",
+    },
+    notable: "",
+  },
+  {
+    id: "tushar-shendey",
+    name: "Tushar Shendey",
+    position: "Graphic Designer",
+    roles: ["Design"],
+    avatarImage: "/tushar.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/tushar-shendey-099a7334a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      instagram: "https://www.instagram.com/tusharr.30_/",
+    },
+    notable: "",
+  },
+  {
+    id: "anshu",
+    name: "Anshu",
+    position: "Management",
+    roles: ["Operations"],
+    avatarImage: "/anshu.webp",
+    social: {
+      linkedin: "",
+      instagram: "",
+    },
+    notable: "",
+   },
+  {
+    id: "shruti-kumari",
+    name: "Shruti Kumari",
+    position: "Management",
+    roles: ["Operations"],
+    avatarImage: "/shruti.webp",
+    social: {
+      linkedin: "",
+      instagram: "https://www.instagram.com/shruti22285/",
+    },
+    notable: "",
+  },
+  {
+    id: "jiya-dhand",
+    name: "Jiya Dhand",
+    position: "Content Writer",
+    roles: ["Operations"],
+    avatarImage: "/jiya.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/jiya-dhand-a25162398/",
+      instagram: "https://www.instagram.com/jiyaaaaaaaaa_____29/",
+    },
+    notable: "",
+  },
+  {
+    id: "anushka-choudhary",
+    name: "Anushka Choudhary",
+    position: "Content Writer",
+    roles: ["Operations"],
+    avatarImage: "/anushka.webp",
+    social: {
+      linkedin: "",
+      instagram: "https://www.instagram.com/anushkachy__/",
+    },
+    notable: "",
+  },
+  {
+    id: "sakshi-bhatt",
+    name: "Sakshi Bhatt",
+    position: "Public Relations Lead",
+    roles: ["Operations"],
+    avatarImage: "/sakshi.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/sakshi-bhatt-461801272/",
+      instagram: "https://www.instagram.com/bhattsakshi2709/",
+    },
+    notable: "",
+  },
+  {
+    id: "shreya-barde",
+    name: "Shreya Barde",
+    position: "Public Relations Expert",
+    roles: ["Operations"],
+    avatarImage: "/shreya.webp",
+    social: {
+      linkedin: "https://www.linkedin.com/in/shreya-barde-4a7465385?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+      instagram: "https://www.instagram.com/shreyabarde_/",
+    },
+    notable: "",
   },
 ];
 
 export const achievements: AchievementRecord[] = [
   {
     id: "ctf-champions-2024",
-    title: "CTF Champions 2024",
+    title: "Hackathon Champions 2024",
     type: "award",
     date: "2024-08-01",
     description: "Ranked 1st in the national intercollegiate cyber defense invitational.",
@@ -188,7 +421,7 @@ export const projects: ProjectRecord[] = [
     id: "pulse-beacon",
     title: "Pulse Beacon",
     summary:
-      "Live campus CTF ticker that aggregates scoreboard APIs into a holographic display and Discord bot feed.",
+      "Live campus Hackathon ticker that aggregates scoreboard APIs into a holographic display and Discord bot feed.",
     liveDemo: "https://pirtatage.club/projects/pulse-beacon",
     technologies: ["TypeScript", "Cloudflare Workers", "Redis"],
     highlight:

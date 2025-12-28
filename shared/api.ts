@@ -32,6 +32,8 @@ export interface EventRecordDTO {
   speakers: EventSpeakerDTO[];
   registrationLink: string;
   slug: string;
+  location: string;
+  venue: string;
   highlightScene?: string;
 }
 

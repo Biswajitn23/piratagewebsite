@@ -18,10 +18,10 @@
     "start": "vite",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "analyze": "npm run build && start dist/stats.html"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.80.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "firebase-admin": "^13.5.0",
@@ -58,8 +58,8 @@
     "@radix-ui/react-toggle": "^1.1.9",
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
-    "@react-three/drei": "^9.122.0",
-    "@react-three/fiber": "^8.18.0",
+    "@react-three/drei": "^9.114.3",
+    "@react-three/fiber": "^8.17.10",
     "@swc/core": "^1.13.3",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-query": "^5.84.2",
@@ -69,8 +69,10 @@
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@types/three": "^0.176.0",
+    "@vercel/node": "^5.5.16",
     "@vitejs/plugin-react-swc": "^4.0.0",
     "autoprefixer": "^10.4.21",
+    "baseline-browser-mapping": "^2.9.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -92,7 +94,10 @@
     "react-resizable-panels": "^3.0.4",
     "react-router-dom": "^6.30.1",
     "recharts": "^2.12.7",
+    "rollup-plugin-visualizer": "^6.0.5",
     "serverless-http": "^3.2.0",
+    "sharp": "^0.34.5",
+    "sharp-cli": "^5.2.0",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^3.4.17",
@@ -104,5 +109,5 @@
     "vite": "^7.1.2",
     "vitest": "^3.2.4"
   },
-  "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"
+  "packageManager": "pnpm@10.26.2"
 }

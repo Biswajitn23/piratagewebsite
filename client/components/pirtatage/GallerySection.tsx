@@ -38,7 +38,12 @@ const GallerySection = () => {
     return () => { mounted = false; };
   }, []);
   const rootRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [gsapActive, setGsapActive] = useState(false);
 
   useEffect(() => {
     const mm = window.matchMedia("(max-width: 1023px)");
@@ -57,8 +62,19 @@ const GallerySection = () => {
     const track = el.querySelector<HTMLElement>(".gallery-track");
     if (!track) return;
 
+    // Check if screen is large enough for GSAP (1024px+)
+    const isLargeScreen = window.innerWidth >= 1024;
+    if (!isLargeScreen) return; // Let drag work on tablets
+
+    // Only activate GSAP if content is scrollable
     const totalWidth = () => track.scrollWidth;
     const viewportWidth = () => el.clientWidth;
+    if (totalWidth() <= viewportWidth()) {
+      setGsapActive(false);
+      return;
+    }
+
+    setGsapActive(true);
 
     const tween = gsap.to(track, {
       x: () => -(Math.max(0, totalWidth() - viewportWidth())),
@@ -68,9 +84,10 @@ const GallerySection = () => {
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: el,
-        start: "top top",
+        start: "top 104px",
         end: () => `+=${Math.max(0, totalWidth() - viewportWidth())}`,
         pin: true,
+        pinSpacing: true,
         scrub: 0.6,
         anticipatePin: 1,
         fastScrollEnd: true,
@@ -106,11 +123,73 @@ const GallerySection = () => {
     const onResize = () => ScrollTrigger.refresh();
     window.addEventListener("resize", onResize);
 
+    // Also refresh ScrollTrigger when items change (gallery loads)
+    setTimeout(() => ScrollTrigger.refresh(), 200);
+
     return () => {
       window.removeEventListener("resize", onResize);
       ctx.revert();
+      setGsapActive(false);
     };
-  }, [isMobile]);
+  }, [isMobile, items]);
+
+  // Drag functionality for gallery (only when GSAP is not active)
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (gsapActive || !trackRef.current) return;
+    const track = trackRef.current;
+    setIsDragging(true);
+    setStartX(e.pageX - track.offsetLeft);
+    setScrollLeft(track.scrollLeft);
+    track.style.cursor = 'grabbing';
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (gsapActive || !isDragging || !trackRef.current) return;
+    e.preventDefault();
+    const track = trackRef.current;
+    const x = e.pageX - track.offsetLeft;
+    const walk = (x - startX) * 2;
+    track.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    if (gsapActive) return;
+    setIsDragging(false);
+    if (trackRef.current) {
+      trackRef.current.style.cursor = 'grab';
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (gsapActive || !isDragging) return;
+    setIsDragging(false);
+    if (trackRef.current) {
+      trackRef.current.style.cursor = 'grab';
+    }
+  };
+
+  // Touch handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (gsapActive || !trackRef.current) return;
+    const track = trackRef.current;
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - track.offsetLeft);
+    setScrollLeft(track.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (gsapActive || !isDragging || !trackRef.current) return;
+    const track = trackRef.current;
+    const x = e.touches[0].pageX - track.offsetLeft;
+    const walk = (x - startX) * 2;
+    track.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchEnd = () => {
+    if (gsapActive) return;
+    setIsDragging(false);
+  };
 
   // Mobile lazy-load images to reduce decode and paint work
   useEffect(() => {
@@ -143,7 +222,7 @@ const GallerySection = () => {
 
     return (
       <section id="gallery" className="relative mt-24" aria-labelledby="gallery-title">
-        <div className="mx-auto max-w-[1400px] px-6">
+        <div className="mx-auto max-w-[1400px] px-4 md:px-6">
           <div className="rounded-[28px] border border-white/10 bg-white/5 no-blur-on-mobile">
             <div
               ref={rootRef}
@@ -171,7 +250,7 @@ const GallerySection = () => {
                       className="w-full object-cover"
                       loading="lazy"
                       decoding="async"
-                      fetchPriority="low"
+                      fetchpriority="low"
                       sizes="100vw"
                     />
                     <figcaption className="p-4 text-sm text-muted-foreground">
@@ -191,10 +270,10 @@ const GallerySection = () => {
 
   // Desktop/Tablet (unchanged horizontal experience)
   return (
-    <section id="gallery" className="relative mt-24" aria-labelledby="gallery-title">
+    <section id="gallery" className="relative mt-24 mb-12" aria-labelledby="gallery-title">
       <div className="mx-auto max-w-[1400px] px-6">
         <div className="rounded-[28px] border border-white/10 bg-white/5">
-          <div ref={rootRef} className="relative rounded-[28px] overflow-x-visible touch-pan-x">
+          <div ref={rootRef} className="relative rounded-[28px] overflow-hidden">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#05021a]/85 px-5 py-3 md:px-6 md:py-4">
               <div className="flex items-baseline gap-4">
                 <h2 id="gallery-title" className="font-display text-2xl text-foreground">
@@ -202,9 +281,22 @@ const GallerySection = () => {
                 </h2>
                 <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground/80">Field ops • Labs • Scrims</p>
               </div>
-              <span className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground/70">Scroll or drag</span>
+              <span className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground/70">
+                {gsapActive ? 'Scroll down' : 'Scroll or drag'}
+              </span>
             </div>
-            <div className="gallery-track flex flex-row gap-5 px-5 py-5 h-[320px] md:h-[380px] md:gap-6 md:px-6 md:py-6 overflow-x-auto lg:overflow-visible">
+            <div 
+              ref={trackRef}
+              className="gallery-track flex flex-row gap-5 px-5 py-5 h-[320px] md:h-[420px] md:gap-6 md:px-6 md:py-6 overflow-x-auto lg:overflow-visible select-none"
+              style={{ cursor: gsapActive ? 'default' : 'grab', scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               {items.map((item) => (
                 <figure
                   key={item.id}
@@ -216,13 +308,13 @@ const GallerySection = () => {
                     className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
                     decoding="async"
-                    fetchPriority="low"
+                    fetchpriority="low"
                     sizes="(max-width: 640px) 100vw, 420px"
                   />
                   <figcaption className="flex flex-1 flex-col justify-end p-5 text-sm text-muted-foreground">
                     <strong className="font-display text-lg text-foreground">{item.title}</strong>
                     <span className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground/80">{item.category}</span>
-                    <p className="mt-2 text-[13px] leading-relaxed">{item.description}</p>
+                    <p className="mt-2 text-[13px] leading-relaxed line-clamp-3">{item.description}</p>
                   </figcaption>
                   <div
                     className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"

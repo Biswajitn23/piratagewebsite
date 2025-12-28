@@ -4,7 +4,7 @@ import path from "path";
 import { CreateEventRequest, CreateEventResponse, EventRecordDTO, ListEventsResponse } from "@shared/api";
 import { randomUUID } from "crypto";
 import { getFirestore, isFirestoreEnabled } from "../firebase";
-import { isSupabaseEnabled, getSupabase } from "../supabase";
+import { processPendingNotifications } from "./notifications";
 
 const DATA_DIR = process.env.DATA_DIR || ".data";
 const EVENTS_FILE = path.join(DATA_DIR, "events.json");
@@ -46,6 +46,8 @@ export const listEvents: RequestHandler = async (_req, res) => {
       const registrationVal = raw.registrationLink || raw.registrationlink || raw.registration_link || raw.registration || '';
       const slugVal = raw.slug || raw.Slug || raw.event_slug || '';
       const descVal = raw.description || raw.Description || raw.desc || '';
+      const locationVal = raw.location || raw.Location || '';
+      const venueVal = raw.venue || raw.Venue || '';
 
       const t = Date.parse(String(dateVal));
 
@@ -74,58 +76,33 @@ export const listEvents: RequestHandler = async (_req, res) => {
         speakers: Array.isArray(speakersVal) ? speakersVal : [],
         registrationLink: String(registrationVal || ''),
         slug: String(slugVal || ''),
+        location: String(locationVal || ''),
+        venue: String(venueVal || ''),
         highlightScene: raw.highlightScene || raw.highlightscene || raw.highlight || undefined,
       } as EventRecordDTO;
     });
   }
 
-  if (isSupabaseEnabled()) {
-    try {
-      const supabase = getSupabase();
-      const { data, error } = await supabase.from("events").select("*").order("date", { ascending: true });
-      if (error) throw error;
-      let events: EventRecordDTO[] = normalize((data || []) as EventRecordDTO[]);
-
-      // If coverImage is stored as a storage path (not an HTTP URL), convert it to a public URL
-      events = events.map((e) => {
-        try {
-          if (e.coverImage && !/^https?:\/\//i.test(e.coverImage)) {
-            // guess bucket from first path segment, fallback to 'events'
-            const parts = e.coverImage.split('/');
-            const bucket = parts.length > 1 ? parts[0] : 'events';
-            const path = e.coverImage;
-            const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(path);
-            if (publicData && (publicData as any).publicUrl) {
-              return { ...e, coverImage: (publicData as any).publicUrl } as EventRecordDTO;
-            }
-          }
-        } catch (err) {
-          // ignore and return original event
-        }
-        return e;
-      });
-      res.setHeader("X-Events-Source", "supabase");
-      res.json({ events } satisfies ListEventsResponse);
-    } catch {
-      const events = normalize(readEvents().sort((a, b) => (a.date < b.date ? 1 : -1)));
-      res.setHeader("X-Events-Source", "file");
-      res.json({ events } satisfies ListEventsResponse);
-    }
-    return;
-  }
-
   if (isFirestoreEnabled()) {
     getFirestore()
       .collection("events")
-      .orderBy("date", "asc")
       .get()
       .then((snap) => {
+        console.log(`[Events API] Fetched ${snap.docs.length} events from Firestore`);
         const events: EventRecordDTO[] = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<EventRecordDTO, "id">) }));
-        const norm = normalize(events);
+        // Sort in memory to avoid requiring a Firestore index
+        const sorted = events.sort((a, b) => {
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+          return dateA - dateB;
+        });
+        const norm = normalize(sorted);
+        console.log(`[Events API] Returning ${norm.length} normalized events`);
         res.setHeader("X-Events-Source", "firestore");
         res.json({ events: norm } satisfies ListEventsResponse);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("[Events API] Firestore error:", error.message);
         const events = normalize(readEvents().sort((a, b) => (a.date < b.date ? 1 : -1)));
         res.setHeader("X-Events-Source", "file");
         res.json({ events } satisfies ListEventsResponse);
@@ -157,24 +134,27 @@ export const createEvent: RequestHandler = async (req, res) => {
     highlightScene: payload.highlightScene,
   };
 
-  if (isSupabaseEnabled()) {
-    try {
-      const supabase = getSupabase();
-      const { data, error } = await supabase.from("events").upsert([record], { onConflict: "id" });
-      if (error) return res.status(400).json({ error: String(error.message || error) });
-      res.setHeader("X-Events-Source", "supabase");
-      return res.status(201).json({ event: record } satisfies CreateEventResponse);
-    } catch (err) {
-      return res.status(400).json({ error: String(err?.message || err || "Failed to create event") });
-    }
-  }
-
   if (isFirestoreEnabled()) {
     try {
-      await getFirestore().collection("events").doc(id).set({ ...record, id: undefined }, { merge: false });
+      const db = getFirestore();
+      await db.collection("events").doc(id).set(record, { merge: false });
+      
+      // Create notification entry
+      const notificationId = randomUUID();
+      await db.collection("email_notifications").doc(notificationId).set({
+        id: notificationId,
+        event_id: id,
+        event_title: record.title,
+        sent_to_count: 0,
+        status: "pending",
+        created_at: new Date().toISOString()
+      });
+      
       res.setHeader("X-Events-Source", "firestore");
+      // Best-effort: process pending notifications immediately (non-blocking)
+      processPendingNotifications().catch((e) => console.warn("Email notifications processing failed:", e?.message || e));
       return res.status(201).json({ event: record } satisfies CreateEventResponse);
-    } catch (err) {
+    } catch (err: any) {
       return res.status(400).json({ error: String(err?.message || err || "Failed to create event") });
     }
   }
