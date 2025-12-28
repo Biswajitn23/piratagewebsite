@@ -1,6 +1,66 @@
 import { RequestHandler } from "express";
 import { randomUUID } from "crypto";
-import { isSupabaseEnabled, getSupabase } from "../supabase";
+import { isFirestoreEnabled, getFirestore } from "../firebase";
+import { Timestamp } from "firebase-admin/firestore";
+
+// Discord webhook function
+async function sendDiscordNotification(record: any) {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  
+  if (!webhookUrl) {
+    console.warn("DISCORD_WEBHOOK_URL not configured");
+    return;
+  }
+
+  const embed = {
+    title: "🆘 New Help Request Received",
+    color: 0x00ff88, // Green color
+    fields: [
+      {
+        name: "👤 Name",
+        value: record.name,
+        inline: true
+      },
+      {
+        name: "📧 Email",
+        value: record.email,
+        inline: true
+      },
+      {
+        name: "📋 Topic",
+        value: record.topic || "General help",
+        inline: false
+      },
+      {
+        name: "💬 Message",
+        value: record.message.length > 1024 ? record.message.substring(0, 1021) + "..." : record.message,
+        inline: false
+      },
+      {
+        name: "🕐 Submitted At",
+        value: new Date(record.created_at).toLocaleString(),
+        inline: false
+      }
+    ],
+    footer: {
+      text: `Request ID: ${record.id}`
+    },
+    timestamp: record.created_at
+  };
+
+  try {
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: "📢 A new doubt inquiry has been submitted!",
+        embeds: [embed]
+      })
+    });
+  } catch (error) {
+    console.error("Failed to send Discord notification:", error);
+  }
+}
 
 export const createHelpRequest: RequestHandler = async (req, res) => {
   const { name, email, message, topic } = req.body as {
@@ -24,31 +84,45 @@ export const createHelpRequest: RequestHandler = async (req, res) => {
     created_at: new Date().toISOString(),
   };
 
-  if (isSupabaseEnabled()) {
+  if (isFirestoreEnabled()) {
     try {
-      const supabase = getSupabase();
-      const { error } = await supabase.from("help_requests").insert([record]);
-      if (error) return res.status(500).json({ error: error.message });
+      const db = getFirestore();
+      await db.collection("help_requests").doc(id).set({
+        ...record,
+        created_at: Timestamp.now()
+      });
+      
+      // Send Discord notification
+      await sendDiscordNotification(record);
+      
       return res.status(201).json({ request: record });
     } catch (err) {
       return res.status(500).json({ error: String(err) });
     }
   }
 
-  // If Supabase not configured, return created but include record so caller can
-  // optionally fallback to other storage.
-  return res.status(201).json({ request: record, warning: "Supabase not configured" });
+  // If Firestore not configured, still send Discord notification
+  await sendDiscordNotification(record);
+  
+  return res.status(201).json({ request: record, warning: "Firestore not configured" });
 };
 
 export const listHelpRequests: RequestHandler = async (_req, res) => {
-  if (!isSupabaseEnabled()) {
-    return res.status(501).json({ error: "Supabase not configured" });
+  if (!isFirestoreEnabled()) {
+    return res.status(501).json({ error: "Firestore not configured" });
   }
   try {
-    const supabase = getSupabase();
-    const { data, error } = await supabase.from("help_requests").select("*").order("created_at", { ascending: false });
-    if (error) return res.status(500).json({ error: error.message });
-    return res.json({ requests: data });
+    const db = getFirestore();
+    const snapshot = await db.collection("help_requests")
+      .orderBy("created_at", "desc")
+      .get();
+    
+    const requests = snapshot.docs.map(doc => ({
+      ...doc.data(),
+      created_at: doc.data().created_at?.toDate?.()?.toISOString() || doc.data().created_at
+    }));
+    
+    return res.json({ requests });
   } catch (err) {
     return res.status(500).json({ error: String(err) });
   }

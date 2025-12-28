@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Bundle analysis
+dist/stats.html
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -25,3 +28,5 @@ dist-ssr
 
 .config/
 !.env
+
+.vercel

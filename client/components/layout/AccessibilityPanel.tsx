@@ -79,8 +79,11 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
           <div className="relative space-y-10 p-8">
             <DialogHeader>
               <DialogTitle className="font-display text-3xl text-glow">
-                Accessibility &amp; Experience Lab
+                Accessibility &amp; Experience
               </DialogTitle>
+              <p className="text-sm text-muted-foreground mt-2">
+                Full control over visuals, motion, audio, and interface scaling. All changes apply instantly.
+              </p>
             </DialogHeader>
             <section aria-labelledby="motion-controls" className="space-y-6">
               <header className="flex items-center gap-3">
@@ -99,6 +102,7 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
               <PreferenceRow
                 label="Motion Enabled"
                 description="Turns on/off parallax, GSAP sequences, and hover dynamics."
+                active={settings.motionEnabled}
               >
                 <Switch
                   checked={settings.motionEnabled}
@@ -108,6 +112,7 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
               <PreferenceRow
                 label="WebGL Playground"
                 description="Prefer the 3D canvas experience when supported."
+                active={settings.webglPreferred}
               >
                 <Switch
                   checked={settings.webglPreferred}
@@ -133,6 +138,7 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
               <PreferenceRow
                 label="High Contrast"
                 description="Boost contrast for better readability and stronger highlights."
+                active={settings.highContrast}
               >
                 <Switch
                   checked={settings.highContrast}
@@ -142,6 +148,7 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
               <PreferenceRow
                 label="CRT Scanlines"
                 description="Adds animated scanlines to panels for a retro security-lab feel."
+                active={settings.crtEnabled}
               >
                 <Switch
                   checked={settings.crtEnabled}
@@ -151,6 +158,7 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
               <PreferenceRow
                 label="Ambient Grain"
                 description="Organic film grain overlay. Toggle off for ultra-clean visuals."
+                active={settings.grainEnabled}
               >
                 <Switch
                   checked={settings.grainEnabled}
@@ -225,6 +233,7 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
               <PreferenceRow
                 label="Enable Micro-sounds"
                 description="Play soft bleeps on hovers and confirmations."
+                active={settings.audioEnabled}
               >
                 <Switch
                   checked={settings.audioEnabled}
@@ -233,7 +242,8 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
               </PreferenceRow>
               <PreferenceRow
                 label="Startup Sound"
-                description="Play a short chime when the site finishes loading. Off by default."
+                description="Play a short chime when the site finishes loading. On by default."
+                active={settings.startupSoundEnabled}
               >
                 <Switch
                   checked={settings.startupSoundEnabled}
@@ -246,6 +256,7 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
               <PreferenceRow
                 label="Background Music"
                 description="Play a subtle ambient loop while browsing. Use volume to control loudness."
+                active={settings.backgroundMusicEnabled}
               >
                 <div className="flex items-center gap-3">
                   <Switch
@@ -271,20 +282,20 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
 
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-white/10 bg-white/5 p-4 text-xs uppercase tracking-[0.24em] text-muted-foreground">
               <span className="inline-flex items-center gap-2">
-                <Waves className="h-4 w-4 text-neon-teal" /> Profile saved locally
+                <Waves className="h-4 w-4 text-neon-teal" /> Settings saved locally
               </span>
               <Button
                 variant="ghost"
                 size="sm"
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 hover:bg-white/10 hover:border-white/20"
                 onClick={reset}
               >
-                <Undo2 className="h-4 w-4" /> Reset
+                <Undo2 className="h-4 w-4" /> Reset to Default
               </Button>
             </div>
             <p className="text-xs text-muted-foreground/80">
-              Settings respect system-level preferences (like reduced motion) and
-              store locally on this device. We never transmit them.
+              All settings respect system preferences (like reduced motion) and are stored locally on your device. 
+              Changes apply instantly and persist across sessions.
             </p>
           </div>
         </div>
@@ -297,12 +308,21 @@ type PreferenceRowProps = {
   label: string;
   description: string;
   children: React.ReactNode;
+  active?: boolean;
 };
 
-const PreferenceRow = ({ label, description, children }: PreferenceRowProps) => (
-  <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 md:flex-row md:items-center md:justify-between">
+const PreferenceRow = ({ label, description, children, active }: PreferenceRowProps) => (
+  <div className={cn(
+    "flex flex-col gap-3 rounded-2xl border px-4 py-3 md:flex-row md:items-center md:justify-between transition-colors",
+    active 
+      ? "border-primary/40 bg-primary/10" 
+      : "border-white/10 bg-white/5"
+  )}>
     <div>
-      <p className="text-sm font-medium text-foreground">{label}</p>
+      <p className={cn(
+        "text-sm font-medium",
+        active ? "text-primary" : "text-foreground"
+      )}>{label}</p>
       <p className="text-xs text-muted-foreground/80">{description}</p>
     </div>
     <div className="flex items-center justify-end gap-3">{children}</div>

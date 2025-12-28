@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 export type PreloaderProps = {
   onFinish: () => void;
@@ -145,16 +146,19 @@ const Preloader = ({ onFinish }: PreloaderProps) => {
       <div className="w-full max-w-2xl px-6">
         <div className="mx-auto flex w-full flex-col items-center gap-6 text-center">
           <div className="rounded-full bg-gradient-to-br from-[#07292a] to-[#021026] p-1 shadow-lg">
-            <img
+            <OptimizedImage
               src="/piratagelogo.ico"
               alt="Piratage"
+              width={112}
+              height={112}
+              priority
               className="h-28 w-28 rounded-full object-cover ring-2 ring-neon-teal/30"
             />
           </div>
 
           <div>
             <h1 className="font-display text-3xl sm:text-4xl text-glow">Piratage</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Hacker community • Workshops • CTFs</p>
+            <p className="mt-1 text-sm text-muted-foreground">Hacker community • Workshops • Hackathons</p>
           </div>
 
           <div className="w-full px-6">

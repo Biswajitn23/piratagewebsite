@@ -1,34 +1,38 @@
 import { RequestHandler } from "express";
-import { getSupabase, isSupabaseEnabled } from "../supabase";
+import { getFirestore, isFirestoreEnabled } from "../firebase";
 
 /**
- * Generate an iCalendar (.ics) file from Supabase events
+ * Generate an iCalendar (.ics) file from Firestore events
  * This allows users to subscribe to the calendar in their calendar apps
  */
 export const handleCalendar: RequestHandler = async (req, res) => {
   try {
-    if (!isSupabaseEnabled()) {
-      return res.status(503).send("Calendar service unavailable - Supabase not configured");
+    if (!isFirestoreEnabled()) {
+      return res.status(503).send("Calendar service unavailable - Firestore not configured");
     }
 
-    const supabase = getSupabase();
-    const { data: events, error } = await supabase
-      .from("events")
-      .select("*")
-      .in("status", ["upcoming", "ongoing"]) // Only include upcoming and ongoing events
-      .order("date", { ascending: true });
+    const db = getFirestore();
+    // Get all events
+    const snapshot = await db.collection("events").get();
 
-    if (error) {
-      console.error("Error fetching events for calendar:", error);
-      return res.status(500).send("Error generating calendar");
-    }
+    const events = snapshot.docs
+      .map(doc => doc.data())
+      .filter(event => event.date) // Only include events with valid dates
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    console.log(`[Calendar] Found ${events.length} events with valid dates`);
 
     // Generate iCalendar format
     const icsContent = generateICS(events || []);
 
+    console.log(`[Calendar] Generated ICS content, length: ${icsContent.length} bytes`);
+
     // Set headers for .ics file download
     res.setHeader("Content-Type", "text/calendar; charset=utf-8");
-    res.setHeader("Content-Disposition", 'attachment; filename="piratage-events.ics"');
+    res.setHeader("Content-Disposition", 'inline; filename="piratage-events.ics"');
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
     res.send(icsContent);
   } catch (error) {
     console.error("Calendar generation error:", error);
@@ -57,7 +61,17 @@ function generateICS(events: any[]): string {
 
   // Add each event
   for (const event of events) {
+    if (!event.date) {
+      console.warn(`[Calendar] Skipping event without date: ${event.title}`);
+      continue;
+    }
+
     const eventDate = new Date(event.date);
+    if (isNaN(eventDate.getTime())) {
+      console.warn(`[Calendar] Invalid date for event: ${event.title}, date: ${event.date}`);
+      continue;
+    }
+
     const uid = `${event.id}@piratage.club`;
     
     // Format dates for ICS (YYYYMMDDTHHMMSSZ)

@@ -293,7 +293,7 @@ const JoinCrewDialog = ({ open, onOpenChange }: JoinCrewDialogProps) => {
                     Embedded mentorship pods with security engineers.
                   </li>
                   <li className="tilt-hover rounded-2xl border border-white/10 bg-white/5 p-3">
-                    Access to private CTF practice ranges and tooling.
+                    Access to private Hackathon practice ranges and tooling.
                   </li>
                   <li className="tilt-hover rounded-2xl border border-white/10 bg-white/5 p-3">
                     Exclusive alerts on campus vuln-bounty missions.

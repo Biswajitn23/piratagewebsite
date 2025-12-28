@@ -1,3 +1,22 @@
+  // Animate section entrance on scroll down and up
+  useEffect(() => {
+    if (!rootRef.current) return;
+    gsap.fromTo(
+      rootRef.current,
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: rootRef.current,
+          start: "top 85%",
+          toggleActions: "play reverse play reverse",
+        },
+      }
+    );
+  }, []);
 import { useMemo } from "react";
 import { Code2, ExternalLink, Github } from "lucide-react";
 
@@ -17,7 +36,7 @@ const ProjectsSection = () => {
   return (
     <section
       id="projects"
-      className="relative mx-auto mt-32 flex max-w-6xl flex-col gap-12 px-6"
+      className="relative mx-auto mt-16 md:mt-32 flex max-w-6xl flex-col gap-8 md:gap-12 px-4 md:px-6"
       aria-labelledby="projects-title"
     >
       <div className="space-y-4 text-center">

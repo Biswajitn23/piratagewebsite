@@ -1,0 +1,19 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+.vite
+
+# Environment
+.env
+.env.local
+
+# Netlify (not needed for Vercel)
+netlify
+.netlify
+
+# Misc
+.DS_Store
+*.log

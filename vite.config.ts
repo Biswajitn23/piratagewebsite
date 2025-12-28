@@ -1,12 +1,13 @@
 import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { createServer } from "./server";
+import { visualizer } from "rollup-plugin-visualizer";
+import { createServer } from "./server/index";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: "0.0.0.0",
     port: 8080,
     fs: {
       allow: [
@@ -21,7 +22,16 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist/spa",
   },
-  plugins: [react(), expressPlugin()],
+  plugins: [
+    react(),
+    expressPlugin(),
+    visualizer({
+      filename: 'dist/stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
@@ -35,10 +45,18 @@ function expressPlugin(): Plugin {
     name: "express-plugin",
     apply: "serve", // Only apply during development (serve mode)
     configureServer(server) {
-      const app = createServer();
-
-      // Add Express app as middleware to Vite dev server
-      server.middlewares.use(app);
+      try {
+        console.log("[Express Plugin] Initializing Express middleware...");
+        const app = createServer();
+        console.log("[Express Plugin] Express app created successfully");
+        
+        // Add Express app as middleware to Vite dev server
+        server.middlewares.use(app);
+        console.log("[Express Plugin] Middleware registered");
+      } catch (error) {
+        console.error("[Express Plugin] Failed to initialize:", error);
+        throw error;
+      }
     },
   };
 }

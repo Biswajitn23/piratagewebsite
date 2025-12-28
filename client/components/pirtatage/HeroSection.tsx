@@ -82,7 +82,7 @@ const HeroSection = () => {
     <section
       id="overview"
       ref={rootRef}
-      className="relative flex h-screen min-h-[700px] w-full flex-col items-center justify-center overflow-hidden  text-center"
+      className="relative flex h-screen min-h-[100vh] w-full flex-col items-center justify-center overflow-hidden text-center px-4 pt-20 pb-8"
       onMouseMove={handlePointerMove}
     >
       <div className="absolute inset-0 -z-20">
@@ -94,28 +94,30 @@ const HeroSection = () => {
       </div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#060115] via-[#060115]/80 to-transparent" />
 
-      <div className="relative z-0">
-  <div className="space-y-6 hero-content">
-          <h1 className="hero-headline font-display text-4xl leading-tight text-glow drop-shadow-[0_0_28px_rgba(138,43,226,0.45)] sm:text-5xl lg:text-6xl">
+      <div className="relative z-0 w-full max-w-6xl px-4 flex flex-col items-center justify-center min-h-[80vh]">
+  <div className="space-y-4 sm:space-y-6 md:space-y-8 hero-content">
+          <h1 className="hero-headline font-display text-3xl leading-tight text-glow drop-shadow-[0_0_28px_rgba(138,43,226,0.45)] sm:text-4xl md:text-5xl lg:text-6xl">
             Piratage : The Ethical Hacking Club
           </h1>
-          <div className="mt-4 inline-block rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm px-4 py-2 shadow-sm">
-            <p className="m-0 text-xl sm:text-2xl lg:text-3xl font-display font-semibold uppercase tracking-[0.12em] text-accent/95">
+          <div className="mt-3 sm:mt-4 inline-block rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm px-3 py-2 sm:px-4 shadow-sm">
+            <p className="m-0 text-lg sm:text-xl md:text-2xl lg:text-3xl font-display font-semibold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-accent/95">
               Where Hackers become Protectors
             </p>
           </div>
-          <p className="hero-subhead mx-auto max-w-2xl text-base text-muted-foreground sm:text-lg">
+          <p className="hero-subhead mx-auto max-w-2xl text-sm sm:text-base md:text-lg text-muted-foreground px-2 mt-4 sm:mt-6">
             Piratage: university defenders turning curiosity into protection. We
             are the campus guild of ethical hackers crafting defenses, designing
-            CTFs, and teaching the next wave of guardians.
+            Hackathons, and teaching the next wave of guardians.
           </p>
+          {/* Increased margin below subhead to move buttons even further down */}
+          <div className="mt-16 sm:mt-24 md:mt-32" />
 
           {/* WhatsApp panel removed per user request */}
   </div>
-  <div className="flex flex-wrap items-center justify-center gap-4 mt-8 sm:mt-10">
+  <div className="flex flex-wrap items-center justify-center gap-4 mt-4 sm:mt-6 md:mt-8">
           <Button
             size="lg"
-            className="hero-cta tilt-hover rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-8 py-6 text-base font-semibold text-primary-foreground shadow-glow"
+            className="hero-cta tilt-hover rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-6 py-5 sm:px-8 sm:py-6 text-sm sm:text-base font-semibold text-primary-foreground shadow-glow"
             onClick={openJoinDialog}
           >
             Join the Crew
@@ -123,10 +125,10 @@ const HeroSection = () => {
           <Button
             size="lg"
             variant="ghost"
-            className="hero-cta tilt-hover inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-8 py-6 text-base font-semibold text-foreground"
+            className="hero-cta tilt-hover inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-5 sm:px-8 sm:py-6 text-sm sm:text-base font-semibold text-foreground"
             onClick={goToEvents}
           >
-            <Play className="h-5 w-5" /> See Events
+            <Play className="h-4 w-4 sm:h-5 sm:w-5" /> See Events
           </Button>
         </div>
       </div>

@@ -1,0 +1,28 @@
+@keyframes tubelight-blink {
+  0%, 100% {
+    border-color: #00ffd1;
+  }
+  10%, 90% {
+    border-color: #fff0;
+  }
+  20%, 80% {
+    border-color: #00ffd1;
+  }
+  30%, 70% {
+    border-color: #fff0;
+  }
+  40%, 60% {
+    border-color: #00ffd1;
+  }
+  50% {
+    border-color: #fff0;
+  }
+}
+
+.tubelight-border {
+  border-width: 2.5px !important;
+  border-style: solid !important;
+  border-color: #00ffd1;
+  animation: tubelight-blink 2.2s linear infinite;
+  transition: border-color 0.2s;
+}
