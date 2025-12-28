@@ -3,12 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "env": {
-    "FIREBASE_PROJECT_ID": "piratage-d89e7",
-    "FIREBASE_CLIENT_EMAIL": "nbiswajit978@gmail.com",
-    "FIREBASE_PRIVATE_KEY": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCvF3hU6Nh++Hpd\n73tcVwuWoeOyilDGGdXUCD/hZVmjzgrTI56I2g8eW7mwUu2tXHc+5RV7TdxChySt\nfk5X/i6L0npYAq7GnrkvdXTtirKoFxehOTc6dy09yxXCPuXnaGBiOC9RghLaEXVw\nSav8r9SDG2aT87brkzBhaZPI5Y7SyZ9iBqwPC6VoNwF0qFtkR46pgJ7QpsDcVTeV\ndQDfX1j7bEXtu3T69wPfzlk16IFcFKGp/1yUXWYnUeA3LTCwzptFesP+14cY55gD\n55NQ0abUo9gc83lfAwIGRb2U7iMnncOp0p2e6wd94QpiaCvT01aPJLtgZDuw6RHD\nohbC7yTFAgMBAAECggEACVcFchC/rtatKbQtuWI3+d3JdO8yBKHr12b0lkl7eeud\naTVbQ9/ruYoEELNR/r2ZB++yVH2umz/mms31wcsZYKXtenhI1QQVvOyHH/cytVH1\nlayWuKraQiHCezZPnWA4DHGvJrg0LnWnZuzWQDaBJrwjukd81sEuNR3WX18ilvzY\nE9EGr1IiPd/T/Y6P7jkA+VgCv2XLsri+LLBW10mO90dpYuqlc+DXtWJXY31Zxxhp\nLVjxO72Ssp9WmADzn4FVLO4gYLDKveBRhdMGri1rZ0waxbFGWN7Yg5/o0otazzE4\nKuzIB3YVoXtSvlWegkpNDYtPsYjL9WQa31isKQATGwKBgQDhl3U70Q4YJrDshQu+\n3uzIz7gVRoheKRP8BXDiSaqRNVrcKWj2vZB9+8TV6qycOk1AOaScD/2i6kNHNOEP\nq3gIrFaTzYpcxyJpDe8sGg7mOlJvx5cNwpssKzo7Q0iBjBUfieD9lWDYKPNAgT+q\nHWMINBZNred8+adOpClI8yj3kwKBgQDGsWYQKY6SE4DPp5vaANE2YFHuHtQrnpe3\n1sw8hYaxhj4lsaeojCGVwJuJlFWVHDdLFNoPhDJxe1KFWcwOgGBMd624SqJJB7qD\nBRSDnpcfgJLkdxdUyCD2pcX4lLwp4Hac6dpG6eBy0o///ME59c+UJA1M7D+Wkboj\nLDsGEPp5RwKBgCThN98xjBZSrPXdwk/P7fHeU3/W6hBKsuOumAfGd0YJ7PK1Kl28\nG9Ucxc8a8GER/vMS+WAyFQr/NUR81pZTN+pjEjxTi90jCPMXvhP9ppXozvVLMdyk\nBe4wmvJ5S28yUXm4drm+I/jyqOHQv3G2ICyFJ2hHl+KMhdeLatxsNDRVAoGAMmyi\n8kcZn4jDj++BZfn/HkWjhULdpZRB/K3Ody2L2VGwQ/CqE+Q8Qbz3vBqg/Y6DmdJY\n5Mcv5gzeDGmVl7iMt9tHgxWtycrkUovfgOemgqAmp0Rx71o6w12euE9G0XndoETY\n2FZSV9GIKfcDMqpnW7kqhvMN0DB7hKGc+RUl+9ECgYEAzc2abglSsKGXOgfPEr12\nkMiOUpWElybAeAAaAj0XCj5sEJxzBZzeXkcbk8v2bLzd6R3mzC/ruAAd6ZqQ2UHB\n1Fi8Je7q2e4BHfaBk5IgEKfrvitUJROHygS9CmiayOOKj8N292n3APDtYnDKTUXV\nnsat8hDfV9SERjJ0UojubG4=\n-----END PRIVATE KEY-----\n",
-    "RESEND_API_KEY": "re_QkNPaiHe_AKNXwrxN3gvLawEbJrXYUAL1"
-  }
+  ]
 }

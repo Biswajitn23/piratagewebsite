@@ -132,6 +132,8 @@ export const createEvent: RequestHandler = async (req, res) => {
     registrationLink: payload.registrationLink,
     slug: payload.slug,
     highlightScene: payload.highlightScene,
+    location: payload.location || "",
+    venue: payload.venue || "",
   };
 
   if (isFirestoreEnabled()) {
