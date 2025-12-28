@@ -21,6 +21,19 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: "dist/spa",
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'vendor-react';
+            if (id.includes('gsap')) return 'vendor-gsap';
+            if (id.includes('three')) return 'vendor-three';
+            return 'vendor';
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1200,
   },
   plugins: [
     react(),
