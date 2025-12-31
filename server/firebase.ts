@@ -1,3 +1,4 @@
+// Touch: force Vercel to include this file in deployment
 import admin from "firebase-admin";
 import { readFileSync } from "fs";
 import { resolve } from "path";
