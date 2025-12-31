@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getFirestore, isFirestoreEnabled } from '../server/firebase';
+import { getFirestore, isFirestoreEnabled } from './firebase';
 import { Timestamp } from 'firebase-admin/firestore';
 import { randomUUID } from 'crypto';
 
