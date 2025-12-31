@@ -161,7 +161,7 @@ const AboutSection = () => {
                     Without his support and leadership, no major event at Piratage would be possible. His motivation and presence at the forefront have ensured the success of events like the AlgoStorm hackathon.
                   </p>
                   <p className="text-base text-muted-foreground leading-relaxed">
-                    Mr. Kumar is dedicated, approachable, and always encourages innovation and teamwork. His positive attitude and support make him a true role model for the club.
+                    He is dedicated, approachable, and always encourages innovation and teamwork. His positive attitude and support make him a true role model for the club.
                   </p>
                 </div>
               </div>
