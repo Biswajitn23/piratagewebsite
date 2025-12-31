@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, Float, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -25,42 +25,18 @@ const HeroScene = ({ pointerIntensity, fill, blur }: HeroSceneProps) => {
 
   return (
     <div className={`${containerClass} ${blur ? "blur-[2px] opacity-80" : ""} pointer-events-none`}>
-      <Suspense fallback={<FallbackVisual />}>
-        <Canvas
-          camera={{ position: [0, 0, 8], fov: 50 }}
-          className="crt-scanlines"
-        >
-          <color attach="background" args={["#060115"]} />
-          <ambientLight intensity={0.4} />
-          <directionalLight
-            position={[6, 4, 8]}
-            intensity={1.1}
-            color={0x8a2be2}
-          />
-          <directionalLight
-            position={[-6, -2, -4]}
-            intensity={0.9}
-            color={0x4b0082}
-          />
-          <Float
-            floatIntensity={motionEnabled ? 1.4 : 0}
-            rotationIntensity={motionEnabled ? 0.6 : 0}
-            speed={motionEnabled ? 1 : 0}
-          >
-            <IridescentKnot pointerIntensity={pointerIntensity} />
-          </Float>
-          <ParticleField motionEnabled={motionEnabled} />
-          <OrbitControls
-            enablePan={false}
-            enableZoom={false}
-            autoRotate={motionEnabled}
-            autoRotateSpeed={0.7}
-            enableDamping
-            dampingFactor={0.06}
-          />
-          <Environment preset="night" />
-        </Canvas>
-      </Suspense>
+      <Canvas camera={{ position: [0, 0, 8], fov: 50 }} className="crt-scanlines">
+        <color attach="background" args={["#060115"]} />
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[6, 4, 8]} intensity={1.1} color={0x8a2be2} />
+        <directionalLight position={[-6, -2, -4]} intensity={0.9} color={0x4b0082} />
+        <Float floatIntensity={motionEnabled ? 1.4 : 0} rotationIntensity={motionEnabled ? 0.6 : 0} speed={motionEnabled ? 1 : 0}>
+          <IridescentKnot pointerIntensity={pointerIntensity} />
+        </Float>
+        <ParticleField motionEnabled={motionEnabled} />
+        <OrbitControls enablePan={false} enableZoom={false} autoRotate={motionEnabled} autoRotateSpeed={0.7} enableDamping dampingFactor={0.06} />
+        <Environment preset="night" />
+      </Canvas>
     </div>
   );
 };
@@ -110,10 +86,10 @@ const IridescentKnot = ({ pointerIntensity }: { pointerIntensity: number }) => {
   return (
     <group>
       <mesh ref={meshRef} material={material}>
-        <torusKnotGeometry args={[1.6, 0.42, 220, 16]} />
+        <torusKnotGeometry args={[1.6, 0.42, 128, 12]} />
       </mesh>
       <mesh material={wireMaterial} scale={1.25}>
-        <torusKnotGeometry args={[1.6, 0.42, 90, 8]} />
+        <torusKnotGeometry args={[1.6, 0.42, 48, 8]} />
       </mesh>
     </group>
   );
@@ -121,7 +97,7 @@ const IridescentKnot = ({ pointerIntensity }: { pointerIntensity: number }) => {
 
 const ParticleField = ({ motionEnabled }: { motionEnabled: boolean }) => {
   const pointsRef = useRef<THREE.Points>(null);
-  const particleCount = 600;
+  const particleCount = 300;
 
   const positions = useMemo(() => {
     const arr = new Float32Array(particleCount * 3);

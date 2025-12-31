@@ -27,6 +27,7 @@ export function initFirebaseIfPossible() {
 
     // Option 2: GOOGLE_APPLICATION_CREDENTIALS (ADC) provided; let admin auto-initialize.
     if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      console.log("[Firebase] Trying GOOGLE_APPLICATION_CREDENTIALS:", process.env.GOOGLE_APPLICATION_CREDENTIALS);
       admin.initializeApp();
       console.log("[Firebase] Initialized with GOOGLE_APPLICATION_CREDENTIALS");
       initialized = true;
@@ -38,7 +39,10 @@ export function initFirebaseIfPossible() {
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const privateKey = normalizePrivateKey(process.env.FIREBASE_PRIVATE_KEY);
 
+    console.log("[Firebase] Checking explicit env: projectId=", !!projectId, "clientEmail=", !!clientEmail, "privateKey=", !!privateKey);
+
     if (projectId && clientEmail && privateKey) {
+      console.log("[Firebase] Initializing with explicit env credentials");
       admin.initializeApp({
         credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
       });

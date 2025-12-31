@@ -19,6 +19,8 @@ export type EventRecord = {
   registrationLink: string;
   slug: string;
   highlightScene?: string;
+  location?: string;
+  venue?: string;
 };
 
 export type MemberRole = "Leadership" | "Events" | "Technical" | "Design" | "Operations";

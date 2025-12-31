@@ -48,6 +48,8 @@ const BackgroundMusic = () => {
       try {
         const Ctor = window.AudioContext || (window as any).webkitAudioContext;
         if (!Ctor) return;
+        // Only create AudioContext after user gesture
+        if (Ctor.prototype.state === 'suspended') return;
         const ctx = new Ctor();
         const gain = ctx.createGain();
         gain.gain.value = 0.0001;
@@ -125,21 +127,20 @@ const BackgroundMusic = () => {
         return;
       } catch (err) {
         // If file failed (missing or autoplay-blocked), fall back to WebAudio pad
-        try {
-          await startWebAudioPad(settings.backgroundMusicVolume ?? 0.12);
-        } catch (e) {
-          console.warn("Failed to start fallback WebAudio pad", e);
-        }
-
-        // Attach a one-time resume to try the audio file on first user interaction.
+        // Only create AudioContext after user gesture
         const tryOnInteract = async () => {
           try {
-            const a = audioRef.current;
-            if (a) await a.play();
+            const Ctor = window.AudioContext || (window as any).webkitAudioContext;
+            if (!Ctor) return;
+            const ctx = new Ctor();
+            if (ctx.state === 'suspended') await ctx.resume();
+            await startWebAudioPad(settings.backgroundMusicVolume ?? 0.12);
+            window.removeEventListener("pointerdown", tryOnInteract);
+            window.removeEventListener("keydown", tryOnInteract);
             stopWebAudioPad();
-          } catch {}
-          window.removeEventListener("pointerdown", tryOnInteract);
-          window.removeEventListener("keydown", tryOnInteract);
+          } catch (e) {
+            console.warn("Failed to start fallback WebAudio pad", e);
+          }
         };
         resumeHandlerRef.current = tryOnInteract;
         window.addEventListener("pointerdown", tryOnInteract, { once: true });

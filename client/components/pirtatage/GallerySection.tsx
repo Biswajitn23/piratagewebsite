@@ -2,6 +2,11 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { GalleryItem } from "@/data/pirtatage";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent
+} from "@/components/ui/dialog";
 
 // We'll fetch gallery items from the server API so uploads in Supabase appear here.
 
@@ -114,10 +119,7 @@ const GallerySection = () => {
         );
       });
 
-      const lenis = (window as any).__lenis;
-      if (lenis && typeof lenis.on === "function") {
-        lenis.on("scroll", () => ScrollTrigger.update());
-      }
+      // Lenis -> ScrollTrigger update is handled globally in `use-lenis`
     }, rootRef);
 
     const onResize = () => ScrollTrigger.refresh();
@@ -217,9 +219,12 @@ const GallerySection = () => {
     return () => io.disconnect();
   }, [isMobile, rootRef]);
 
+  // Dialog state for gallery details
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<GalleryItem | null>(null);
+
   // Mobile simplified layout to avoid heavy paints and touch capture issues
   if (isMobile) {
-
     return (
       <section id="gallery" className="relative mt-24" aria-labelledby="gallery-title">
         <div className="mx-auto max-w-[1400px] px-4 md:px-6">
@@ -234,31 +239,43 @@ const GallerySection = () => {
                   Gallery
                 </h2>
                 <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground/80">
-                  Field ops • Labs • Scrims
+                  Events • Hackathons • Sessions
                 </p>
               </div>
 
               <div className="flex flex-col gap-5 px-4 pb-6">
                 {items.map((item) => (
-                  <figure
-                    key={item.id}
-                    className="relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/20"
-                  >
-                    <img
-                      data-src={item.media}
-                      alt={item.title}
-                      className="w-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                      fetchpriority="low"
-                      sizes="100vw"
-                    />
-                    <figcaption className="p-4 text-sm text-muted-foreground">
-                      <strong className="font-display text-lg text-foreground">{item.title}</strong>
-                      <div className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground/80">{item.category}</div>
-                      <p className="mt-2 text-[13px] leading-relaxed">{item.description}</p>
-                    </figcaption>
-                  </figure>
+                  <Dialog key={item.id} open={open && selected?.id === item.id} onOpenChange={(v) => { setOpen(v); if (!v) setSelected(null); }}>
+                    <DialogTrigger asChild>
+                      <figure
+                        className="relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/20 cursor-pointer"
+                        onClick={() => { setSelected(item); setOpen(true); }}
+                      >
+                        <img
+                          data-src={item.media}
+                          alt={item.title}
+                          className="w-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                          fetchpriority="low"
+                          sizes="100vw"
+                        />
+                        <figcaption className="p-4 text-sm text-muted-foreground">
+                          <strong className="font-display text-lg text-foreground">{item.title}</strong>
+                          <div className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground/80">{item.category}</div>
+                          <p className="mt-2 text-[13px] leading-relaxed">{item.description}</p>
+                        </figcaption>
+                      </figure>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <div className="flex flex-col gap-4">
+                        <h3 className="font-display text-xl text-foreground">{item.title}</h3>
+                        <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground/80">{item.category}</div>
+                        <img src={item.media} alt={item.title} className="w-full rounded-xl object-cover" />
+                        <p className="mt-2 text-[13px] leading-relaxed">{item.description}</p>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 ))}
               </div>
             </div>
@@ -298,32 +315,44 @@ const GallerySection = () => {
               onTouchEnd={handleTouchEnd}
             >
               {items.map((item) => (
-                <figure
-                  key={item.id}
-                  className="gallery-item group relative flex lg:min-w-[420px] lg:max-w-[420px] lg:shrink-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-black/30"
-                >
-                  <img
-                    src={item.media}
-                    alt={item.title}
-                    className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                    decoding="async"
-                    fetchpriority="low"
-                    sizes="(max-width: 640px) 100vw, 420px"
-                  />
-                  <figcaption className="flex flex-1 flex-col justify-end p-5 text-sm text-muted-foreground">
-                    <strong className="font-display text-lg text-foreground">{item.title}</strong>
-                    <span className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground/80">{item.category}</span>
-                    <p className="mt-2 text-[13px] leading-relaxed line-clamp-3">{item.description}</p>
-                  </figcaption>
-                  <div
-                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                    style={{
-                      background:
-                        "radial-gradient(80% 80% at 50% 60%, rgba(173,83,137,0.22), transparent 60%), radial-gradient(60% 60% at 40% 30%, rgba(0,255,209,0.16), transparent 70%)",
-                    }}
-                  />
-                </figure>
+                <Dialog key={item.id} open={open && selected?.id === item.id} onOpenChange={(v) => { setOpen(v); if (!v) setSelected(null); }}>
+                  <DialogTrigger asChild>
+                    <figure
+                      className="gallery-item group relative flex lg:min-w-[420px] lg:max-w-[420px] lg:shrink-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-black/30 cursor-pointer"
+                      onClick={() => { setSelected(item); setOpen(true); }}
+                    >
+                      <img
+                        src={item.media}
+                        alt={item.title}
+                        className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                        fetchpriority="low"
+                        sizes="(max-width: 640px) 100vw, 420px"
+                      />
+                      <figcaption className="flex flex-1 flex-col justify-end p-5 text-sm text-muted-foreground">
+                        <strong className="font-display text-lg text-foreground">{item.title}</strong>
+                        <span className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground/80">{item.category}</span>
+                        <p className="mt-2 text-[13px] leading-relaxed line-clamp-3">{item.description}</p>
+                      </figcaption>
+                      <div
+                        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                        style={{
+                          background:
+                            "radial-gradient(80% 80% at 50% 60%, rgba(173,83,137,0.22), transparent 60%), radial-gradient(60% 60% at 40% 30%, rgba(0,255,209,0.16), transparent 70%)",
+                        }}
+                      />
+                    </figure>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <div className="flex flex-col gap-4">
+                      <h3 className="font-display text-xl text-foreground">{item.title}</h3>
+                      <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground/80">{item.category}</div>
+                      <img src={item.media} alt={item.title} className="w-full rounded-xl object-cover" />
+                      <p className="mt-2 text-[13px] leading-relaxed">{item.description}</p>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               ))}
             </div>
           </div>

@@ -22,16 +22,13 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const rootRef = useRef<HTMLDivElement>(null);
   const [pointerIntensity, setPointerIntensity] = useState(0.4);
+  // Glitch effect is now handled by GlitchScrollEffect
 
   useEffect(() => {
     if (!rootRef.current || !settings.motionEnabled) {
       return;
     }
-
     const ctx = gsap.context(() => {
-      // Animate hero content when the section enters the viewport and also when
-      // re-entering from below (scrolling up). toggleActions ensures play on
-      // enter and play on enterBack.
       gsap.fromTo(
         ".hero-content > *",
         { opacity: 0, y: 30 },
@@ -49,7 +46,6 @@ const HeroSection = () => {
         },
       );
     }, rootRef);
-
     return () => ctx.revert();
   }, [settings.motionEnabled]);
 
@@ -82,20 +78,24 @@ const HeroSection = () => {
     <section
       id="overview"
       ref={rootRef}
-      className="relative flex h-screen min-h-[100vh] w-full flex-col items-center justify-center overflow-hidden text-center px-4 pt-20 pb-8"
+      className="relative z-20 flex h-screen min-h-[100vh] w-full flex-col items-center justify-center overflow-hidden text-center px-4 pt-20 pb-8"
       onMouseMove={handlePointerMove}
     >
+      {/* Add a dark overlay for contrast to ensure text is always visible */}
+      <div className="absolute inset-0 -z-30 bg-black/60 pointer-events-none" />
       <div className="absolute inset-0 -z-20">
         {webglSupported && settings.webglPreferred ? (
-          <HeroScene pointerIntensity={pointerIntensity} fill  />
+          <HeroScene pointerIntensity={pointerIntensity} fill />
         ) : (
           <FallbackHeroVisual />
         )}
       </div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#060115] via-[#060115]/80 to-transparent" />
 
-      <div className="relative z-0 w-full max-w-6xl px-4 flex flex-col items-center justify-center min-h-[80vh]">
-  <div className="space-y-4 sm:space-y-6 md:space-y-8 hero-content">
+      <div
+        className="relative z-0 w-full max-w-6xl px-4 flex flex-col items-center justify-center min-h-[80vh]"
+      >
+        <div className="space-y-4 sm:space-y-6 md:space-y-8 hero-content">
           <h1 className="hero-headline font-display text-3xl leading-tight text-glow drop-shadow-[0_0_28px_rgba(138,43,226,0.45)] sm:text-4xl md:text-5xl lg:text-6xl">
             Piratage : The Ethical Hacking Club
           </h1>
@@ -105,7 +105,7 @@ const HeroSection = () => {
             </p>
           </div>
           <p className="hero-subhead mx-auto max-w-2xl text-sm sm:text-base md:text-lg text-muted-foreground px-2 mt-4 sm:mt-6">
-            Piratage: university defenders turning curiosity into protection. We
+            Piratage: University defenders turning curiosity into protection. We
             are the campus guild of ethical hackers crafting defenses, designing
             Hackathons, and teaching the next wave of guardians.
           </p>
@@ -113,8 +113,8 @@ const HeroSection = () => {
           <div className="mt-16 sm:mt-24 md:mt-32" />
 
           {/* WhatsApp panel removed per user request */}
-  </div>
-  <div className="flex flex-wrap items-center justify-center gap-4 mt-4 sm:mt-6 md:mt-8">
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-4 mt-4 sm:mt-6 md:mt-8">
           <Button
             size="lg"
             className="hero-cta tilt-hover rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-6 py-5 sm:px-8 sm:py-6 text-sm sm:text-base font-semibold text-primary-foreground shadow-glow"

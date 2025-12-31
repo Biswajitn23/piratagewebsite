@@ -93,10 +93,11 @@ const MembersSection = () => {
       id="members"
       ref={rootRef}
       className="team-section relative mx-auto mt-16 md:mt-32 flex max-w-6xl flex-col gap-8 md:gap-12 px-4 md:px-6"
+      style={{ marginTop: 0, paddingTop: 0 }}
       aria-labelledby="members-title"
     >
       <div className="space-y-4 text-center">
-        <h2 id="members-title" className="font-display text-4xl text-glow">
+        <h2 id="members-title" className="font-display text-4xl text-glow" style={{ lineHeight: 1, marginTop: 0 }}>
           The Crew
         </h2>
         <p className="mx-auto max-w-3xl text-base text-muted-foreground">

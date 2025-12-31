@@ -46,57 +46,49 @@ export function useLenisSmoothScroll(
       rafId = requestAnimationFrame(raf);
     };
 
-    Promise.all([
-      import(/* @vite-ignore */ "gsap"),
-      import(/* @vite-ignore */ "gsap/ScrollTrigger"),
-    ])
-      .then(([gsapMod, scrollTriggerMod]) => {
-        const gsap = (gsapMod as any).default || gsapMod;
-        const ScrollTrigger =
-          (scrollTriggerMod as any).ScrollTrigger ||
-          (scrollTriggerMod as any).default;
-        if (!gsap || !ScrollTrigger) return;
+    // Use static imports for GSAP and ScrollTrigger to avoid dynamic import delays
+    try {
+      // @ts-ignore
+      const gsap = require("gsap");
+      // @ts-ignore
+      const ScrollTrigger = require("gsap/ScrollTrigger").ScrollTrigger || require("gsap/ScrollTrigger").default;
+      if (!gsap || !ScrollTrigger) throw new Error("GSAP/ScrollTrigger not found");
 
-        gsap.registerPlugin(ScrollTrigger);
+      gsap.registerPlugin(ScrollTrigger);
 
-        // Tie ScrollTrigger to Lenis
-        lenis.on("scroll", () => ScrollTrigger.update());
-        ScrollTrigger.scrollerProxy(document.documentElement, {
-          scrollTop(value?: number) {
-            if (arguments.length && typeof value === "number") {
-              lenis.scrollTo(value, { immediate: true });
-            }
-            return window.scrollY || document.documentElement.scrollTop;
-          },
-          getBoundingClientRect() {
-            return {
-              top: 0,
-              left: 0,
-              width: window.innerWidth,
-              height: window.innerHeight,
-            } as DOMRect;
-          },
-          pinType: document.body.style.transform ? "transform" : "fixed",
-        });
-
-        gsapTickerFn = (time: number) => {
-          lenis.raf(time * 1000);
-        };
-        gsap.ticker.add(gsapTickerFn);
-        gsap.ticker.lagSmoothing(0);
-        usingGsap = true;
-
-        // Ensure ScrollTrigger measures with our proxy
-        ScrollTrigger.refresh();
-      })
-      .catch(() => {
-        // gsap not available, use fallback RAF
-      })
-      .finally(() => {
-        if (!usingGsap) {
-          startFallbackRaf();
-        }
+      // Tie ScrollTrigger to Lenis
+      lenis.on("scroll", () => ScrollTrigger.update());
+      ScrollTrigger.scrollerProxy(document.documentElement, {
+        scrollTop(value?: number) {
+          if (arguments.length && typeof value === "number") {
+            lenis.scrollTo(value, { immediate: true });
+          }
+          return window.scrollY || document.documentElement.scrollTop;
+        },
+        getBoundingClientRect() {
+          return {
+            top: 0,
+            left: 0,
+            width: window.innerWidth,
+            height: window.innerHeight,
+          } as DOMRect;
+        },
+        pinType: document.body.style.transform ? "transform" : "fixed",
       });
+
+      gsapTickerFn = (time: number) => {
+        lenis.raf(time * 1000);
+      };
+      gsap.ticker.add(gsapTickerFn);
+      gsap.ticker.lagSmoothing(0);
+      usingGsap = true;
+
+      // Ensure ScrollTrigger measures with our proxy
+      ScrollTrigger.refresh();
+    } catch (e) {
+      // Fallback to requestAnimationFrame if GSAP is not available
+      startFallbackRaf();
+    }
 
     return () => {
       cancelAnimationFrame(rafId);

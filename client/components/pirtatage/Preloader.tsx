@@ -55,8 +55,8 @@ const Preloader = ({ onFinish }: PreloaderProps) => {
         osc.start();
         lfo.start();
 
-        // small ramp to audible level
-        gainNode.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 0.03);
+        // small ramp to audible level (raised for louder startup)
+        gainNode.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.03);
 
         // Ensure context is resumed on user interaction if autoplay is blocked
         if (ctx.state === "suspended") {
@@ -75,7 +75,15 @@ const Preloader = ({ onFinish }: PreloaderProps) => {
       }
     };
 
-    createAudio();
+
+    // Only create audio after a user gesture
+    const startAudioOnGesture = () => {
+      createAudio();
+      window.removeEventListener("pointerdown", startAudioOnGesture);
+      window.removeEventListener("keydown", startAudioOnGesture);
+    };
+    window.addEventListener("pointerdown", startAudioOnGesture, { once: true });
+    window.addEventListener("keydown", startAudioOnGesture, { once: true });
 
     const tick = (now: number) => {
       if (!startAt.current) startAt.current = now;
@@ -99,8 +107,9 @@ const Preloader = ({ onFinish }: PreloaderProps) => {
           try {
             gainNode.gain.cancelScheduledValues(ctx.currentTime);
             gainNode.gain.setValueAtTime(Math.max(0.002, gainNode.gain.value), ctx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.045, ctx.currentTime + transient);
-            gainNode.gain.exponentialRampToValueAtTime(0.02, ctx.currentTime + transient + 0.08);
+            // Raise transient peak and baseline to increase perceived loudness
+            gainNode.gain.linearRampToValueAtTime(0.12, ctx.currentTime + transient);
+            gainNode.gain.exponentialRampToValueAtTime(0.04, ctx.currentTime + transient + 0.08);
           } catch {}
         }
       } catch {}
@@ -116,9 +125,12 @@ const Preloader = ({ onFinish }: PreloaderProps) => {
         } catch {}
         setTimeout(() => {
           try {
-            if (osc) osc.stop();
-            if (lfo) lfo.stop();
-            if (ctx) ctx.close();
+            if (osc) try { osc.stop(); } catch {}
+            if (lfo) try { lfo.stop(); } catch {}
+            if (ctx && ctx.state !== "closed") {
+              // close returns a promise — swallow rejections to avoid uncaught errors
+              try { ctx.close().catch(() => {}); } catch {}
+            }
           } catch {}
           setVisible(false);
           onFinish();
@@ -131,9 +143,11 @@ const Preloader = ({ onFinish }: PreloaderProps) => {
     return () => {
       if (raf.current) cancelAnimationFrame(raf.current);
       try {
-        if (osc) osc.stop();
-        if (lfo) lfo.stop();
-        if (ctx) ctx.close();
+        if (osc) try { osc.stop(); } catch {}
+        if (lfo) try { lfo.stop(); } catch {}
+        if (ctx && ctx.state !== "closed") {
+          try { ctx.close().catch(() => {}); } catch {}
+        }
       } catch {}
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,7 +161,7 @@ const Preloader = ({ onFinish }: PreloaderProps) => {
         <div className="mx-auto flex w-full flex-col items-center gap-6 text-center">
           <div className="rounded-full bg-gradient-to-br from-[#07292a] to-[#021026] p-1 shadow-lg">
             <OptimizedImage
-              src="/piratagelogo.ico"
+              src="/piratagelogo.webp"
               alt="Piratage"
               width={112}
               height={112}
