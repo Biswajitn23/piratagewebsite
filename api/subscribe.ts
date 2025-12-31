@@ -5,7 +5,10 @@ import { randomUUID } from 'crypto';
 
 // Helper to send a welcome/confirmation email via Resend.
 async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivated?: boolean; repeat?: boolean }) {
-  if (!process.env.RESEND_API_KEY) return;
+  if (!process.env.RESEND_API_KEY) {
+    console.error('RESEND_API_KEY is not set');
+    return;
+  }
   const { Resend } = await import('resend');
   const resend = new Resend(process.env.RESEND_API_KEY);
   const appUrl = process.env.APP_URL || 'https://piratageauc.vercel.app';
@@ -78,6 +81,19 @@ async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivat
               </a>
             </td>
           </tr>
+  console.log('Attempting to send email to:', email);
+  try {
+    const result = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'Piratage <onboarding@resend.dev>',
+      to: email,
+      subject: subjectBase,
+      html,
+    });
+    console.log('Email sent result:', result);
+  } catch (err) {
+    console.error('Error sending email:', err);
+    throw err;
+  }
           <!-- Social Media -->
           <tr>
             <td align="center" style="padding:10px 30px 30px; border-top:1px dashed #1f2937;">
