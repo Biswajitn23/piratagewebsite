@@ -44,14 +44,16 @@ export function OptimizedImage({
   };
 
   const webpSrc = getWebPSource(src);
+  const safeSrc = encodeURI(src);
+  const safeWebpSrc = webpSrc ? encodeURI(webpSrc) : null;
 
   // If WebP is available, use picture element for progressive enhancement
-  if (webpSrc) {
+  if (safeWebpSrc) {
     return (
       <picture>
-        <source srcSet={webpSrc} type="image/webp" />
+        <source srcSet={safeWebpSrc} type="image/webp" />
         <img
-          src={src}
+          src={safeSrc}
           alt={alt}
           width={width}
           height={height}
@@ -73,7 +75,7 @@ export function OptimizedImage({
   // Fallback for non-convertible images
   return (
     <img
-      src={src}
+      src={safeSrc}
       alt={alt}
       width={width}
       height={height}

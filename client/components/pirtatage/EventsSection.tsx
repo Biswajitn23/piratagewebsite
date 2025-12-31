@@ -1,10 +1,37 @@
+// Animation for Register Now button
+const registerMoveStyle = `
+@keyframes register-move {
+  0%, 100% { transform: translateY(0); }
+  20% { transform: translateY(-2px); }
+  40% { transform: translateY(2px); }
+  60% { transform: translateY(-2px); }
+  80% { transform: translateY(2px); }
+}
+.animate-register-move {
+  animation: register-move 1.6s infinite;
+}
+`;
+
+import EventGalleryDialogContent from "./EventGalleryDialogContent";
 import { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { CalendarDays, ExternalLink, RefreshCw, Timer, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  CalendarDays,
+  RefreshCw,
+  Timer,
+  Zap,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 import { events as staticEvents, type EventRecord } from "@/data/pirtatage";
 import type { EventRecordDTO, ListEventsResponse } from "@shared/api";
 
@@ -13,568 +40,450 @@ if (typeof window !== "undefined") {
 }
 
 const EventsSection = () => {
+  // Inject animation style for button bounce
+  if (typeof document !== "undefined" && !document.getElementById("register-move-style")) {
+    const style = document.createElement("style");
+    style.id = "register-move-style";
+    style.innerHTML = registerMoveStyle;
+    document.head.appendChild(style);
+  }
+  // Inject animated border style ONCE for Register Now button
+  if (typeof document !== "undefined" && !document.getElementById("animated-border-btn-style")) {
+    const style = document.createElement("style");
+    style.id = "animated-border-btn-style";
+    style.innerHTML = `
+      .animated-border-btn {
+        position: relative;
+        z-index: 0;
+        background: transparent;
+      }
+      .animated-border-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.5rem;
+        padding: 2px;
+        background: conic-gradient(from var(--angle,0deg), #00ffd0 10%, #fff 30%, #00ffd0 60%, #222 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        z-index: 1;
+        pointer-events: none;
+        animation: rotate-border-btn 1.5s linear infinite;
+      }
+      @keyframes rotate-border-btn {
+        to { --angle: 360deg; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
   const [allEvents, setAllEvents] = useState<EventRecord[]>(staticEvents);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Derive upcoming / past by date first (more robust). Fall back to `status` when
-  // date is missing or invalid. Upcoming are events with date > now.
-  const upcoming = useMemo(() => {
-    const now = Date.now();
-    return [...allEvents]
-      .filter((event) => {
-        // Exclude explicit 'ongoing' events from upcoming (they have their own section)
-        if (event.status === "ongoing") return false;
-        const t = Date.parse(event.date);
-        if (Number.isNaN(t)) return event.status === "upcoming";
-        return t > now;
-      })
-      .sort((a, b) => (Date.parse(a.date) - Date.parse(b.date)));
-  }, [allEvents]);
-
-  const ongoing = useMemo(() => {
-    return [...allEvents]
-      .filter((event) => event.status === "ongoing")
-      .sort((a, b) => (Date.parse(a.date) - Date.parse(b.date)));
-  }, [allEvents]);
-
-  const past = useMemo(() => {
-    const now = Date.now();
-    return [...allEvents]
-      .filter((event) => {
-        // Ongoing events should not be treated as past
-        if (event.status === "ongoing") return false;
-        const t = Date.parse(event.date);
-        if (Number.isNaN(t)) return event.status === "past";
-        return t <= now;
-      })
-      .sort((a, b) => (Date.parse(b.date) - Date.parse(a.date)));
-  }, [allEvents]);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [horizontalActive, setHorizontalActive] = useState(false);
   const [activeEvent, setActiveEvent] = useState<EventRecord | null>(null);
-  const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
-  const [autoPlay, setAutoPlay] = useState(true);
+  const [horizontalActive, setHorizontalActive] = useState(false);
 
-  // Function to load events
+  const containerRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  /* ---------------- DB FILTERS ---------------- */
+
+  const ongoingEvents = useMemo(() => 
+    allEvents.filter((e) => e.status === "ongoing"), 
+  [allEvents]);
+
+  const upcomingEvents = useMemo(() => {
+    const now = Date.now();
+    return allEvents.filter((e) => {
+      const t = Date.parse(e.date);
+      return e.status === "upcoming" || (!Number.isNaN(t) && t > now && e.status !== "ongoing");
+    });
+  }, [allEvents]);
+
+  const pastEvents = useMemo(() => {
+    const now = Date.now();
+    return allEvents.filter((e) => {
+      const t = Date.parse(e.date);
+      return e.status === "past" || (!Number.isNaN(t) && t <= now && e.status !== "ongoing");
+    });
+  }, [allEvents]);
+
+
+  // --- Past event gallery indices ---
+  const [imgIndices, setImgIndices] = useState<number[]>([]);
+
+  // Auto-cycle past event cards
+  useEffect(() => {
+    setImgIndices(pastEvents.map(() => 0));
+    if (pastEvents.length === 0) return;
+    const interval = setInterval(() => {
+      setImgIndices(prev => prev.map((idx, i) => {
+        const images = [pastEvents[i]?.coverImage, ...(pastEvents[i]?.gallery || [])];
+        if (images.length <= 1) return 0;
+        return (idx + 1) % images.length;
+      }));
+    }, 3500); // Change every 3.5 seconds
+    return () => clearInterval(interval);
+  }, [pastEvents]);
+
+  /* ---------------- DB FETCH ---------------- */
+
   const loadEvents = async () => {
     setIsRefreshing(true);
     try {
-      // Add cache-busting parameter to prevent browser caching
-      const res = await fetch(`/api/events?t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache'
-        }
-      });
-      if (!res.ok) throw new Error("Failed to load events");
+      const res = await fetch(`/api/events?t=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("DB Fetch failed");
       const data = (await res.json()) as ListEventsResponse;
-      const mapped: EventRecord[] = data.events.map((e: EventRecordDTO) => ({
+      
+      const mapped = data.events.map((e: EventRecordDTO) => ({
         ...e,
-        speakers: (e.speakers || []) as EventRecord['speakers'],
-        gallery: (e.gallery || []) as EventRecord['gallery'],
-        coverImage: e.coverImage || '',
-        description: e.description || '',
+        speakers: e.speakers || [],
+        gallery: e.gallery || [],
+        coverImage: e.coverImage || "",
+        description: e.description || "",
       }));
-      if (!mapped.length) {
-        setAllEvents(staticEvents);
-      } else {
-        setAllEvents(mapped);
-      }
-    } catch (_) {
+      setAllEvents(mapped.length ? mapped : staticEvents);
+    } catch {
       setAllEvents(staticEvents);
     } finally {
       setIsRefreshing(false);
     }
   };
 
-  // Auto-play gallery images
-  useEffect(() => {
-    if (!activeEvent || !autoPlay) return;
-    
-    const allImages = [
-      ...(activeEvent.coverImage ? [activeEvent.coverImage] : []),
-      ...(activeEvent.gallery || [])
-    ];
-    
-    if (allImages.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCurrentGalleryIndex((prev) => (prev + 1) % allImages.length);
-    }, 3000); // Change image every 3 seconds
-
-    return () => clearInterval(interval);
-  }, [activeEvent, autoPlay]);
-
-  // Reset gallery index when event changes
-  useEffect(() => {
-    setCurrentGalleryIndex(0);
-    setAutoPlay(true);
-  }, [activeEvent]);
+  /* ---------------- GSAP LOGIC ---------------- */
 
   useEffect(() => {
     loadEvents();
+  }, []);
 
-    const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  useEffect(() => {
+    if (!containerRef.current || pastEvents.length === 0) return;
+
     const isMobile = window.matchMedia("(max-width: 1023px)").matches;
-
-    if (!containerRef.current || isReduced || isMobile) {
-      return;
-    }
+    if (isMobile) return;
 
     const ctx = gsap.context(() => {
       const el = containerRef.current!;
-      const horizontalWrapper = el.querySelector<HTMLElement>(".past-events-track");
-      if (!horizontalWrapper) {
-        return;
-      }
+      const track = el.querySelector(".past-events-track") as HTMLElement;
+      if (!track) return;
 
-      const totalWidth = () => horizontalWrapper.scrollWidth;
-      const viewportWidth = () => el.offsetWidth;
+      const scrollDistance = track.scrollWidth - el.offsetWidth;
 
-      const tween = gsap.to(horizontalWrapper, {
-        x: () => -(Math.max(0, totalWidth() - viewportWidth())),
+      // Primary Horizontal Move
+      const mainTween = gsap.to(track, {
+        x: () => -scrollDistance,
         ease: "none",
+        delay: 0.8, // Increased delay for later horizontal movement
       });
 
-      ScrollTrigger.create({
-        trigger: el,
-        start: "top top",
-        end: () => `+=${Math.max(0, totalWidth() - viewportWidth())}`,
-        pin: true,
-        scrub: 0.6,
-        anticipatePin: 1,
-        fastScrollEnd: true,
-        invalidateOnRefresh: true,
-        onToggle({ isActive }) {
-          setHorizontalActive(isActive);
-        },
-        animation: tween,
-      });
+      // Progress Bar Logic
+if (progressRef.current) {
+  gsap.to(progressRef.current, {
+    scaleX: 1,
+    ease: "none",
+    scrollTrigger: {
+      trigger: el,
+      start: "top 15%",  // Match the start above
+      end: () => `+=${scrollDistance * 1.5}`, // Match the end above
+      scrub: 1,
+    }
+  });
+}
 
-      const lenis = (window as any).__lenis;
-      if (lenis && typeof lenis.on === "function") {
-        lenis.on("scroll", () => ScrollTrigger.update());
-      }
+ScrollTrigger.create({
+  trigger: el,
+  start: "top 16%",      // Adjust this % to change when the heading/box pins
+  end: () => `+=${scrollDistance * 1.5}`, // Multiply scrollDistance to slow down the speed
+  pin: true,
+  scrub: 1.5,              // Increase for a smoother, less "twitchy" scroll
+  animation: mainTween,
+  onToggle: ({ isActive }) => setHorizontalActive(isActive),
+});
     }, containerRef);
 
-    const onResize = () => ScrollTrigger.refresh();
-    window.addEventListener("resize", onResize);
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-      ctx.revert();
-    };
-  }, []);
+    return () => ctx.revert();
+  }, [pastEvents]);
 
   return (
-    <section
-      id="events"
-      className="relative flex flex-col gap-8 md:gap-12 bg-[#04011a]/60 py-12 md:py-24 mt-8 md:mt-14"
-      aria-labelledby="events-title"
-    >
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-6 px-4 md:px-6">
-        <div className="flex flex-col gap-4 text-center lg:text-left">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 id="events-title" className="font-display text-4xl text-glow">
-                Events radar
-              </h2>
-              <p className="text-base text-muted-foreground">
-                Upcoming missions you can RSVP to and a hall of past scrims captured in holographic snapshots.
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={loadEvents}
-              disabled={isRefreshing}
-              className="gap-2 text-xs uppercase tracking-[0.24em] text-muted-foreground hover:text-primary"
-            >
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              {isRefreshing ? 'Refreshing...' : 'Refresh'}
-            </Button>
+    <section id="events" className="relative min-h-screen bg-[#050014] py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-16">
+          <div>
+            <h2 className="font-display text-5xl text-glow text-white">Events Radar</h2>
+            <p className="text-white/40 mt-2">Upcoming missions you can RSVP to and a hall of past scrims captured in holographic snapshots.</p>
           </div>
+          <Button 
+            variant="outline" 
+            onClick={loadEvents} 
+            disabled={isRefreshing}
+            className="border-white/10 bg-white/5 text-white hover:bg-white/10"
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
-        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="space-y-6">
-            {/* Ongoing first */}
-            {ongoing.length > 0 ? (
-              <div className="space-y-4">
-                <h3 className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                  <Timer className="h-4 w-4 text-neon-amber" /> Ongoing Operations
-                </h3>
-                <div className="space-y-6">
-                  {ongoing.map((event) => (
-                    <article
-                      key={event.id}
-                      className="glass-panel relative flex flex-col gap-4 rounded-3xl border border-white/10 p-6 shadow-glass cursor-pointer hover:border-white/20 hover:shadow-glass-lg transition-all"
-                      onClick={() => setActiveEvent(event)}
-                    >
-                      {event.coverImage ? (
-                        <img
-                          src={event.coverImage}
-                          alt={event.title}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-48 w-full rounded-2xl object-cover"
-                        />
-                      ) : null}
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                            {new Date(event.date).toLocaleDateString(undefined, {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                              hour: "numeric",
-                            })}
-                          </p>
-                          <h4 className="font-display text-xl text-foreground">{event.title}</h4>
-                        </div>
-                        <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.24em] text-amber-300">
-                          Ongoing
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{event.description}</p>
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground/80">
-                        {(event.speakers || []).map((speaker) => (
-                          <span key={speaker.name} className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
-                            {speaker.name} • {speaker.role}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex items-end justify-between">
-                        <Button
-                          variant="ghost"
-                          className="gap-2 text-xs uppercase tracking-[0.24em] text-primary"
-                          asChild
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <a href={event.registrationLink} target="_blank" rel="noreferrer">
-                            Join Now <ExternalLink className="h-3.5 w-3.5" />
-                          </a>
-                        </Button>
-                        <p className="text-[10px] text-muted-foreground/60 italic">
-                          Click to see details
-                        </p>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            ) : null}
 
-            {/* Upcoming after Ongoing */}
-            <h3 className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-              <Timer className="h-4 w-4 text-neon-teal" /> Upcoming Operations
-            </h3>
-            <div className="space-y-6">
-              {upcoming.map((event) => (
-                <article
-                  key={event.id}
-                  className="glass-panel relative flex flex-col gap-4 rounded-3xl border border-white/10 p-6 shadow-glass cursor-pointer hover:border-white/20 hover:shadow-glass-lg transition-all"
-                  onClick={() => setActiveEvent(event)}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex flex-col gap-2 mb-3">
-                        <div className="flex items-center gap-2">
-                          <CalendarDays className="h-4 w-4 text-neon-teal" />
-                          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                            {new Date(event.date).toLocaleDateString(undefined, {
-                              weekday: "short",
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Timer className="h-4 w-4 text-neon-teal" />
-                          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                            {new Date(event.date).toLocaleTimeString(undefined, {
-                              hour: "numeric",
-                              minute: "2-digit",
-                              hour12: true,
-                            })}
-                          </p>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-12">
+          
+          {/* LEFT: ACTIVE & UPCOMING */}
+          <div className="space-y-10">
+            {/* ACTIVE */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-2">
+                <Zap className="h-4 w-4 text-teal-400 fill-teal-400/20" />
+                <h3 className="text-[10px] uppercase tracking-[0.4em] text-white/50 font-bold">Ongoing Events</h3>
+              </div>
+              {ongoingEvents.length > 0 ? (
+                ongoingEvents.map(e => (
+                  <div
+                    key={e.id}
+                    onClick={() => setActiveEvent(e)}
+                    className="group cursor-pointer rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center p-4 w-full max-w-md"
+                  >
+                    <div className="w-full flex flex-col items-center justify-between bg-black/30 rounded-lg p-4 overflow-hidden relative">
+                      {/* LIVE badge at top right */}
+                      <div className="absolute top-3 right-3 z-10">
+                        <span className="live-badge-animate text-[#00ffd0] font-bold text-xs px-3 py-1 rounded-full border-2 border-[#00ffd0] shadow-lg bg-transparent animate-blink-slow">LIVE</span>
+                      <style>{`
+                        @keyframes blink-slow {
+                          0%, 100% { opacity: 1; }
+                          50% { opacity: 0.3; }
+                        }
+                        .animate-blink-slow {
+                          animation: blink-slow 1.6s infinite;
+                        }
+                      `}</style>
+                      </div>
+                      <div className="w-full h-32 mb-2 overflow-hidden rounded-md flex-shrink-0 bg-black/20 flex items-center justify-center">
+                        {((e.gallery && e.gallery.length > 0) || e.coverImage) ? (
+                          <img
+                            src={e.gallery && e.gallery.length > 0 ? e.gallery[0] : e.coverImage}
+                            alt={e.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-white/30 text-xs">No Cover Image</span>
+                        )}
+                      </div>
+                      <h4 className="font-display text-lg text-center leading-tight line-clamp-4 w-full max-w-full break-words text-white font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">{e.title}</h4>
+                      <div className="font-bold rounded px-2 py-1 inline-block mb-1 mt-2" style={{color:'#00ffd0',background:'#0a192f'}}>
+                        {new Date(e.date).toLocaleString('en-IN', {
+                          timeZone: 'Asia/Kolkata',
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: true
+                        })} IST
+                      </div>
+                      {e.registrationLink && (
+                        <a
+                          href={e.registrationLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 mb-1 inline-block px-4 py-2 rounded-lg font-bold text-xs shadow-lg hover:scale-105 transition-transform animate-register-move animated-border-btn"
+                          style={{background: 'transparent', color: '#00ffd0', position: 'relative', overflow: 'hidden'}} 
+                          onClick={ev => ev.stopPropagation()}
+                        >
+                          <span className="relative z-10">Register Now</span>
+                        </a>
+                      )}
+                      <div className="text-[15px] text-white/70 text-center mt-2 w-full max-w-full break-words leading-tight">
+                        <div className="mt-1 flex flex-wrap items-center justify-center gap-4">
+                          <span><span className="font-semibold text-white">Venue:</span> <span className="text-[#3fd8ff] font-bold">{e.venue}</span></span>
+                          <span><span className="font-semibold text-white">Location:</span> <span className="text-[#3fd8ff] font-bold">{e.location}</span></span>
                         </div>
                       </div>
-                      <h4 className="font-display text-xl text-foreground mb-2">{event.title}</h4>
-                      <span className="inline-block rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] uppercase tracking-[0.24em] text-muted-foreground mb-3">
-                        {event.type}
-                      </span>
-                      <p className="text-sm text-muted-foreground mb-3">{event.description}</p>
-                      {(event.location || event.venue) && (
-                        <p className="text-xs text-muted-foreground/80">
-                          📍 {event.location}{event.venue ? ` • ${event.venue}` : ''}
-                        </p>
-                      )}
-                      
-                      {/* Register Now button if registration link exists */}
-                      {event.registrationLink && (
-                        <Button
-                          variant="ghost"
-                          className="mt-3 gap-2 text-xs uppercase tracking-[0.24em] text-primary"
-                          asChild
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <a href={event.registrationLink} target="_blank" rel="noreferrer">
-                            Register Now <ExternalLink className="h-3.5 w-3.5" />
-                          </a>
-                        </Button>
-                      )}
-                      
-                      <p className="text-[10px] text-muted-foreground/60 mt-2 italic">
-                        Click to know more details
-                      </p>
-                    </div>
-                    
-                    {/* Show all speaker images for workshops and speaker sessions */}
-                    {(() => {
-                      const eventType = event.type?.toLowerCase() || '';
-                      const showSpeakerPhoto = (eventType.includes('workshop') || eventType.includes('speaker')) 
-                        && !eventType.includes('hackathon') 
-                        && !eventType.includes('ideathon');
-                      
-                      return showSpeakerPhoto && event.speakers && event.speakers.length > 0 ? (
-                        <div className="flex-shrink-0 flex flex-col gap-3">
-                          {event.speakers.slice(0, 3).map((speaker) => (
-                            speaker.image ? (
-                              <div key={speaker.name} className="flex flex-col items-center">
-                                <img
-                                  src={speaker.image}
-                                  alt={speaker.name}
-                                  className="w-24 h-24 rounded-2xl object-cover border border-white/10"
-                                />
-                                <p className="text-xs text-center text-muted-foreground mt-2">
-                                  {speaker.name}
-                                </p>
-                              </div>
-                            ) : null
+                      {e.speakers && e.speakers.length > 0 && (
+                        <div className="flex flex-wrap items-center justify-center gap-2 mt-2 w-full overflow-hidden">
+                          {e.speakers.map((sp, idx) => (
+                            <div key={sp.name + idx} className="flex items-center gap-2 bg-white/10 rounded px-2 py-1 max-w-[10rem] overflow-hidden">
+                              {sp.avatar && <img src={sp.avatar} alt={sp.name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />}
+                              <span className="text-[13px] text-white/80 font-medium truncate">{sp.name}</span>
+                            </div>
                           ))}
                         </div>
-                      ) : null;
-                    })()}
+                      )}
+                    </div>
                   </div>
-                </article>
-              ))}
+                ))
+              ) : (
+                <p className="text-white/20 text-xs italic">No live operations.</p>
+              )}
+            </div>
+
+            {/* UPCOMING */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-2">
+                <Timer className="h-4 w-4 text-purple-400" />
+                <h3 className="text-[10px] uppercase tracking-[0.4em] text-white/50 font-bold">Upcoming Events</h3>
+              </div>
+              {upcomingEvents.length > 0 ? (
+                upcomingEvents.map(e => (
+                  <div
+                    key={e.id}
+                    onClick={() => setActiveEvent(e)}
+                    className="group cursor-pointer rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center p-4 w-full max-w-md"
+                    style={{ minWidth: undefined, minHeight: undefined, maxWidth: undefined, maxHeight: undefined }}
+                  >
+                    <div className="w-full flex flex-col items-center justify-between bg-black/30 rounded-lg p-4 overflow-hidden">
+                      <div className="w-full h-32 mb-2 overflow-hidden rounded-md flex-shrink-0 bg-black/20 flex items-center justify-center">
+                        {((e.gallery && e.gallery.length > 0) || e.coverImage) ? (
+                          <img
+                            src={e.gallery && e.gallery.length > 0 ? e.gallery[0] : e.coverImage}
+                            alt={e.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-white/30 text-xs">No Cover Image</span>
+                        )}
+                      </div>
+                      <h4 className="font-display text-lg text-center leading-tight line-clamp-4 w-full max-w-full break-words text-white font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">{e.title}</h4>
+                      <div className="text-[15px] text-white/70 text-center mt-2 w-full max-w-full break-words leading-tight">
+                        <div className="font-bold rounded px-2 py-1 inline-block mb-1" style={{color:'#00ffd0',background:'#0a192f'}}>
+                          {new Date(e.date).toLocaleString('en-IN', {
+                            timeZone: 'Asia/Kolkata',
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                          })} IST
+                        </div>
+                        <div className="mt-1"><span className="font-semibold text-white">Venue:</span> <span className="text-[#3fd8ff] font-bold">{e.venue}</span></div>
+                        <div><span className="font-semibold text-white">Location:</span> <span className="text-[#3fd8ff] font-bold">{e.location}</span></div>
+                      </div>
+                      {e.speakers && e.speakers.length > 0 && (
+                        <div className="flex flex-wrap items-center justify-center gap-2 mt-2 w-full overflow-hidden">
+                          {e.speakers.map((sp, idx) => (
+                            <div key={sp.name + idx} className="flex items-center gap-2 bg-white/10 rounded px-2 py-1 max-w-[10rem] overflow-hidden">
+                              {sp.avatar && <img src={sp.avatar} alt={sp.name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />}
+                              <span className="text-[13px] text-white/80 font-medium truncate">{sp.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-white/20 text-xs italic">Scanning for signals...</p>
+              )}
             </div>
           </div>
-          <div
-            ref={containerRef}
-            className="relative rounded-[28px] border border-white/10 bg-white/5 overflow-x-auto lg:overflow-hidden"
-            aria-live="polite"
-          >
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#05021a]/90 px-6 py-4">
-              <span className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                <CalendarDays className="h-4 w-4 text-neon-purple" /> Past Operations
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/60">
-                {horizontalActive ? "Drag or scroll" : "Scroll to explore"}
-              </span>
+
+          {/* RIGHT: HALL OF RECORDS */}
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-6 sticky top-[2.5rem] z-20 bg-[#050014]/80 backdrop-blur-md py-3" style={{backdropFilter: 'blur(8px)'}}>
+              <CalendarDays className="h-4 w-4 text-blue-400" />
+              <h3 className="text-[10px] uppercase tracking-[0.4em] text-white/50 font-bold">Past Events</h3>
             </div>
-            <div className="past-events-track flex flex-col lg:flex-row gap-5 px-5 py-5 h-auto lg:h-[360px] lg:will-change-transform overflow-x-auto lg:overflow-visible" style={{ WebkitOverflowScrolling: 'touch' as const }}>
-              {past.map((event) => (
-                <figure
-                  key={event.id}
-                  className="relative flex w-full lg:min-w-[300px] lg:max-w-[340px] lg:shrink-0 flex-col overflow-hidden rounded-[28px] border border-white/10 bg-black/30 min-h-[380px]"
-                >
-                  <img
-                    src={event.coverImage}
-                    alt={event.title}
-                    className="h-48 w-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                    fetchpriority="low"
-                    sizes="(max-width: 1024px) 100vw, 340px"
-                  />
-                  <div className="flex flex-1 flex-col gap-3 p-5 pb-7 text-sm text-muted-foreground min-h-[120px]">
-                    <h4 className="font-display text-lg text-foreground">{event.title}</h4>
-                    <p className="break-words whitespace-pre-line">{event.description}</p>
-                    <button
-                      type="button"
-                      onClick={() => setActiveEvent(event)}
-                      className="w-full inline-flex items-center justify-center gap-2 text-xs uppercase tracking-[0.24em] text-primary rounded-lg border border-primary/30 bg-black/10 px-4 py-2 shadow-md hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary/40"
-                      style={{ minHeight: 36 }}
-                    >
-                      Expand recap
-                    </button>
-                  </div>
-                </figure>
-              ))}
+            <div ref={containerRef} className="relative h-[480px] w-full rounded-3xl border border-white/10 bg-white/5 overflow-hidden backdrop-blur-sm">
+              <div className="past-events-track flex items-center h-full px-6 gap-6">
+                {pastEvents.map((e, i) => {
+                  const images = [e.coverImage, ...(e.gallery || [])];
+                  const imgIdx = imgIndices[i] || 0;
+                  // Animated border CSS for Register Now button
+                  // This must be outside the return to avoid JSX syntax errors
+                  // Only inject once
+                  if (typeof document !== "undefined" && !document.getElementById("animated-border-btn-style")) {
+                    const style = document.createElement("style");
+                    style.id = "animated-border-btn-style";
+                    style.innerHTML = `
+                      .animated-border-btn {
+                        position: relative;
+                        z-index: 0;
+                      }
+                      .animated-border-btn::before {
+                        content: '';
+                        position: absolute;
+                        inset: 0;
+                        border-radius: 0.5rem;
+                        padding: 2px;
+                        background: conic-gradient(from 0deg, #00ffd0, #fff, #00ffd0 100%);
+                        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                        -webkit-mask-composite: xor;
+                        mask-composite: exclude;
+                        z-index: 1;
+                        pointer-events: none;
+                        animation: rotate-border-btn 2s linear infinite;
+                      }
+                      @keyframes rotate-border-btn {
+                        100% { transform: rotate(360deg); }
+                      }
+                    `;
+                    document.head.appendChild(style);
+                  }
+
+                  return (
+                    <div key={e.id} className="min-w-[280px] max-w-md h-[360px] rounded-xl border border-white/10 bg-black/40 flex-shrink-0 group hover:border-purple-500/40 transition-all flex flex-col">
+                      <div className="relative h-1/2 w-full overflow-hidden rounded-t-xl">
+                        <img
+                          src={images[imgIdx]}
+                          alt={e.title}
+                          className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                          onClick={() => setActiveEvent(e)}
+                          style={{ cursor: 'pointer' }}
+                        />
+                        {images.length > 1 && (
+                          <div className="absolute bottom-2 right-2 flex gap-1 bg-black/40 rounded-full px-2 py-1">
+                            {images.map((_, idx) => (
+                              <span
+                                key={idx}
+                                className={`inline-block w-2 h-2 rounded-full ${imgIdx === idx ? "bg-white" : "bg-white/30"}`}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-5 flex-1 flex flex-col justify-between">
+                        <div onClick={() => setActiveEvent(e)} style={{ cursor: 'pointer' }}>
+                          <span className="text-[9px] text-purple-400 font-bold uppercase tracking-[0.2em]">
+                            {new Date(e.date).toLocaleString('en-IN', {
+                              timeZone: 'Asia/Kolkata',
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true
+                            })} IST
+                          </span>
+                          <h4 className="text-white text-lg mt-1 font-display leading-tight">{e.title}</h4>
+                          <p className="text-white/30 text-xs mt-2 line-clamp-2 leading-relaxed">{e.description}</p>
+                        </div>
+                        <div className="flex justify-center pt-2">
+                          <button
+                            className="px-3 py-1 rounded bg-purple-700/80 text-xs text-white font-semibold shadow hover:bg-purple-600 transition-colors"
+                            onClick={() => setActiveEvent(e)}
+                            type="button"
+                          >
+                            Expand Recap
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* PROGRESS BAR */}
+              <div className="absolute bottom-0 left-0 w-full h-1 bg-white/5">
+                <div ref={progressRef} className="h-full bg-gradient-to-r from-teal-500 via-purple-500 to-blue-500 origin-left scale-x-0" />
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <Dialog open={Boolean(activeEvent)} onOpenChange={(open) => (!open ? setActiveEvent(null) : undefined)}>
-        <DialogContent className="glass-panel max-w-4xl border border-white/10 bg-[#060218]/90 text-foreground">
-          <DialogHeader>
-            <DialogTitle className="font-display text-2xl text-glow">
-              {activeEvent?.title}
-            </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
-              {activeEvent?.description}
-            </DialogDescription>
-          </DialogHeader>
-          {activeEvent ? (
-            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="space-y-4">
-                {/* Main gallery image with navigation */}
-                <div className="relative group">
-                  {(() => {
-                    // Create array with cover image first, then gallery images
-                    const allImages = [
-                      ...(activeEvent.coverImage ? [activeEvent.coverImage] : []),
-                      ...(activeEvent.gallery || [])
-                    ];
-                    
-                    return (
-                      <>
-                        <img
-                          src={allImages[currentGalleryIndex] || activeEvent.coverImage}
-                          alt={activeEvent.title}
-                          className="h-64 w-full rounded-3xl object-cover transition-all duration-300"
-                        />
-                        
-                        {/* Navigation buttons - only show if there are multiple images */}
-                        {allImages.length > 1 && (
-                          <>
-                            <button
-                              onClick={() => {
-                                setAutoPlay(false);
-                                setCurrentGalleryIndex((prev) =>
-                                  prev === 0 ? allImages.length - 1 : prev - 1
-                                );
-                              }}
-                              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100"
-                              aria-label="Previous image"
-                            >
-                              <ChevronLeft className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setAutoPlay(false);
-                                setCurrentGalleryIndex((prev) =>
-                                  (prev + 1) % allImages.length
-                                );
-                              }}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white opacity-0 transition-opacity hover:bg-black/70 group-hover:opacity-100"
-                              aria-label="Next image"
-                            >
-                              <ChevronRight className="h-5 w-5" />
-                            </button>
-                            
-                            {/* Image counter */}
-                            <div className="absolute bottom-2 right-2 rounded-full bg-black/60 px-3 py-1 text-xs text-white">
-                              {currentGalleryIndex + 1} / {allImages.length}
-                            </div>
-                          </>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-                
-                {/* Thumbnail gallery */}
-                {(() => {
-                  const allImages = [
-                    ...(activeEvent.coverImage ? [activeEvent.coverImage] : []),
-                    ...(activeEvent.gallery || [])
-                  ];
-                  
-                  return allImages.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {allImages.map((item, index) => (
-                        <button
-                          key={`${item}-${index}`}
-                          onClick={() => {
-                            setAutoPlay(false);
-                            setCurrentGalleryIndex(index);
-                          }}
-                          className={`h-16 w-16 rounded-xl border-2 transition-all ${
-                            currentGalleryIndex === index
-                              ? 'border-primary scale-105'
-                              : 'border-white/10 hover:border-white/30'
-                          }`}
-                        >
-                          <img
-                            src={item}
-                            alt={`${index === 0 ? 'Cover' : 'Gallery'} ${index + 1}`}
-                            className="h-full w-full rounded-lg object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  ) : null;
-                })()}
-              </div>
-              <div className="space-y-4 text-sm text-muted-foreground">
-                <p>
-                  <strong className="text-foreground">Date:</strong> {new Date(activeEvent.date).toLocaleString()}
-                </p>
-                <p>
-                  <strong className="text-foreground">Type:</strong> {activeEvent.type}
-                </p>
-                {(activeEvent.location || activeEvent.venue) && (
-                  <p>
-                    <strong className="text-foreground">Venue:</strong> {activeEvent.location}{activeEvent.venue ? ` • ${activeEvent.venue}` : ''}
-                  </p>
-                )}
-                {activeEvent.speakers && activeEvent.speakers.length > 0 && (
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground mb-2">Speakers</p>
-                    <ul className="space-y-2">
-                      {activeEvent.speakers.map((speaker, idx) => {
-                        // Handle both string format and object format
-                        if (typeof speaker === 'string') {
-                          return (
-                            <li key={idx} className="text-foreground">
-                              • {speaker}
-                            </li>
-                          );
-                        }
-                        return (
-                          <li key={speaker.name || idx} className="flex items-center gap-3">
-                            {speaker.avatar && (
-                              <img
-                                src={speaker.avatar}
-                                alt={speaker.name}
-                                className="h-10 w-10 rounded-full object-cover"
-                              />
-                            )}
-                            <div>
-                              <p className="text-foreground">{speaker.name}</p>
-                              {speaker.role && <p className="text-xs text-muted-foreground/80">{speaker.role}</p>}
-                            </div>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                )}
-                {activeEvent.registrationLink && (
-                  <Button
-                    variant="default"
-                    className="w-full gap-2"
-                    asChild
-                  >
-                    <a href={activeEvent.registrationLink} target="_blank" rel="noreferrer">
-                      Register Now <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </Button>
-                )}
-                {activeEvent.highlightScene ? (
-                  <iframe
-                    src={activeEvent.highlightScene}
-                    title={`${activeEvent.title} highlight scene`}
-                    className="h-48 w-full rounded-2xl border border-white/10"
-                    allow="autoplay"
-                  />
-                ) : null}
-              </div>
-            </div>
-          ) : null}
+
+      <Dialog open={!!activeEvent} onOpenChange={() => setActiveEvent(null)}>
+        <DialogContent className="max-w-2xl bg-[#0a001a] border-white/10 text-white">
+          {activeEvent && (
+            <EventGalleryDialogContent event={activeEvent} />
+          )}
         </DialogContent>
       </Dialog>
     </section>

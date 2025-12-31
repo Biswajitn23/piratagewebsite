@@ -40,7 +40,7 @@ const DEFAULT_SETTINGS: ExperienceSettings = {
   highContrast: false,
   textScale: 1,
   crtEnabled: false,
-  grainEnabled: true,
+  grainEnabled: false,
   audioEnabled: false,
   startupSoundEnabled: true,
   backgroundMusicEnabled: false,

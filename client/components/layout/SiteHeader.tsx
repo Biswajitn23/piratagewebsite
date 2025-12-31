@@ -81,25 +81,30 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
     return () => obs.disconnect();
   }, []);
 
-  // Compact header after hero section (use IntersectionObserver when available)
+  // Compact header after hero section (transparent over hero, opaque after)
   useEffect(() => {
     const hero = typeof document !== "undefined" ? document.getElementById("overview") : null;
     if (hero && typeof IntersectionObserver !== "undefined") {
       const obs = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            // Compact when the hero is no longer intersecting
+            // Compact (opaque) when the hero is no longer intersecting
             setCompact(!entry.isIntersecting);
           });
         },
-        { rootMargin: "-10% 0px -90% 0px", threshold: 0 },
+        { rootMargin: "-1px 0px -99% 0px", threshold: 0 }, // triggers as soon as hero is out of view
       );
       obs.observe(hero);
       return () => obs.disconnect();
     }
 
     // Fallback to simple scroll threshold
-    const onScroll = () => setCompact(window.scrollY > 8);
+    const onScroll = () => {
+      // Use hero height if available, else fallback
+      const heroEl = document.getElementById("overview");
+      const heroHeight = heroEl ? heroEl.offsetHeight : 400;
+      setCompact(window.scrollY > heroHeight - 60);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -174,6 +179,7 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
       )}
       onMouseMove={handlePointer}
     >
+      
       <div
         className="pointer-events-none absolute inset-0 opacity-30 transition-opacity duration-500"
         style={{
@@ -196,7 +202,7 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
             )}
           >
             <OptimizedImage
-              src="/piratagelogo.ico"
+              src="/piratagelogo.webp"
               alt="Piratage logo"
               width={140}
               height={140}
@@ -248,7 +254,7 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
                   to="/"
                   className="flex items-center gap-0 rounded-full font-display text-lg"
                 >
-                  <OptimizedImage src="/piratagelogo.ico" alt="Piratage logo" width={32} height={32} className="h-8 w-8" />
+                  <OptimizedImage src="/piratagelogo.webp" alt="Piratage logo" width={32} height={32} className="h-8 w-8" />
                 </Link>
                 {renderNavLinks("mobile")}
                 <div className="flex flex-col gap-4">

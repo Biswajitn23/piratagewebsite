@@ -7,9 +7,12 @@ import { getFirestore, isFirestoreEnabled } from "../firebase";
  */
 export const handleCalendar: RequestHandler = async (req, res) => {
   try {
+    console.log("[Calendar] Request received");
     if (!isFirestoreEnabled()) {
+      console.log("[Calendar] Firestore not enabled");
       return res.status(503).send("Calendar service unavailable - Firestore not configured");
     }
+    console.log("[Calendar] Firestore enabled, fetching events");
 
     const db = getFirestore();
     // Get all events

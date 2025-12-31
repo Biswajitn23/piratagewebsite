@@ -50,7 +50,7 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
                     height={80}
                     className="h-full w-full rounded-xl border-2 border-primary/50 object-cover shadow-lg shadow-primary/20"
                   />
-                  <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-black bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
+                  <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-black bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)] animate-pulse"></div>
                 </div>
                 <div className="flex-1">
                   <p className="font-display text-lg font-semibold text-foreground">

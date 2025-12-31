@@ -130,7 +130,7 @@ async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivat
           <!-- Header -->
           <tr>
             <td style="padding:30px; text-align:center; color:#22c55e;">
-              <img src="/piratagelogo.jpg" alt="Piratage Logo" style="max-width:120px; margin-bottom:15px;" />
+              <img src="/piratagelogo.webp" alt="Piratage Logo" style="max-width:120px; margin-bottom:15px;" />
               <h1 style="margin:0; font-size:28px; letter-spacing:1px;">
                 ✔ ACCESS GRANTED
               </h1>
