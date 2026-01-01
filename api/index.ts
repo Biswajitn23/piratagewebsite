@@ -8,5 +8,10 @@ export default async function handler(
   res: VercelResponse
 ) {
   // Forward all requests to the Express app
-  return app(req as any, res as any);
+  return new Promise<void>((resolve) => {
+    app(req as any, res as any);
+    res.on('finish', resolve);
+    // Also resolve if no response after timeout
+    setTimeout(resolve, 30000);
+  });
 }
