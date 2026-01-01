@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { isFirestoreEnabled, getFirestore } from "../firebase";
+import { isFirestoreEnabled, getFirestore } from "../firebase.js";
 
 type GalleryRow = {
   id: string;

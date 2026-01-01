@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { getFirestore, isFirestoreEnabled } from "../firebase";
+import { getFirestore, isFirestoreEnabled } from "../firebase.js";
 import emailjs from "@emailjs/nodejs";
 import { Timestamp } from "firebase-admin/firestore";
 import { randomUUID } from "crypto";
