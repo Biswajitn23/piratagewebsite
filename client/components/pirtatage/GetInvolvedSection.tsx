@@ -22,9 +22,8 @@ const GetInvolvedSection = () => {
   const [subscribeMessage, setSubscribeMessage] = useState("");
 
   // Calendar subscription URLs
-  const calendarUrl = typeof window !== "undefined"
-    ? `${window.location.protocol}//${window.location.host}/api/calendar.ics`
-    : "https://piratageauc.vercel.app/api/calendar.ics";
+  // Use deployed ICS feed for Google Calendar subscription
+  const calendarUrl = "https://piratageauc.vercel.app/api/calendar.ics";
   const googleCalendarUrl = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(calendarUrl)}`;
 
   const handleEmailSubscribe = async () => {
