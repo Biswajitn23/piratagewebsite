@@ -21,6 +21,12 @@ const GetInvolvedSection = () => {
   const [subscribing, setSubscribing] = useState(false);
   const [subscribeMessage, setSubscribeMessage] = useState("");
 
+  // Calendar subscription URLs
+  const calendarUrl = typeof window !== "undefined"
+    ? `${window.location.protocol}//${window.location.host}/api/calendar.ics`
+    : "https://piratageauc.vercel.app/api/calendar.ics";
+  const googleCalendarUrl = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(calendarUrl)}`;
+
   const handleEmailSubscribe = async () => {
     if (!email || !email.includes("@")) {
       setSubscribeMessage("Please enter a valid email address");
@@ -188,21 +194,15 @@ const GetInvolvedSection = () => {
               <p className="text-sm text-muted-foreground">
                 Subscribe to get automatic alerts when new events are posted. Receive notifications on your calendar when events start.
               </p>
-              <div 
-                title="Add Piratage Events to Calendar" 
-                className="addeventatc mt-3"
-                style={{display: 'inline-block'}}
-                data-direct="google"
+              <a
+                href={googleCalendarUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 mt-3 gap-2 text-xs uppercase tracking-[0.24em]"
               >
+                <Plus className="h-4 w-4" />
                 Add to Calendar
-                <span className="start">01/01/2025 09:00 AM</span>
-                <span className="end">01/01/2025 05:00 PM</span>
-                <span className="timezone">Asia/Kolkata</span>
-                <span className="title">Piratage Events</span>
-                <span className="description">Stay updated with Piratage ethical hacking events, workshops, and competitions</span>
-                <span className="organizer">Piratage</span>
-                <span className="organizer_email">events@piratageauc.com</span>
-              </div>
+              </a>
             </div>
           </div>
           <div className="glass-panel no-blur-on-mobile flex items-center gap-4 rounded-3xl border border-white/10 p-6">
