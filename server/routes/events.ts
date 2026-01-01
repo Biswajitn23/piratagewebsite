@@ -134,6 +134,7 @@ async function sendEventInvitesToSubscribers(eventId: string) {
       return;
     }
 
+    const appUrl = process.env.APP_URL || 'https://piratageauc.vercel.app';
     const icsDownloadUrl = `${appUrl}/api/download-ics?eventId=${eventId}`;
 
     // Format event date for display
