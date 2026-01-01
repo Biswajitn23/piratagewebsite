@@ -5,10 +5,10 @@ import { randomUUID } from 'crypto';
 
 // Discord webhook function
 async function sendDiscordNotification(record: any) {
-  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  const webhookUrl = process.env.DISCORD_HELP_WEBHOOK_URL;
   
   if (!webhookUrl) {
-    console.warn('DISCORD_WEBHOOK_URL not configured');
+    console.warn('[Discord Help] DISCORD_HELP_WEBHOOK_URL not configured');
     return;
   }
 
