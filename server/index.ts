@@ -6,7 +6,6 @@ import { handleDemo } from "./routes/demo";
 import { createEvent, listEvents } from "./routes/events";
 import { createHelpRequest, listHelpRequests } from "./routes/help";
 import { listGallery } from "./routes/gallery";
-import { handleCalendar } from "./routes/calendar";
 import { subscribeEmail, unsubscribeEmail } from "./routes/subscribe";
 import { sendEventNotifications, getNotificationStats } from "./routes/notifications";
 
@@ -44,11 +43,11 @@ export function createServer() {
   app.get("/api/gallery", listGallery);
   app.post("/api/help", createHelpRequest);
   app.get("/api/help", listHelpRequests);
-  app.get("/api/calendar.ics", handleCalendar);
   app.post("/api/subscribe", subscribeEmail);
   app.get("/api/unsubscribe", unsubscribeEmail);
   app.post("/api/notifications/send", sendEventNotifications);
   app.get("/api/notifications/stats", getNotificationStats);
+  app.post("/api/sync-calendar", syncEventsToCalendar);
 
   // Resend webhook has been removed - replaced with EmailJS
   // EmailJS doesn't use webhooks in the same way, so this endpoint is no longer needed
