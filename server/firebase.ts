@@ -14,7 +14,7 @@ export function initFirebaseIfPossible() {
   try {
     // Option 1: Try to load service account from file in project root
     try {
-      const serviceAccountPath = resolve(process.cwd(), "piratage-d89e7-firebase-adminsdk-fbsvc-d172134019.json");
+      const serviceAccountPath = resolve(process.cwd(), "piratage-d89e7-firebase-adminsdk-fbsvc-a83e802094.json");
       const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, "utf8"));
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
