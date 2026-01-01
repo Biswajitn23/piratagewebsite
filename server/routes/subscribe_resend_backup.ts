@@ -82,24 +82,24 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
   }
 };
 
-// Helper to send a welcome/confirmation email via EmailJS.
+// Helper to send a welcome/confirmation email via Resend.
 async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivated?: boolean; repeat?: boolean }) {
   console.log("📧 Attempting to send welcome email to:", email);
   
-  if (!process.env.EMAILJS_SERVICE_ID || !process.env.EMAILJS_TEMPLATE_ID || !process.env.EMAILJS_PUBLIC_KEY || !process.env.EMAILJS_PRIVATE_KEY) {
-    console.error("❌ EmailJS credentials not set in environment");
-    console.error("Required: EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY, EMAILJS_PRIVATE_KEY");
+  if (!process.env.RESEND_API_KEY) {
+    console.error("❌ RESEND_API_KEY not set in environment");
     return;
   }
   
-  console.log("✅ EmailJS credentials found");
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  console.log("✅ Resend initialized");
   const appUrl = process.env.APP_URL || 'https://piratageauc.vercel.app';
   
   const subjectBase = flags.reactivated
     ? 'Welcome back to Piratage'
     : flags.repeat
     ? 'You are already subscribed'
-    : 'Successfully subscribed to Piratage Event Notifications';
+    : 'Successfully subscribed to Piratage Event Notifications 🎉';
     
   const subtitle = flags.reactivated
     ? 'Your subscription has been reactivated. You will now receive email notifications whenever new events are posted.'
@@ -107,31 +107,119 @@ async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivat
     ? 'You are already subscribed and will continue receiving email notifications for new events.'
     : 'You have successfully subscribed to receive email notifications for new events. Whenever we post a new event, you\'ll get an email with all the details!';
 
-  // EmailJS template parameters - customize these to match your EmailJS template variables
-  const templateParams = {
-    to_email: email,
-    to_name: email.split('@')[0],
-    subject: subjectBase + ' 🎉',
-    subtitle: subtitle,
-    app_url: appUrl,
-    logo_url: 'https://piratageauc.vercel.app/piratagelogo.webp',
-    whatsapp_link: 'https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G',
-    linkedin_link: 'https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/',
-    instagram_link: 'https://www.instagram.com/piratage_club_auc/',
-    discord_link: 'https://discord.gg/9gZKmd8b',
-    year: new Date().getFullYear().toString(),
-  };
+  // ============================================
+  // CUSTOMIZE YOUR EMAIL HTML BELOW
+  // ============================================
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Piratage Subscription Confirmed</title>
+</head>
 
+<body style="margin:0; padding:0; background-color:#0b0f14; font-family: 'Courier New', monospace;">
+
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center">
+
+        <!-- Container -->
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#0f1623; border:1px solid #1f2937; border-radius:10px; margin:30px 0;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding:30px; text-align:center; color:#22c55e;">
+              <img src="/piratagelogo.webp" alt="Piratage Logo" style="max-width:120px; margin-bottom:15px;" />
+              <h1 style="margin:0; font-size:28px; letter-spacing:1px;">
+                ✔ ACCESS GRANTED
+              </h1>
+              <p style="margin-top:10px; color:#9ca3af;">
+                Subscription Successful
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:0 30px 30px; color:#e5e7eb;">
+              <p style="font-size:15px; line-height:1.6;">
+                You have successfully subscribed to
+                <strong style="color:#22c55e;">Piratage Event Notifications</strong>.
+              </p>
+
+              <p style="font-size:15px; line-height:1.6;">
+                From now on, you’ll receive updates about:
+              </p>
+
+              <ul style="color:#9ca3af; font-size:14px; line-height:1.8;">
+                <li>Cybersecurity Workshops</li>
+                <li>Ethical Hacking Events</li>
+                <li>Community Announcements</li>
+              </ul>
+
+              <p style="font-size:14px; color:#6b7280;">
+                Stay curious. Stay ethical.
+              </p>
+            </td>
+          </tr>
+
+          <!-- CTA Buttons -->
+          <tr>
+            <td align="center" style="padding-bottom:30px;">
+              <a href="${appUrl}"
+                 style="background:#22c55e; color:#0b0f14; text-decoration:none; padding:12px 22px; border-radius:6px; font-weight:bold; margin-right:10px; display:inline-block;">
+                Visit Website
+              </a>
+
+              <a href="https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G"
+                 style="background:#16a34a; color:#ffffff; text-decoration:none; padding:12px 22px; border-radius:6px; font-weight:bold; display:inline-block;">
+                Join WhatsApp Group
+              </a>
+            </td>
+          </tr>
+
+          <!-- Social Media -->
+          <tr>
+            <td align="center" style="padding:10px 30px 30px; border-top:1px dashed #1f2937;">
+              <p style="color:#9ca3af; font-size:13px; margin-bottom:12px;">
+                Connect with PIRATAGE
+              </p>
+
+              <a href="https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/" style="color:#22c55e; margin:0 10px; text-decoration:none;">LinkedIn</a>
+              <a href="https://www.instagram.com/piratage_club_auc/" style="color:#22c55e; margin:0 10px; text-decoration:none;">Instagram</a>
+              <a href="https://discord.gg/9gZKmd8b" style="color:#22c55e; margin:0 10px; text-decoration:none;">Discord</a>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 30px; font-size:12px; color:#6b7280; text-align:center; border-top:1px solid #1f2937;">
+              <p style="margin:0 0 8px;">
+                If this wasn’t you, you can safely ignore this message.
+              </p>
+
+              <p style="margin:0;">
+                © ${new Date().getFullYear()} Piratage : The Ethical Hacking Club
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`;
   try {
-    const result = await emailjs.send(
-      process.env.EMAILJS_SERVICE_ID,
-      process.env.EMAILJS_TEMPLATE_ID,
-      templateParams,
-      {
-        publicKey: process.env.EMAILJS_PUBLIC_KEY,
-        privateKey: process.env.EMAILJS_PRIVATE_KEY,
-      }
-    );
+    const result = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'Piratage <onboarding@resend.dev>',
+      to: email,
+      subject: subjectBase + ' 🎉',
+      html,
+    });
     console.log("✅ Email sent successfully:", result);
   } catch (error: any) {
     console.error("❌ Failed to send email:", error?.message || error);
