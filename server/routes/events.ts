@@ -3,12 +3,12 @@ import fs from "fs";
 import path from "path";
 import { CreateEventRequest, CreateEventResponse, EventRecordDTO, ListEventsResponse } from "@shared/api";
 import { randomUUID } from "crypto";
-import { getFirestore, isFirestoreEnabled } from "../firebase";
-import { processPendingNotifications } from "./notifications";
+import { getFirestore, isFirestoreEnabled } from "../firebase.js";
+import { processPendingNotifications } from "./notifications.js";
 import emailjs from "@emailjs/nodejs";
-import { generateICS } from "../utils/ics-generator";
-import { getEventStatus, normalizeEventStatus } from "../utils/event-status";
-import { notifyDiscordNewEvent } from "../utils/discord-webhook";
+import { generateICS } from "../utils/ics-generator.js";
+import { getEventStatus, normalizeEventStatus } from "../utils/event-status.js";
+import { notifyDiscordNewEvent } from "../utils/discord-webhook.js";
 
 const DATA_DIR = process.env.DATA_DIR || ".data";
 const EVENTS_FILE = path.join(DATA_DIR, "events.json");

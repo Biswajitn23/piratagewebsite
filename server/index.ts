@@ -2,14 +2,14 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import crypto from "crypto";
-import { handleDemo } from "./routes/demo";
-import { createEvent, listEvents } from "./routes/events";
-import { createHelpRequest, listHelpRequests } from "./routes/help";
-import { listGallery } from "./routes/gallery";
-import { subscribeEmail, unsubscribeEmail } from "./routes/subscribe";
-import { sendEventNotifications, getNotificationStats } from "./routes/notifications";
-import { sendEventInvites, downloadEventICS } from "./routes/event-invites";
-import { syncEventsToCalendar } from "./routes/sync-calendar";
+import { handleDemo } from "./routes/demo.js";
+import { createEvent, listEvents } from "./routes/events.js";
+import { createHelpRequest, listHelpRequests } from "./routes/help.js";
+import { listGallery } from "./routes/gallery.js";
+import { subscribeEmail, unsubscribeEmail } from "./routes/subscribe.js";
+import { sendEventNotifications, getNotificationStats } from "./routes/notifications.js";
+import { sendEventInvites, downloadEventICS } from "./routes/event-invites.js";
+import { syncEventsToCalendar } from "./routes/sync-calendar.js";
 
 export function createServer() {
   const app = express();

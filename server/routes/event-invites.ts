@@ -1,8 +1,8 @@
 import { RequestHandler } from "express";
-import { getFirestore, isFirestoreEnabled } from "../firebase";
+import { getFirestore, isFirestoreEnabled } from "../firebase.js";
 import { EventRecordDTO } from "@shared/api";
 import emailjs from "@emailjs/nodejs";
-import { generateICS } from "../utils/ics-generator";
+import { generateICS } from "../utils/ics-generator.js";
 
 /**
  * Send event notification emails with calendar invite link to all active subscribers

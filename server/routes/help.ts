@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { randomUUID } from "crypto";
-import { isFirestoreEnabled, getFirestore } from "../firebase";
+import { isFirestoreEnabled, getFirestore } from "../firebase.js";
 import { Timestamp } from "firebase-admin/firestore";
 
 // Discord webhook function
