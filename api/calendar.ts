@@ -39,7 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const snapshot = await db.collection('events').get();
 
     const events = snapshot.docs
-      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .map((doc) => ({ id: doc.id, ...(doc.data() as any) }))
       .filter((event) => !!event.date)
       .sort((a, b) => {
         const aDate = toDate(a.date)?.getTime() ?? Number.POSITIVE_INFINITY;
