@@ -5,6 +5,9 @@ import { CreateEventRequest, CreateEventResponse, EventRecordDTO, ListEventsResp
 import { randomUUID } from "crypto";
 import { getFirestore, isFirestoreEnabled } from "../firebase";
 import { processPendingNotifications } from "./notifications";
+import emailjs from "@emailjs/nodejs";
+import { generateICS } from "../utils/ics-generator";
+import { getEventStatus, normalizeEventStatus } from "../utils/event-status";
 
 const DATA_DIR = process.env.DATA_DIR || ".data";
 const EVENTS_FILE = path.join(DATA_DIR, "events.json");
@@ -85,9 +88,119 @@ async function triggerCalendarAddForAllUsers(eventId: string) {
   }
 }
 
+/**
+ * Send calendar invite emails (.ics) to all active subscribers
+ * Runs as a best-effort background task - failures don't block event creation
+ */
+async function sendEventInvitesToSubscribers(eventId: string) {
+  if (!isFirestoreEnabled()) return;
+
+  // Check EmailJS credentials
+  if (!process.env.EMAILJS_SERVICE_ID || !process.env.EMAILJS_EVENT_TEMPLATE_ID || !process.env.EMAILJS_PUBLIC_KEY || !process.env.EMAILJS_PRIVATE_KEY) {
+    console.warn("[Event Invites] EmailJS not configured, skipping email invites");
+    return;
+  }
+
+  try {
+    const db = getFirestore();
+
+    // Fetch the event
+    const eventDoc = await db.collection("events").doc(eventId).get();
+    if (!eventDoc.exists) {
+      console.warn(`[Event Invites] Event ${eventId} not found`);
+      return;
+    }
+
+    const event: EventRecordDTO = { id: eventDoc.id, ...eventDoc.data() } as EventRecordDTO;
+
+    // Fetch all active subscribers
+    const subscribersSnapshot = await db.collection("subscribers")
+      .where("is_active", "==", true)
+      .get();
+
+    if (subscribersSnapshot.empty) {
+      console.log(`[Event Invites] No active subscribers found for event ${eventId}`);
+      return;
+    }
+
+    const subscribers = subscribersSnapshot.docs.map(doc => doc.data().email);
+
+    // Generate ICS file
+    let icsContent: string;
+    try {
+      icsContent = generateICS(event);
+    } catch (error: any) {
+      console.error(`[Event Invites] Failed to generate ICS for event ${eventId}:`, error?.message || error);
+      return;
+    }
+
+    const icsDownloadUrl = `${appUrl}/api/download-ics?eventId=${eventId}`;
+
+    // Format event date for display
+    const eventDate = new Date(event.date);
+    const formattedDate = eventDate.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    const formattedTime = eventDate.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    console.log(`[Event Invites] Sending calendar invites for "${event.title}" to ${subscribers.length} subscribers`);
+
+    let successCount = 0;
+    let failCount = 0;
+
+    // Send emails to all subscribers
+    for (const email of subscribers) {
+      try {
+        const templateParams = {
+          to_email: email,
+          to_name: email.split('@')[0],
+          subject: `New Event: ${event.title} 📅`,
+          event_title: event.title,
+          event_date: formattedDate,
+          event_time: formattedTime,
+          event_location: event.location || event.venue || 'TBA',
+          event_description: event.description || 'No description provided',
+          event_url: event.registrationLink || `${appUrl}/#events`,
+          ics_download_url: icsDownloadUrl,
+          app_url: appUrl,
+          logo_url: 'https://piratageauc.vercel.app/piratagelogo.webp',
+          year: new Date().getFullYear().toString(),
+        };
+
+        await emailjs.send(
+          process.env.EMAILJS_SERVICE_ID,
+          process.env.EMAILJS_EVENT_TEMPLATE_ID,
+          templateParams,
+          {
+            publicKey: process.env.EMAILJS_PUBLIC_KEY,
+            privateKey: process.env.EMAILJS_PRIVATE_KEY,
+          }
+        );
+
+        successCount++;
+      } catch (error: any) {
+        console.error(`[Event Invites] Failed to send invite to ${email}:`, error?.message || error);
+        failCount++;
+      }
+
+      // Add small delay to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    console.log(`[Event Invites] Sent ${successCount} invites, ${failCount} failed`);
+  } catch (error: any) {
+    console.error("[Event Invites] Error sending invites:", error?.message || error);
+  }
+}
+
 export const listEvents: RequestHandler = async (_req, res) => {
   function normalize(events: EventRecordDTO[]): EventRecordDTO[] {
-    const now = Date.now();
     return events.map((e) => {
       const raw: any = e || {};
       // normalize common casing variations from external sources
@@ -101,20 +214,8 @@ export const listEvents: RequestHandler = async (_req, res) => {
       const locationVal = raw.location || raw.Location || '';
       const venueVal = raw.venue || raw.Venue || '';
 
-      const t = Date.parse(String(dateVal));
-
-      // Prefer an explicit status from the source if provided (case-insensitive).
-      const explicit = (raw.status || raw.Status || '').toString().trim().toLowerCase();
-      let status: EventRecordDTO["status"] = 'past';
-      if (explicit === 'ongoing' || explicit === 'upcoming' || explicit === 'past') {
-        status = explicit as EventRecordDTO["status"];
-      } else if (!Number.isNaN(t)) {
-        // No explicit valid status: derive from date
-        status = t > now ? 'upcoming' : 'past';
-      } else {
-        // Fallback when neither explicit status nor valid date available
-        status = 'past';
-      }
+      // Use utility function to compute status based on current date/time
+      const status = getEventStatus(dateVal, raw.endTime);
 
       return {
         id: raw.id || String(raw._id || raw.ID || ''),
@@ -171,12 +272,16 @@ export const listEvents: RequestHandler = async (_req, res) => {
 export const createEvent: RequestHandler = async (req, res) => {
   const payload = req.body as CreateEventRequest;
   const id = payload.id || payload.slug || randomUUID();
+  
+  // Compute the actual status based on event date/time
+  const computedStatus = getEventStatus(payload.date);
+  
   const record: EventRecordDTO = {
     id,
     title: payload.title,
     date: payload.date,
     type: payload.type,
-    status: payload.status,
+    status: computedStatus,
     coverImage: payload.coverImage,
     gallery: payload.gallery || [],
     description: payload.description,
@@ -211,6 +316,9 @@ export const createEvent: RequestHandler = async (req, res) => {
       
       // Best-effort: add event to all authenticated Google Calendar users (non-blocking)
       triggerCalendarAddForAllUsers(id).catch((e) => console.warn("Calendar automation failed:", e?.message || e));
+      
+      // Best-effort: send calendar invites via email to all subscribers (non-blocking)
+      sendEventInvitesToSubscribers(id).catch((e) => console.warn("Event invites failed:", e?.message || e));
       
       return res.status(201).json({ event: record } satisfies CreateEventResponse);
     } catch (err: any) {

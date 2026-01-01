@@ -1,6 +1,6 @@
 import { useState, type SVGProps } from "react";
 import { CalendarDays, CheckCircle2, Mail, Download, Plus } from "lucide-react";
-import GoogleCalendarSignIn from "../GoogleCalendarSignIn";
+
 
 const WhatsApp = (props: SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
@@ -180,7 +180,22 @@ const GetInvolvedSection = () => {
               </Button>
             </div>
           </div>
-          <GoogleCalendarSignIn />
+          <div className="glass-panel no-blur-on-mobile flex items-center gap-4 rounded-3xl border border-white/10 p-6">
+            <span className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/10">
+              <img src="/discord-icon-svgrepo-com.svg" alt="Discord" className="h-6 w-6" />
+            </span>
+            <div className="flex-1">
+              <h3 className="font-display text-lg text-foreground">Discord Community</h3>
+              <p className="text-sm text-muted-foreground">
+                Join our Discord for real-time event updates, member discussions, and announcements.
+              </p>
+              <Button variant="ghost" className="mt-3 gap-2 text-xs uppercase tracking-[0.24em]" asChild>
+                <a href="https://discord.gg/9gZKmd8b" target="_blank" rel="noreferrer">
+                  Join Discord
+                </a>
+              </Button>
+            </div>
+          </div>
           <div className="glass-panel no-blur-on-mobile flex items-center gap-4 rounded-3xl border border-white/10 p-6">
             <span className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/10 text-accent">
               <Mail className="h-6 w-6" />
