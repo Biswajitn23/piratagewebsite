@@ -1,5 +1,6 @@
 import { useState, type SVGProps } from "react";
 import { CalendarDays, CheckCircle2, Mail, Download, Plus } from "lucide-react";
+import GoogleCalendarSignIn from "../GoogleCalendarSignIn";
 
 const WhatsApp = (props: SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
@@ -20,11 +21,6 @@ const GetInvolvedSection = () => {
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const [subscribeMessage, setSubscribeMessage] = useState("");
-
-  // Calendar subscription URLs
-  // Use deployed ICS feed for Google Calendar subscription
-  const calendarUrl = "https://piratageauc.vercel.app/api/calendar.ics";
-  const googleCalendarUrl = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(calendarUrl)}`;
 
   const handleEmailSubscribe = async () => {
     if (!email || !email.includes("@")) {
@@ -184,26 +180,7 @@ const GetInvolvedSection = () => {
               </Button>
             </div>
           </div>
-          <div className="glass-panel no-blur-on-mobile flex items-center gap-4 rounded-3xl border border-white/10 p-6">
-            <span className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/10 text-neon-purple">
-              <CalendarDays className="h-6 w-6" />
-            </span>
-            <div>
-              <h3 className="font-display text-lg text-foreground">Sync the calendar</h3>
-              <p className="text-sm text-muted-foreground">
-                Subscribe to get automatic alerts when new events are posted. Receive notifications on your calendar when events start.
-              </p>
-              <a
-                href={googleCalendarUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 mt-3 gap-2 text-xs uppercase tracking-[0.24em]"
-              >
-                <Plus className="h-4 w-4" />
-                Add to Calendar
-              </a>
-            </div>
-          </div>
+          <GoogleCalendarSignIn />
           <div className="glass-panel no-blur-on-mobile flex items-center gap-4 rounded-3xl border border-white/10 p-6">
             <span className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/10 text-accent">
               <Mail className="h-6 w-6" />
