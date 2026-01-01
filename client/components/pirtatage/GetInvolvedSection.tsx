@@ -186,25 +186,22 @@ const GetInvolvedSection = () => {
             <div>
               <h3 className="font-display text-lg text-foreground">Sync the calendar</h3>
               <p className="text-sm text-muted-foreground">
-                Auto-subscribe to lab events and get instant updates on drills, outreach days, and research logs.
+                Subscribe to get automatic alerts when new events are posted. Receive notifications on your calendar when events start.
               </p>
-              <Button 
-                variant="ghost" 
-                className="mt-3 gap-2 text-xs uppercase tracking-[0.24em]"
-                onClick={() => {
-                  // Get the full URL to the calendar.ics file
-                  const calendarUrl = `${window.location.protocol}//${window.location.host}/api/calendar.ics`;
-                  
-                  // Use Google Calendar's "Add by URL" feature
-                  const googleCalendarUrl = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(calendarUrl)}`;
-                  
-                  // Open in new window
-                  window.open(googleCalendarUrl, '_blank');
-                }}
+              <div 
+                title="Add Piratage Events to Calendar" 
+                className="addeventatc mt-3"
+                style={{display: 'inline-block'}}
               >
-                <Plus className="h-4 w-4" />
                 Add to Calendar
-              </Button>
+                <span className="start">01/01/2025 09:00 AM</span>
+                <span className="end">01/01/2025 05:00 PM</span>
+                <span className="timezone">Asia/Kolkata</span>
+                <span className="title">Piratage Events</span>
+                <span className="description">Stay updated with Piratage ethical hacking events, workshops, and competitions</span>
+                <span className="organizer">Piratage</span>
+                <span className="organizer_email">events@piratageauc.com</span>
+              </div>
             </div>
           </div>
           <div className="glass-panel no-blur-on-mobile flex items-center gap-4 rounded-3xl border border-white/10 p-6">
