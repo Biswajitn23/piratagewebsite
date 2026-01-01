@@ -8,6 +8,7 @@ import { processPendingNotifications } from "./notifications";
 import emailjs from "@emailjs/nodejs";
 import { generateICS } from "../utils/ics-generator";
 import { getEventStatus, normalizeEventStatus } from "../utils/event-status";
+import { notifyDiscordNewEvent } from "../utils/discord-webhook";
 
 const DATA_DIR = process.env.DATA_DIR || ".data";
 const EVENTS_FILE = path.join(DATA_DIR, "events.json");
@@ -320,6 +321,9 @@ export const createEvent: RequestHandler = async (req, res) => {
       
       // Best-effort: send calendar invites via email to all subscribers (non-blocking)
       sendEventInvitesToSubscribers(id).catch((e) => console.warn("Event invites failed:", e?.message || e));
+      
+      // Best-effort: send Discord webhook notification (non-blocking)
+      notifyDiscordNewEvent(record).catch((e) => console.warn("Discord notification failed:", e?.message || e));
       
       return res.status(201).json({ event: record } satisfies CreateEventResponse);
     } catch (err: any) {
