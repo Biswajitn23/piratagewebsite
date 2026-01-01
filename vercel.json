@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/calendar.ics",
+      "destination": "/api/calendar"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/:path*"
     },
