@@ -20,8 +20,12 @@ export const handleCalendar: RequestHandler = async (req, res) => {
 
     const events = snapshot.docs
       .map(doc => doc.data())
-      .filter(event => event.date) // Only include events with valid dates
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .filter(event => !!event.date) // Only include events with valid dates
+      .sort((a, b) => {
+        const aDate = toDate(a.date)?.getTime() ?? Number.POSITIVE_INFINITY;
+        const bDate = toDate(b.date)?.getTime() ?? Number.POSITIVE_INFINITY;
+        return aDate - bDate;
+      });
 
     console.log(`[Calendar] Found ${events.length} events with valid dates`);
 
@@ -69,8 +73,8 @@ function generateICS(events: any[]): string {
       continue;
     }
 
-    const eventDate = new Date(event.date);
-    if (isNaN(eventDate.getTime())) {
+    const eventDate = toDate(event.date);
+    if (!eventDate || isNaN(eventDate.getTime())) {
       console.warn(`[Calendar] Invalid date for event: ${event.title}, date: ${event.date}`);
       continue;
     }
@@ -113,6 +117,15 @@ function generateICS(events: any[]): string {
   ics += "\r\nEND:VCALENDAR";
 
   return ics;
+}
+
+// Convert Firestore Timestamp or string/Date into Date
+function toDate(value: any): Date | null {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (typeof value.toDate === "function") return value.toDate(); // Firestore Timestamp
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : d;
 }
 
 /**
