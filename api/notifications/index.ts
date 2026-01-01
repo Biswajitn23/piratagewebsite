@@ -10,11 +10,11 @@ export default async function handler(
   const path = req.url || '';
   
   if (path.includes('/send') && req.method === 'POST') {
-    return sendEventNotifications(req as any, res as any);
+    return sendEventNotifications(req as any, res as any, () => {});
   }
   
   if (path.includes('/stats') && req.method === 'GET') {
-    return getNotificationStats(req as any, res as any);
+    return getNotificationStats(req as any, res as any, () => {});
   }
   
   res.status(405).json({ error: 'Method not allowed' });
