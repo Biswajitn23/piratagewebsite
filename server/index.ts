@@ -50,7 +50,9 @@ export function createServer() {
   app.post("/api/notifications/send", sendEventNotifications);
   app.get("/api/notifications/stats", getNotificationStats);
 
-  // Resend webhook for email events with signature verification
+  // Resend webhook has been removed - replaced with EmailJS
+  // EmailJS doesn't use webhooks in the same way, so this endpoint is no longer needed
+  /* 
   app.post(
     "/api/webhooks/resend",
     express.raw({ type: "application/json" }),
@@ -115,6 +117,7 @@ export function createServer() {
       }
     }
   );
+  */
 
   return app;
 }

@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
 import { getFirestore, isFirestoreEnabled } from "../firebase";
-import { Resend } from "resend";
+import emailjs from "@emailjs/nodejs";
 
 /**
- * Send email notifications for pending events using Firestore + Resend
+ * Send email notifications for pending events using Firestore + EmailJS
  */
 
 export async function processPendingNotifications() {
@@ -11,11 +11,9 @@ export async function processPendingNotifications() {
     throw new Error("Email notification service unavailable");
   }
 
-  if (!process.env.RESEND_API_KEY) {
-    throw new Error("Email service not configured. Add RESEND_API_KEY to .env file");
+  if (!process.env.EMAILJS_SERVICE_ID || !process.env.EMAILJS_TEMPLATE_ID || !process.env.EMAILJS_PUBLIC_KEY || !process.env.EMAILJS_PRIVATE_KEY) {
+    throw new Error("Email service not configured. Add EmailJS credentials to .env file");
   }
-
-  const resend = new Resend(process.env.RESEND_API_KEY);
   const db = getFirestore();
 
   // Get pending notifications
@@ -129,12 +127,27 @@ export async function processPendingNotifications() {
         `;
 
         try {
-          await resend.emails.send({
-            from: process.env.FROM_EMAIL || 'Piratage <notifications@piratage.club>',
-            to: subscriber.email,
-            subject: `🚀 New Event: ${event!.title}`,
-            html: emailHtml,
-          });
+          await emailjs.send(
+            process.env.EMAILJS_SERVICE_ID!,
+            process.env.EMAILJS_TEMPLATE_ID!,
+            {
+              to_email: subscriber.email,
+              to_name: subscriber.email.split('@')[0],
+              subject: `🚀 New Event: ${event!.title}`,
+              event_title: event!.title,
+              event_description: event!.description || 'Join us for an exciting event!',
+              event_date: event!.date || 'TBA',
+              event_time: event!.time || 'TBA',
+              event_location: event!.location || 'TBA',
+              app_url: appUrl,
+              unsubscribe_url: unsubscribeUrl,
+              year: new Date().getFullYear().toString(),
+            },
+            {
+              publicKey: process.env.EMAILJS_PUBLIC_KEY!,
+              privateKey: process.env.EMAILJS_PRIVATE_KEY!,
+            }
+          );
           return { success: true, email: subscriber.email };
         } catch (error) {
           console.error(`Failed to send email to ${subscriber.email}:`, error);
