@@ -1,12 +1,4 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/spa",
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/((?!api|_next/static|_next/image|favicon.ico).*)",
-      "destination": "/index.html"
-    }
-  ]
+  "outputDirectory": "dist/spa"
 }
