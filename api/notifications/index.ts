@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import "dotenv/config";
-import { sendEventNotifications, getNotificationStats } from '../server/routes/notifications';
+import { sendEventNotifications, getNotificationStats } from '../../server/routes/notifications';
 
 export default async function handler(
   req: VercelRequest,
