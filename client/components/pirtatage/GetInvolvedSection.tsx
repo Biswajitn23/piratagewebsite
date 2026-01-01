@@ -192,6 +192,7 @@ const GetInvolvedSection = () => {
                 title="Add Piratage Events to Calendar" 
                 className="addeventatc mt-3"
                 style={{display: 'inline-block'}}
+                data-direct="google"
               >
                 Add to Calendar
                 <span className="start">01/01/2025 09:00 AM</span>
