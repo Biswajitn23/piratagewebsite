@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Preloader from "@/components/pirtatage/Preloader";
 import EventsSection from "@/components/pirtatage/EventsSection";
 import PiratageMarquee from "@/components/pirtatage/PiratageMarquee";
+import HeroMarquee from "@/components/pirtatage/HeroMarquee";
 import GallerySection from "@/components/pirtatage/GallerySection";
 import GetInvolvedSection from "@/components/pirtatage/GetInvolvedSection";
 import HeroSection from "@/components/pirtatage/HeroSection";
@@ -78,6 +79,7 @@ const Index = () => {
         />
       ) : null}
       <HeroSection />
+      <HeroMarquee />
 <div className="relative z-10 isolation-isolate mx-auto flex max-w-[1440px] flex-col gap-0 px-6 pb-24 md:pb-28">
   <AboutSection />
   <ProgramsSection />
