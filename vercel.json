@@ -1,14 +1,4 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/spa",
-  "routes": [
-    {
-      "src": "^/api/(.*)$",
-      "dest": "/api"
-    },
-    {
-      "src": "^/(?!api/).*$",
-      "dest": "/"
-    }
-  ]
+  "outputDirectory": "dist/spa"
 }
