@@ -33,6 +33,58 @@ function writeEvents(events: EventRecordDTO[]) {
   fs.renameSync(tmp, EVENTS_FILE);
 }
 
+/**
+ * Automatically add event to all authenticated Google Calendar users
+ * Runs as a best-effort background task - failures don't block event creation
+ */
+async function triggerCalendarAddForAllUsers(eventId: string) {
+  if (!isFirestoreEnabled()) return;
+
+  try {
+    const db = getFirestore();
+    
+    // Get all users with Google Calendar authentication
+    const usersSnapshot = await db.collection("google_calendar_users").get();
+    
+    if (usersSnapshot.empty) {
+      console.log(`[Calendar Automation] No authenticated users found for event ${eventId}`);
+      return;
+    }
+
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.BASE_URL || "http://localhost:5173";
+
+    // Trigger add-event API for each authenticated user
+    const addEventPromises = usersSnapshot.docs.map(async (userDoc) => {
+      const userEmail = userDoc.id;
+      try {
+        const response = await fetch(`${baseUrl}/api/calendar/add-event`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: userEmail, eventId }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          console.warn(`[Calendar Automation] Failed to add event ${eventId} to ${userEmail}:`, error.error);
+        } else {
+          console.log(`[Calendar Automation] Added event ${eventId} to ${userEmail}`);
+        }
+      } catch (error) {
+        console.error(`[Calendar Automation] Error adding event ${eventId} to ${userEmail}:`, error);
+      }
+    });
+
+    // Execute all add-event calls in parallel, don't wait for completion
+    Promise.all(addEventPromises).catch((err) => {
+      console.error("[Calendar Automation] Error during batch add-event:", err);
+    });
+  } catch (error) {
+    console.error("[Calendar Automation] Error fetching authenticated users:", error);
+  }
+}
+
 export const listEvents: RequestHandler = async (_req, res) => {
   function normalize(events: EventRecordDTO[]): EventRecordDTO[] {
     const now = Date.now();
@@ -153,8 +205,13 @@ export const createEvent: RequestHandler = async (req, res) => {
       });
       
       res.setHeader("X-Events-Source", "firestore");
+      
       // Best-effort: process pending notifications immediately (non-blocking)
       processPendingNotifications().catch((e) => console.warn("Email notifications processing failed:", e?.message || e));
+      
+      // Best-effort: add event to all authenticated Google Calendar users (non-blocking)
+      triggerCalendarAddForAllUsers(id).catch((e) => console.warn("Calendar automation failed:", e?.message || e));
+      
       return res.status(201).json({ event: record } satisfies CreateEventResponse);
     } catch (err: any) {
       return res.status(400).json({ error: String(err?.message || err || "Failed to create event") });
