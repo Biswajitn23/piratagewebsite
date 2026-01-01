@@ -4,10 +4,10 @@ import { EventRecordDTO } from "@shared/api";
  * Send event notification to Discord webhook
  */
 export async function notifyDiscordNewEvent(event: EventRecordDTO): Promise<void> {
-  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  const webhookUrl = process.env.DISCORD_EVENTS_WEBHOOK_URL;
 
   if (!webhookUrl) {
-    console.warn("[Discord] DISCORD_WEBHOOK_URL not configured");
+    console.warn("[Discord Events] DISCORD_EVENTS_WEBHOOK_URL not configured");
     return;
   }
 
@@ -113,8 +113,8 @@ export async function notifyDiscordNewEvent(event: EventRecordDTO): Promise<void
       return;
     }
 
-    console.log(`[Discord] Event notification sent for "${event.title}"`);
+    console.log(`[Discord Events] Event notification sent for "${event.title}"`);
   } catch (error: any) {
-    console.error("[Discord] Error sending webhook:", error?.message || error);
+    console.error("[Discord Events] Error sending webhook:", error?.message || error);
   }
 }
