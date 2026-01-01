@@ -14,27 +14,39 @@ const DATA_DIR = process.env.DATA_DIR || ".data";
 const EVENTS_FILE = path.join(DATA_DIR, "events.json");
 
 function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch (err) {
+    // On Vercel, filesystem is read-only, just skip
+    console.log("[Events] Cannot create data directory (read-only filesystem)");
+  }
 }
 
 function readEvents(): EventRecordDTO[] {
-  ensureDataDir();
-  if (!fs.existsSync(EVENTS_FILE)) return [];
   try {
+    ensureDataDir();
+    if (!fs.existsSync(EVENTS_FILE)) return [];
     const raw = fs.readFileSync(EVENTS_FILE, "utf-8");
     const data = JSON.parse(raw);
     if (Array.isArray(data)) return data as EventRecordDTO[];
     return [];
-  } catch {
+  } catch (err) {
+    console.log("[Events] Cannot read events file:", err.message);
     return [];
   }
 }
 
 function writeEvents(events: EventRecordDTO[]) {
-  ensureDataDir();
-  const tmp = `${EVENTS_FILE}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(events, null, 2));
-  fs.renameSync(tmp, EVENTS_FILE);
+  try {
+    ensureDataDir();
+    const tmp = `${EVENTS_FILE}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(events, null, 2));
+    fs.renameSync(tmp, EVENTS_FILE);
+  } catch (err) {
+    console.error("[Events] Cannot write events file (read-only filesystem):", err.message);
+  }
 }
 
 /**
