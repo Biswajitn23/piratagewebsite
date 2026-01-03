@@ -1,6 +1,6 @@
-import type { Request, Response } from 'express';
+import type { RequestHandler } from 'express';
 
-export default async function handler(req: Request, res: Response) {
+const handler: RequestHandler = async (req, res) => {
   try {
     const now = new Date();
     
@@ -35,7 +35,9 @@ export default async function handler(req: Request, res: Response) {
       isHappyEvent: false
     });
   }
-}
+};
+
+export default handler;
 
 function getSpecialDates(year: number): Record<string, string> {
   // Format: "month-date": "Holiday Name"
