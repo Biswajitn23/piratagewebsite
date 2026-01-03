@@ -11,9 +11,13 @@ export async function processPendingNotifications() {
     throw new Error("Email notification service unavailable");
   }
 
-  const eventTemplateId = process.env.EMAILJS_EVENT_TEMPLATE_ID || process.env.EMAILJS_TEMPLATE_ID;
+  const eventTemplateId = process.env.EMAILJS_EVENT_TEMPLATE_ID;
+  if (!eventTemplateId) {
+    console.warn("⚠️ EMAILJS_EVENT_TEMPLATE_ID not configured, falling back to EMAILJS_TEMPLATE_ID");
+  }
+  const templateId = eventTemplateId || process.env.EMAILJS_TEMPLATE_ID;
 
-  if (!process.env.EMAILJS_SERVICE_ID || !eventTemplateId || !process.env.EMAILJS_PUBLIC_KEY || !process.env.EMAILJS_PRIVATE_KEY) {
+  if (!process.env.EMAILJS_SERVICE_ID || !templateId || !process.env.EMAILJS_PUBLIC_KEY || !process.env.EMAILJS_PRIVATE_KEY) {
     throw new Error("Email service not configured. Add EmailJS credentials to .env file");
   }
   const db = getFirestore();
@@ -131,7 +135,7 @@ export async function processPendingNotifications() {
         try {
           await emailjs.send(
             process.env.EMAILJS_SERVICE_ID!,
-            eventTemplateId!,
+            templateId!,
             {
               to_email: subscriber.email,
               to_name: subscriber.email.split('@')[0],

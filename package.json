@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "@emailjs/nodejs": "^5.0.2",
+    "@hcaptcha/react-hcaptcha": "^1.17.4",
+    "axios": "^1.13.2",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "firebase-admin": "^13.5.0",

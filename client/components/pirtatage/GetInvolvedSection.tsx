@@ -1,5 +1,6 @@
-import { useState, type SVGProps } from "react";
+import { useState, useRef, type SVGProps } from "react";
 import { CalendarDays, CheckCircle2, Mail, Download, Plus } from "lucide-react";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 
 const WhatsApp = (props: SVGProps<SVGSVGElement>) => (
@@ -21,10 +22,17 @@ const GetInvolvedSection = () => {
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const [subscribeMessage, setSubscribeMessage] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<HCaptcha>(null);
 
   const handleEmailSubscribe = async () => {
     if (!email || !email.includes("@")) {
       setSubscribeMessage("Please enter a valid email address");
+      return;
+    }
+
+    if (!captchaToken) {
+      setSubscribeMessage("Please complete the captcha verification");
       return;
     }
 
@@ -35,18 +43,24 @@ const GetInvolvedSection = () => {
       const response = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, captchaToken }),
       });
 
       if (response.ok) {
         setSubscribeMessage("Success! You'll receive notifications for new events.");
         setEmail("");
+        setCaptchaToken(null);
+        captchaRef.current?.resetCaptcha();
       } else {
         const data = await response.json();
         setSubscribeMessage(data.error || "Failed to subscribe. Please try again.");
+        setCaptchaToken(null);
+        captchaRef.current?.resetCaptcha();
       }
     } catch (error) {
       setSubscribeMessage("Network error. Please try again.");
+      setCaptchaToken(null);
+      captchaRef.current?.resetCaptcha();
     } finally {
       setSubscribing(false);
     }
@@ -218,10 +232,20 @@ const GetInvolvedSection = () => {
                   size="sm"
                   className="gap-2 text-xs uppercase tracking-[0.24em] w-full sm:w-auto"
                   onClick={handleEmailSubscribe}
-                  disabled={subscribing}
+                  disabled={subscribing || !captchaToken}
                 >
                   {subscribing ? "..." : "Subscribe"}
                 </Button>
+              </div>
+              <div className="mt-3">
+                <HCaptcha
+                  ref={captchaRef}
+                  sitekey={import.meta.env.VITE_HCAPTCHA_SITEKEY}
+                  onVerify={(token) => setCaptchaToken(token)}
+                  onExpire={() => setCaptchaToken(null)}
+                  onError={() => setCaptchaToken(null)}
+                  theme="dark"
+                />
               </div>
               {subscribeMessage && (
                 <p className={`mt-2 text-xs ${subscribeMessage.includes('Success') ? 'text-green-400' : 'text-red-400'}`}>
