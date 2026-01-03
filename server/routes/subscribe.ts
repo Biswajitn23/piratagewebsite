@@ -32,8 +32,7 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
 
     if (existing) {
       if (existing.is_active) {
-        // Optional: send a gentle confirmation (non-blocking)
-        sendWelcomeEmail(email.toLowerCase(), { repeat: true }).catch(() => {});
+        // Already subscribed - no email, just acknowledge
         return res.status(200).json({ message: "Already subscribed" });
       } else {
         // Reactivate subscription
@@ -47,10 +46,7 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
           return res.status(500).json({ error: "Failed to reactivate subscription" });
         }
 
-        // Fire welcome email asynchronously
-        sendWelcomeEmail(email.toLowerCase(), { reactivated: true }).catch((e: any) => {
-          console.error("❌ Welcome email failed (reactivation):", e?.message || e);
-        });
+        // No email on reactivation - only for new subscriptions
         return res.status(200).json({ message: "Subscription reactivated" });
       }
     }
