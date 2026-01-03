@@ -146,6 +146,7 @@ export async function processPendingNotifications() {
               event_time: event!.time || 'TBA',
               event_location: event!.location || 'TBA',
               app_url: appUrl,
+              logo_url: 'https://piratageauc.vercel.app/piratagelogo.webp',
               unsubscribe_url: unsubscribeUrl,
               year: new Date().getFullYear().toString(),
             },
