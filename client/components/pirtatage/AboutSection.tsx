@@ -30,8 +30,8 @@ const AboutSection = () => {
   }, []);
 
   useEffect(() => {
-    // Skip GSAP animations on mobile
-    if (!rootRef.current || isMobile) return;
+    // Run animations on all devices (reduced motion handled by prefers-reduced-motion)
+    if (!rootRef.current) return;
     const ctx = gsap.context(() => {
       // Fade-in About section
       if (rootRef.current) {

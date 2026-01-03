@@ -26,3 +26,10 @@
   animation: tubelight-blink 2.2s linear infinite;
   transition: border-color 0.2s;
 }
+
+/* Ensure tubelight animation works on mobile */
+@media (max-width: 768px) {
+  .tubelight-border {
+    animation: tubelight-blink 2.2s linear infinite !important;
+  }
+}
