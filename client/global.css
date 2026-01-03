@@ -552,7 +552,14 @@
   
   /* Simplify backgrounds */
   body {
-    background: #0d0d0d !important;
+    background: linear-gradient(
+      135deg,
+      #0d0d0d 0%,
+      #1c1c1c 25%,
+      #4b0082 50%,
+      #8a2be2 75%,
+      #f0f0f0 100%
+    ) !important;
   }
 
   /* Prevent horizontal scroll on mobile - critical fixes */
