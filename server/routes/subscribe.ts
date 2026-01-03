@@ -3,17 +3,62 @@ import { getFirestore, isFirestoreEnabled } from "../firebase.js";
 import emailjs from "@emailjs/nodejs";
 import { Timestamp } from "firebase-admin/firestore";
 import { randomUUID } from "crypto";
+import axios from "axios";
+
+// Helper function to verify hCaptcha token
+async function verifyHCaptcha(token: string): Promise<boolean> {
+  try {
+    const secret = process.env.HCAPTCHA_SECRET;
+    if (!secret) {
+      console.error("❌ HCAPTCHA_SECRET not set in environment");
+      return false;
+    }
+
+    const response = await axios.post(
+      "https://hcaptcha.com/siteverify",
+      new URLSearchParams({
+        secret: secret,
+        response: token,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    return response.data.success === true;
+  } catch (error) {
+    console.error("❌ hCaptcha verification error:", error);
+    return false;
+  }
+}
 
 export const subscribeEmail: RequestHandler = async (req, res) => {
   console.log("🔵 Subscribe endpoint called with body:", req.body);
   try {
-    const { email } = req.body;
+    const { email, captchaToken } = req.body;
 
     if (!email || !email.includes("@")) {
       console.log("❌ Invalid email:", email);
       return res.status(400).json({ error: "Valid email is required" });
     }
+
+    // Verify hCaptcha
+    if (!captchaToken) {
+      console.log("❌ No captcha token provided");
+      return res.status(400).json({ error: "Captcha verification required" });
+    }
+
+    console.log("🔍 Verifying hCaptcha token...");
+    const isCaptchaValid = await verifyHCaptcha(captchaToken);
     
+    if (!isCaptchaValid) {
+      console.log("❌ Invalid captcha token");
+      return res.status(400).json({ error: "Captcha verification failed. Please try again." });
+    }
+
+    console.log("✅ Captcha verified successfully");
     console.log("✅ Valid email received:", email);
 
     if (!isFirestoreEnabled()) {
@@ -52,8 +97,9 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
     }
 
     // New subscription
+    let subscriberId: string;
     try {
-      const subscriberId = randomUUID();
+      subscriberId = randomUUID();
       await db.collection("subscribers").doc(subscriberId).set({
         id: subscriberId,
         email: email.toLowerCase(),
@@ -61,17 +107,25 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
         is_active: true,
         unsubscribe_token: randomUUID()
       });
+      console.log("✅ Subscriber saved to Firestore:", subscriberId);
     } catch (error) {
       console.error("Error subscribing email:", error);
       return res.status(500).json({ error: "Failed to subscribe" });
     }
 
-    // Send welcome email asynchronously (non-blocking)
-    sendWelcomeEmail(email.toLowerCase(), { new: true }).catch((e: any) => {
-      console.error("❌ Welcome email failed (new):", e?.message || e, e);
-    });
-
-    res.status(201).json({ message: "Successfully subscribed" });
+    // Send welcome email synchronously (wait for completion)
+    try {
+      await sendWelcomeEmail(email.toLowerCase(), { new: true });
+      console.log("✅ Welcome email sent successfully to:", email);
+      res.status(201).json({ message: "Successfully subscribed. Check your email for confirmation!" });
+    } catch (error: any) {
+      console.error("❌ Welcome email failed but subscription was saved:", error?.message || error);
+      // Still return success since subscription was saved, but log the error
+      res.status(201).json({ 
+        message: "Subscribed, but welcome email may be delayed. Please check your inbox and spam folder.",
+        warning: true 
+      });
+    }
   } catch (error) {
     console.error("Subscribe error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -82,13 +136,19 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
 async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivated?: boolean; repeat?: boolean }) {
   console.log("📧 Attempting to send welcome email to:", email);
   
-  if (!process.env.EMAILJS_SERVICE_ID || !process.env.EMAILJS_TEMPLATE_ID || !process.env.EMAILJS_PUBLIC_KEY || !process.env.EMAILJS_PRIVATE_KEY) {
-    console.error("❌ EmailJS credentials not set in environment");
-    console.error("Required: EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY, EMAILJS_PRIVATE_KEY");
-    return;
+  // Validate credentials
+  const { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY, EMAILJS_PRIVATE_KEY } = process.env;
+  
+  if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY || !EMAILJS_PRIVATE_KEY) {
+    console.error("❌ EmailJS credentials missing:");
+    console.error("  - SERVICE_ID:", EMAILJS_SERVICE_ID ? "✓" : "✗");
+    console.error("  - TEMPLATE_ID:", EMAILJS_TEMPLATE_ID ? "✓" : "✗");
+    console.error("  - PUBLIC_KEY:", EMAILJS_PUBLIC_KEY ? "✓" : "✗");
+    console.error("  - PRIVATE_KEY:", EMAILJS_PRIVATE_KEY ? "✓" : "✗");
+    throw new Error("EmailJS credentials not configured");
   }
   
-  console.log("✅ EmailJS credentials found");
+  console.log("✅ All EmailJS credentials are configured");
   const appUrl = process.env.APP_URL || 'https://piratageauc.vercel.app';
   
   const subjectBase = flags.reactivated
@@ -118,20 +178,30 @@ async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivat
     year: new Date().getFullYear().toString(),
   };
 
+  console.log("📨 Email template params:", {
+    to_email: templateParams.to_email,
+    subject: templateParams.subject,
+  });
+
   try {
+    console.log("🔄 Sending email via EmailJS...");
     const result = await emailjs.send(
-      process.env.EMAILJS_SERVICE_ID,
-      process.env.EMAILJS_TEMPLATE_ID,
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
       templateParams,
       {
-        publicKey: process.env.EMAILJS_PUBLIC_KEY,
-        privateKey: process.env.EMAILJS_PRIVATE_KEY,
+        publicKey: EMAILJS_PUBLIC_KEY,
+        privateKey: EMAILJS_PRIVATE_KEY,
       }
     );
-    console.log("✅ Email sent successfully:", result);
+    console.log("✅ Email sent successfully. Response ID:", result.status);
+    return result;
   } catch (error: any) {
-    console.error("❌ Failed to send email:", error?.message || error);
-    throw error;
+    console.error("❌ Failed to send email. Error details:");
+    console.error("  - Message:", error?.message);
+    console.error("  - Status:", error?.status);
+    console.error("  - Response:", error?.response);
+    throw new Error(`EmailJS error: ${error?.message || 'Unknown error'}`);
   }
 }
 
