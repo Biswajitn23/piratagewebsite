@@ -155,20 +155,13 @@ async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivat
     ? 'Welcome back to Piratage'
     : flags.repeat
     ? 'You are already subscribed'
-    : 'Successfully subscribed to Piratage Event Notifications';
+    : 'Welcome to Piratage: The Ethical Hacking Club';
     
-  const subtitle = flags.reactivated
-    ? 'Your subscription has been reactivated. You will now receive email notifications whenever new events are posted.'
-    : flags.repeat
-    ? 'You are already subscribed and will continue receiving email notifications for new events.'
-    : 'You have successfully subscribed to receive email notifications for new events. Whenever we post a new event, you\'ll get an email with all the details!';
-
   // EmailJS template parameters - customize these to match your EmailJS template variables
   const templateParams = {
     to_email: email,
     to_name: email.split('@')[0],
-    subject: subjectBase + ' 🎉',
-    subtitle: subtitle,
+    subject: subjectBase,
     app_url: appUrl,
     logo_url: 'https://piratageauc.vercel.app/piratagelogo.webp',
     whatsapp_link: 'https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G',
