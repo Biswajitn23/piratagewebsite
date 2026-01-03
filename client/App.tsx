@@ -12,12 +12,15 @@ import { ExperienceSettingsProvider } from "@/contexts/ExperienceSettingsContext
 import Index from "./pages/Index";
 import LegalPlaceholder from "./pages/LegalPlaceholder";
 import NotFound from "./pages/NotFound";
+import { usePerfMonitor } from "@/hooks/use-perf-monitor";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ExperienceSettingsProvider>
+      {/* Log mobile performance in dev only; no impact on prod */}
+      {import.meta.env.DEV && <PerfMonitorGuard />}
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -41,3 +44,8 @@ const App = () => (
 );
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+function PerfMonitorGuard() {
+  usePerfMonitor({ enabled: true, logAfterMs: 6000 });
+  return null;
+}

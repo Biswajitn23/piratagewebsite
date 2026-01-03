@@ -53,6 +53,13 @@ const PiratageMarquee: React.FC = () => {
           animation: scroll-smooth 30s linear infinite;
         }
 
+        /* Faster animation on mobile */
+        @media (max-width: 768px) {
+          .marquee-track-inner {
+            animation: scroll-smooth 6s linear infinite;
+          }
+        }
+
         @keyframes scroll-smooth {
           from { 
             transform: translate3d(0, 0, 0); 

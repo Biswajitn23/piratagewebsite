@@ -188,11 +188,11 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
       />
       <div
         className={cn(
-          "relative mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 sm:px-8",
-          compact ? "py-1 sm:py-2" : "py-3 sm:py-4",
+          "relative mx-auto flex w-full max-w-[1400px] items-center justify-between px-3 sm:px-4 md:px-8",
+          compact ? "py-1 sm:py-2" : "py-2 sm:py-3 md:py-4",
         )}
       >
-        <div className={cn("flex items-center", compact ? "gap-3" : "gap-5")}>
+        <div className={cn("flex items-center", compact ? "gap-2 sm:gap-3" : "gap-3 sm:gap-5")}>
           <Link
             to="/"
             aria-label="Piratage home"
@@ -208,15 +208,15 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
               height={140}
               priority
               className={cn(
-                "rounded-full object-cover sm:h-20 sm:w-20",
-                compact ? "h-12 w-12" : "h-24 w-24",
+                "rounded-full object-cover",
+                compact ? "h-10 w-10 sm:h-12 sm:w-12" : "h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24",
               )}
             />
           </Link>
           <div className="hidden lg:block">{renderNavLinks("desktop")}</div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden md:flex items-center gap-2 sm:gap-3">
             <Button
               variant="ghost"
               size="sm"
@@ -227,13 +227,7 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
               <span>Access</span>
             </Button>
           </div>
-          <Button
-            size="sm"
-            className="tilt-hover hidden md:inline-flex rounded-full bg-primary text-primary-foreground shadow-glow hover:brightness-110"
-            onClick={onJoin}
-          >
-            Join the Crew
-          </Button>
+          {/* Join button hidden while membership is full */}
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -266,12 +260,7 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
                     <Accessibility className="h-4 w-4" /> Accessibility
                     preferences
                   </Button>
-                  <Button
-                    className="bg-primary text-primary-foreground shadow-glow hover:brightness-110"
-                    onClick={onJoin}
-                  >
-                    Join the Crew
-                  </Button>
+                  {/* Join button hidden while membership is full */}
                 </div>
               </div>
             </SheetContent>

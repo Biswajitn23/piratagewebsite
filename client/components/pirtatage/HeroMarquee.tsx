@@ -3,51 +3,51 @@ import React, { useEffect, useState } from 'react';
 const PiratageTicker: React.FC = () => {
     const [displayText, setDisplayText] = useState<string>("Welcome to Piratage Website");
     const [isHappyEvent, setIsHappyEvent] = useState<boolean>(false);
-
-    const API_KEY = 'AIzaSyCBiCRx4fIAe2kT2bwiIziO5rbN6E4-6FI';
-    const CAL_ID = 'en.indian#holiday@group.v.calendar.google.com';
+    const [isMobile, setIsMobile] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchStatus = async () => {
-            const now = new Date();
-            if (now.getMonth() === 0 && now.getDate() === 1) {
-                setDisplayText(`New Year ${now.getFullYear()}`);
-                setIsHappyEvent(true);
-                return;
-            }
-
             try {
-                const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-                const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
-                const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${start}&timeMax=${end}&singleEvents=true`;
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.items && data.items.length > 0) {
-                    setDisplayText(data.items[0].summary);
-                    setIsHappyEvent(true);
-                } else {
-                    setDisplayText("Welcome to Piratage Website");
-                    setIsHappyEvent(false);
+                const response = await fetch('/api/holiday-status');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch holiday status');
                 }
+                const data = await response.json();
+                setDisplayText(data.message);
+                setIsHappyEvent(data.isHappyEvent);
             } catch (error) {
+                console.error('Error fetching holiday status:', error);
                 setDisplayText("Welcome to Piratage Website");
                 setIsHappyEvent(false);
             }
         };
         fetchStatus();
+
+        // Detect mobile for spacing adjustments
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
     const renderItems = () => {
         const items = [];
-        for (let i = 0; i < 15; i++) {
+        const separatorStyle = {
+            ...styles.separator,
+            margin: isMobile ? '0 28px' : '0 50px', // Tighter but consistent gap on mobile
+        };
+        // Duplicate sequence to ensure seamless looping
+        const totalItems = 30;
+        for (let i = 0; i < totalItems; i++) {
             items.push(
-                <div key={i} style={styles.marqueeItem}>
-                    <span style={styles.liveTag}>LIVE</span>
-                    <span style={styles.mainText}>
+                <div key={i} className="ticker-marquee-item" style={styles.marqueeItem}>
+                    <span className="ticker-live-tag" style={styles.liveTag}>LIVE</span>
+                    <span className="ticker-main-text" style={styles.mainText}>
                         {isHappyEvent ? "HAPPY " : ""}{displayText}
                     </span>
-                    <span style={styles.separator}>//</span>
+                    <span className="ticker-separator" style={separatorStyle}>//</span>
                 </div>
             );
         }
@@ -55,8 +55,8 @@ const PiratageTicker: React.FC = () => {
     };
 
     return (
-        <div style={styles.wrapper}>
-            <div style={styles.skewContainer}>
+        <div className="ticker-wrapper" style={styles.wrapper}>
+            <div className="ticker-skew-container" style={styles.skewContainer}>
                 <div className="ticker-scroll" style={styles.content}>
                     {renderItems()}
                 </div>
@@ -68,6 +68,45 @@ const PiratageTicker: React.FC = () => {
                         display: flex;
                         white-space: nowrap;
                         animation: ticker-move 25s linear infinite;
+                        align-items: center;
+                    }
+
+                    /* Mobile optimizations */
+                    @media (max-width: 768px) {
+                        .ticker-scroll {
+                            animation: ticker-move 6s linear infinite;
+                        }
+                        
+                        .ticker-wrapper {
+                            padding: 20px 0 !important;
+                        }
+                        
+                        .ticker-skew-container {
+                            transform: skewY(0deg) !important;
+                            padding: 8px 0 !important;
+                        }
+                        
+                        .ticker-marquee-item {
+                            font-size: 1rem !important;
+                            align-items: center !important;
+                        }
+                        
+                        .ticker-live-tag {
+                            font-size: 0.6rem !important;
+                            padding: 2px 6px !important;
+                            margin-right: 10px !important;
+                            display: inline-flex !important;
+                            align-items: center !important;
+                        }
+                        
+                        .ticker-main-text {
+                            display: inline-flex !important;
+                            align-items: center !important;
+                        }
+                        
+                        .ticker-separator {
+                            font-size: 1rem !important;
+                        }
                     }
 
                     @keyframes ticker-move {
@@ -128,7 +167,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         margin: '0 50px',
         color: '#ff0000',
         fontSize: '1.2rem',
-    }
+    },
+    // Note: Use inline media query handling in component for mobile spacing
 };
 
 export default PiratageTicker;

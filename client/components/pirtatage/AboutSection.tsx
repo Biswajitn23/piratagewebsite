@@ -5,6 +5,7 @@ import { Shield, Sparkles, UserCheck, ChevronRight, ChevronLeft } from "lucide-r
 
 import { Badge } from "@/components/ui/badge";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { Picture } from "@/components/ui/picture";
 import {
   Dialog,
   DialogContent,
@@ -17,9 +18,20 @@ import {
 const AboutSection = () => {
   const rootRef = useRef<HTMLDivElement>(null);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile
+  useEffect(() => {
+    const mm = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mm.matches);
+    update();
+    mm.addEventListener("change", update);
+    return () => mm.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
-    if (!rootRef.current) return;
+    // Skip GSAP animations on mobile
+    if (!rootRef.current || isMobile) return;
     const ctx = gsap.context(() => {
       // Fade-in About section
       if (rootRef.current) {
@@ -86,26 +98,26 @@ const AboutSection = () => {
     <section
       id="about"
       ref={rootRef}
-      className="relative mx-auto mt-4 md:mt-6 lg:mt-8 max-w-6xl px-4 md:px-6 overflow-visible"
+      className="relative mx-auto mt-6 md:mt-6 lg:mt-8 max-w-6xl px-3 sm:px-4 md:px-6 overflow-visible"
       aria-labelledby="about-title"
     >
       {/* SIDE BUTTON - Outside the box on the right */}
       <button
         onClick={() => setIsFlipped(!isFlipped)}
-        className="absolute -right-2 md:-right-6 top-[35%] -translate-y-1/2 z-50 flex items-center gap-1 bg-neon-teal hover:bg-white text-black font-bold py-6 px-1 md:px-2 rounded-r-xl transition-all duration-300 shadow-[0_0_20px_rgba(20,255,236,0.6)] border-l border-white/20"
+        className="absolute -right-1 sm:-right-2 md:-right-6 top-[35%] -translate-y-1/2 z-50 flex items-center gap-1 bg-neon-teal hover:bg-white text-black font-bold py-4 sm:py-6 px-0.5 sm:px-1 md:px-2 rounded-r-lg sm:rounded-r-xl transition-all duration-300 shadow-[0_0_20px_rgba(20,255,236,0.6)] border-l border-white/20"
       >
-        <span className="[writing-mode:vertical-lr] rotate-180 uppercase tracking-widest text-[10px] md:text-xs">
+        <span className="[writing-mode:vertical-lr] rotate-180 uppercase tracking-widest text-[8px] sm:text-[10px] md:text-xs">
           {isFlipped ? "About Club" : "Faculty Mentor"}
         </span>
-        {isFlipped ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        {isFlipped ? <ChevronLeft size={12} className="sm:w-[14px] sm:h-[14px]" /> : <ChevronRight size={12} className="sm:w-[14px] sm:h-[14px]" />}
       </button>
 
-      <div className="w-full flex justify-start pt-8 pb-4">
-        <h2 className="font-display text-4xl text-glow text-left text-neon-teal">About</h2>
+      <div className="w-full flex justify-start pt-6 sm:pt-8 pb-3 sm:pb-4">
+        <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-glow text-left text-neon-teal">About</h2>
       </div>
 
       {/* 3D FLIP CONTAINER */}
-      <div className="relative w-full min-h-[440px] md:min-h-[520px] [perspective:2000px]">
+      <div className="relative w-full min-h-[700px] sm:min-h-[650px] md:min-h-[520px] [perspective:2000px]">
         <div
           className="relative w-full h-full transition-all duration-700 [transform-style:preserve-3d]"
           style={{ transform: `rotateY(${isFlipped ? 180 : 0}deg)` }}
@@ -116,12 +128,12 @@ const AboutSection = () => {
             style={{ position: 'relative', zIndex: isFlipped ? 1 : 2 }}
           >
             <div className="relative h-full flex flex-col md:flex-row">
-              <div className="space-y-4 md:space-y-6 p-6 md:p-8 lg:p-12 relative z-10 md:w-1/2 text-left">
-                <h2 id="about-title" className="font-display text-2xl sm:text-3xl lg:text-4xl text-glow relative inline-block">
+              <div className="space-y-3 sm:space-y-4 md:space-y-6 p-4 sm:p-6 md:p-8 lg:p-12 relative z-10 w-full md:w-1/2 text-left">
+                <h2 id="about-title" className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-glow relative inline-block">
                   What is PIRATAGE CLUB?
-                  <span className="about-underline blink-underline absolute left-0 -bottom-1 h-1 w-full bg-neon-teal/60 rounded-full origin-left scale-x-0" />
+                  <span className="about-underline blink-underline absolute left-0 -bottom-1 h-1 w-full bg-neon-teal/60 rounded-full origin-left scale-x-100 sm:scale-x-0" />
                 </h2>
-                <div className="space-y-4 text-base text-muted-foreground leading-relaxed">
+                <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
                   <p>
                     In the spirit of ethical hacking and cybersecurity excellence, Piratage is a student-driven community dedicated to learning, practicing, and mastering the art of security.
                   </p>
@@ -133,12 +145,12 @@ const AboutSection = () => {
                   </p>
                 </div>
               </div>
-              <div className="hidden md:flex items-center justify-center absolute right-0 top-0 h-full w-1/2 rounded-r-3xl overflow-hidden p-0">
+              <div className="flex items-center justify-center md:absolute md:right-0 md:top-0 md:h-full md:w-1/2 w-full h-64 sm:h-72 md:h-full md:rounded-r-3xl overflow-hidden p-6 md:p-0 mt-4 md:mt-0 bg-black/20 md:bg-transparent rounded-2xl md:rounded-none md:desktop-animate-slide-right">
                 <OptimizedImage
                   src="/bgremove.svg"
                   alt="Piratage Logo"
-                  className="object-contain piratage-logo-zoom"
-                  style={{ width: "100%", height: "100%", maxWidth: "100%", maxHeight: "100%", transform: "scale(1.5) translateY(-12%)" }}
+                  className="object-contain piratage-logo-zoom max-w-full max-h-full md:desktop-animate-float"
+                  style={{ width: "90%", height: "90%", transform: isMobile ? "scale(1.3)" : "scale(1.5) translateY(-12%)" }}
                 />
               </div>
             </div>
@@ -148,30 +160,30 @@ const AboutSection = () => {
             className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-3xl border border-neon-purple/30 bg-gradient-to-b from-white/5 to-black/20 backdrop-blur-xl overflow-hidden"
             style={{ zIndex: isFlipped ? 2 : 1 }}
           >
-            <div className="relative h-full flex flex-col md:flex-row">
-              <div className="space-y-4 md:space-y-6 p-6 md:p-8 lg:p-12 relative z-10 md:w-1/2 text-left">
-                <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl text-glow text-neon-purple">Faculty Mentor</h2>
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bold text-white">Mr. Pawan Kumar</h3>
-                  <p className="text-neon-purple font-medium uppercase tracking-widest text-sm">Assistant Professor, ASET / AIIT</p>
-                  <p className="text-base text-muted-foreground leading-relaxed">
+            <div className="relative h-full flex flex-col md:flex-row overflow-hidden pb-4 md:pb-0">
+              <div className="space-y-3 md:space-y-4 p-4 sm:p-6 md:p-8 lg:p-12 relative z-10 w-full md:w-1/2 text-left">
+                <h2 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl text-glow text-neon-purple">Faculty Mentor</h2>
+                <div className="space-y-2 md:space-y-4">
+                  <h3 className="text-xl md:text-2xl font-bold text-white">Mr. Pawan Kumar</h3>
+                  <p className="text-neon-purple font-medium uppercase tracking-widest text-xs md:text-sm">Assistant Professor, ASET / AIIT</p>
+                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                     Under the expert guidance of <span className="text-neon-teal font-bold">Mr. Pawan Kumar</span>, Piratage Club fosters an environment of academic excellence and practical skill development in the field of cybersecurity at Amity University Chhattisgarh.
                   </p>
-                  <p className="text-base text-muted-foreground leading-relaxed">
+                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                     Without his support and leadership, no major event at Piratage would be possible. His motivation and presence at the forefront have ensured the success of events like the AlgoStorm hackathon.
                   </p>
-                  <p className="text-base text-muted-foreground leading-relaxed">
+                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                     He is dedicated, approachable, and always encourages innovation and teamwork. His positive attitude and support make him a true role model for the club.
                   </p>
                 </div>
               </div>
-              <div className="hidden md:flex items-center justify-center md:w-1/2 p-12">
-                <div className="absolute right-0 top-0 h-full w-1/2">
+              <div className="flex items-start md:items-center justify-center md:w-1/2 w-full md:h-auto p-4 md:p-12 mt-0 md:mt-0">
+                <div className="relative w-full h-72 sm:h-80 md:h-full md:w-1/2 md:absolute md:right-0 md:top-0 max-w-xs md:max-w-none mx-auto">
                   <img
                     src="/pawan.jpg"
                     alt="Mr. Pawan Kumar"
-                    className="w-full h-full object-contain"
-                    style={{ minHeight: 0, minWidth: 0 }}
+                    className="w-full h-full object-cover object-top md:object-contain rounded-xl md:rounded-none border-2 border-neon-purple/50 md:border-0"
+                    loading="eager"
                   />
                 </div>
               </div>
@@ -185,8 +197,8 @@ const AboutSection = () => {
 
       {/* MISSION CARDS (UNCHANGED ORIGINAL CODE) */}
       <div className="grid gap-8 lg:grid-cols-3 mt-10">
-        <article className="mission-card group relative flex flex-col gap-4 rounded-3xl border border-white/15 bg-white/8 p-8 shadow-glass backdrop-blur-xl">
-          <Shield className="h-8 w-8 text-neon-teal" aria-hidden="true" />
+        <article className="mission-card group relative flex flex-col gap-4 rounded-3xl border border-white/15 bg-white/8 p-8 shadow-glass backdrop-blur-xl md:desktop-hover-lift md:desktop-animate-fade-in-up" style={{animationDelay: '0.1s'}}>
+          <Shield className="h-8 w-8 text-neon-teal md:desktop-animate-float" aria-hidden="true" />
           <h3 className="font-display text-xl text-foreground">Ethical Security First</h3>
           <p className="text-base text-muted-foreground leading-relaxed">
             We follow responsible disclosure and ethical hacking practices. Every member commits to using skills for protection, not exploitation—keeping systems, users, and institutions safe.
@@ -235,8 +247,8 @@ const AboutSection = () => {
           </div>
         </article>
 
-        <article className="mission-card group relative flex flex-col gap-4 rounded-3xl border border-white/15 bg-white/8 p-8 shadow-glass backdrop-blur-xl">
-          <Sparkles className="h-8 w-8 text-neon-purple" aria-hidden="true" />
+        <article className="mission-card group relative flex flex-col gap-4 rounded-3xl border border-white/15 bg-white/8 p-8 shadow-glass backdrop-blur-xl md:desktop-hover-lift md:desktop-animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+          <Sparkles className="h-8 w-8 text-neon-purple md:desktop-animate-float" aria-hidden="true" />
           <h3 className="font-display text-xl text-foreground">Compete, Build & Grow</h3>
           <p className="text-base text-muted-foreground leading-relaxed">
             Through workshops, hackathons, and guided practice sessions, members develop practical cybersecurity skills by working on real-world scenarios and collaborative challenges.
@@ -249,8 +261,8 @@ const AboutSection = () => {
           </div>
         </article>
 
-        <article className="mission-card group relative flex flex-col gap-4 rounded-3xl border border-white/15 bg-white/8 p-8 shadow-glass backdrop-blur-xl">
-          <UserCheck className="h-8 w-8 text-accent" aria-hidden="true" />
+        <article className="mission-card group relative flex flex-col gap-4 rounded-3xl border border-white/15 bg-white/8 p-8 shadow-glass backdrop-blur-xl md:desktop-hover-lift md:desktop-animate-fade-in-up" style={{animationDelay: '0.3s'}}>
+          <UserCheck className="h-8 w-8 text-accent md:desktop-animate-float" aria-hidden="true" />
           <h3 className="font-display text-xl text-foreground">Learn Together</h3>
           <p className="text-base text-muted-foreground leading-relaxed">
             Beginner or experienced—everyone belongs here. Expert-led sessions, peer mentoring, and collaborative projects help members grow at their own pace.

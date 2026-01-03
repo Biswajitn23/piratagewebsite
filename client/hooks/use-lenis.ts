@@ -14,9 +14,8 @@ export function useLenisSmoothScroll(
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const isMobile = window.matchMedia("(max-width: 1023px)").matches;
-    // Do not initialize Lenis on mobile to avoid touch/scroll capture and jank
-    if (reduceMotion || isMobile) {
+    // Respect reduced motion preference
+    if (reduceMotion) {
       return;
     }
 

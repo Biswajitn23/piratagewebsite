@@ -280,6 +280,18 @@ export const members: MemberRecord[] = [
     notable: "",
   },
   {
+    id: "rupendra-kumar-sahu",
+    name: "Rupendra Kumar Sahu",
+    position: "UI/UX Expert",
+    roles: ["Design"],
+    avatarImage: "/rupendra.webp",
+    social: {
+      linkedin: "",
+      instagram: "",
+    },
+    notable: "",
+  },
+  {
     id: "tushar-shendey",
     name: "Tushar Shendey",
     position: "Graphic Designer",

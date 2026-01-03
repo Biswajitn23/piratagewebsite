@@ -66,8 +66,8 @@ const GetInvolvedSection = () => {
           Have a question, need assistance with resources or want to report an issue? Send us a short message below and our team will reply via email.
         </p>
       </div>
-      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] items-center">
-        <div className="glass-panel rounded-3xl border border-white/10 p-8 shadow-glass w-full mx-auto lg:mx-0">
+      <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div className="glass-panel rounded-3xl border border-white/10 p-6 md:p-8 shadow-glass w-full mx-auto lg:mx-0 md:desktop-animate-slide-left md:desktop-hover-lift">
           {submitted ? (
             <div className="flex flex-col items-center gap-4 text-center">
               <CheckCircle2 className="h-12 w-12 text-neon-teal" />
@@ -156,19 +156,19 @@ const GetInvolvedSection = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="tilt-hover rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-8 py-6 text-base font-semibold text-primary-foreground shadow-glow mx-auto lg:mx-0"
+                className="tilt-hover rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-8 py-6 text-base font-semibold text-primary-foreground shadow-glow mx-auto lg:mx-0 md:desktop-animate-glow-pulse"
               >
                 {isSubmitting ? "Sending…" : "Send request"}
               </Button>
             </form>
           )}
         </div>
-        <div className="space-y-6 max-w-md mx-auto lg:mx-0 w-full">
-          <div className="glass-panel no-blur-on-mobile flex items-center gap-4 rounded-3xl border border-white/10 p-6">
-            <span className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/10 text-[#25D366]">
+        <div className="space-y-4 md:space-y-6 max-w-full md:max-w-md mx-auto lg:mx-0 w-full">
+          <div className="glass-panel no-blur-on-mobile flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-3xl border border-white/10 p-4 md:p-6 md:desktop-animate-slide-right md:desktop-hover-glow" style={{animationDelay: '0.2s'}}>
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/10 bg-white/10 text-[#25D366]">
               <WhatsApp className="h-6 w-6" />
             </span>
-            <div>
+            <div className="flex-1 w-full">
               <h3 className="font-display text-lg text-foreground">WhatsApp Group</h3>
               <p className="text-sm text-muted-foreground">
                 Join our WhatsApp group for quick event pings, study buddy pairing and workshop announcements.
@@ -180,11 +180,11 @@ const GetInvolvedSection = () => {
               </Button>
             </div>
           </div>
-          <div className="glass-panel no-blur-on-mobile flex items-center gap-4 rounded-3xl border border-white/10 p-6">
-            <span className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/10">
+          <div className="glass-panel no-blur-on-mobile flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-3xl border border-white/10 p-4 md:p-6 md:desktop-animate-slide-right md:desktop-hover-glow" style={{animationDelay: '0.3s'}}>
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/10 bg-white/10">
               <img src="/discord-icon-svgrepo-com.svg" alt="Discord" className="h-6 w-6" />
             </span>
-            <div className="flex-1">
+            <div className="flex-1 w-full">
               <h3 className="font-display text-lg text-foreground">Discord Community</h3>
               <p className="text-sm text-muted-foreground">
                 Join our Discord for real-time event updates, member discussions, and announcements.
@@ -196,27 +196,27 @@ const GetInvolvedSection = () => {
               </Button>
             </div>
           </div>
-          <div className="glass-panel no-blur-on-mobile flex items-center gap-4 rounded-3xl border border-white/10 p-6">
-            <span className="grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/10 text-accent">
+          <div className="glass-panel no-blur-on-mobile flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-3xl border border-white/10 p-4 md:p-6 md:desktop-animate-slide-right md:desktop-hover-glow" style={{animationDelay: '0.4s'}}>
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/10 bg-white/10 text-accent">
               <Mail className="h-6 w-6" />
             </span>
-            <div className="flex-1">
+            <div className="flex-1 w-full">
               <h3 className="font-display text-lg text-foreground">Email Notifications</h3>
               <p className="text-sm text-muted-foreground">
                 Subscribe for email notifications about new events, workshops, and exclusive updates.
               </p>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 flex flex-col sm:flex-row gap-2">
                 <input
                   type="email"
                   placeholder="your.email@example.com"
-                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  className="flex-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="gap-2 text-xs uppercase tracking-[0.24em]"
+                  className="gap-2 text-xs uppercase tracking-[0.24em] w-full sm:w-auto"
                   onClick={handleEmailSubscribe}
                   disabled={subscribing}
                 >

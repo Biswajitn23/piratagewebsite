@@ -10,6 +10,7 @@ import { subscribeEmail, unsubscribeEmail } from "./routes/subscribe.js";
 import { sendEventNotifications, getNotificationStats } from "./routes/notifications.js";
 import { sendEventInvites, downloadEventICS } from "./routes/event-invites.js";
 import { syncEventsToCalendar } from "./routes/sync-calendar.js";
+import holidayStatus from "./routes/holiday-status.js";
 
 export function createServer() {
   const app = express();
@@ -52,6 +53,7 @@ export function createServer() {
   app.post("/api/sync-calendar", syncEventsToCalendar);
   app.post("/api/event-invites", sendEventInvites);
   app.get("/api/download-ics", downloadEventICS);
+  app.get("/api/holiday-status", holidayStatus);
 
   // Resend webhook has been removed - replaced with EmailJS
   // EmailJS doesn't use webhooks in the same way, so this endpoint is no longer needed

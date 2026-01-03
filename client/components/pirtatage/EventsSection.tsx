@@ -156,9 +156,10 @@ const EventsSection = () => {
   }, []);
 
   useEffect(() => {
+    // Skip GSAP animations on mobile only (keep on desktop)
     if (!containerRef.current || pastEvents.length === 0) return;
 
-    const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
     if (isMobile) return;
 
     const ctx = gsap.context(() => {
@@ -239,7 +240,7 @@ ScrollTrigger.create({
                   <div
                     key={e.id}
                     onClick={() => setActiveEvent(e)}
-                    className="group cursor-pointer rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center p-4 w-full max-w-md"
+                    className="group cursor-pointer rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center p-4 w-full max-w-md md:desktop-hover-lift md:desktop-animate-glow-pulse"
                   >
                     <div className="w-full flex flex-col items-center justify-between bg-black/30 rounded-lg p-4 overflow-hidden relative">
                       {/* LIVE badge at top right */}
@@ -325,7 +326,7 @@ ScrollTrigger.create({
                   <div
                     key={e.id}
                     onClick={() => setActiveEvent(e)}
-                    className="group cursor-pointer rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center p-4 w-full max-w-md"
+                    className="group cursor-pointer rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex flex-col items-center justify-center p-4 w-full max-w-md md:desktop-hover-lift md:desktop-animate-fade-in-scale"
                     style={{ minWidth: undefined, minHeight: undefined, maxWidth: undefined, maxHeight: undefined }}
                   >
                     <div className="w-full flex flex-col items-center justify-between bg-black/30 rounded-lg p-4 overflow-hidden">
@@ -382,7 +383,7 @@ ScrollTrigger.create({
               <h3 className="text-[10px] uppercase tracking-[0.4em] text-white/50 font-bold">Past Events</h3>
             </div>
             <div ref={containerRef} className="relative h-[480px] w-full rounded-3xl border border-white/10 bg-white/5 overflow-hidden backdrop-blur-sm">
-              <div className="past-events-track flex items-center h-full px-6 gap-6">
+              <div className="past-events-track flex items-center h-full px-6 gap-6 overflow-x-auto lg:overflow-visible scroll-smooth" style={{ scrollbarWidth: 'thin' }}>
                 {pastEvents.map((e, i) => {
                   const images = [e.coverImage, ...(e.gallery || [])];
                   const imgIdx = imgIndices[i] || 0;
@@ -419,12 +420,12 @@ ScrollTrigger.create({
                   }
 
                   return (
-                    <div key={e.id} className="min-w-[280px] max-w-md h-[360px] rounded-xl border border-white/10 bg-black/40 flex-shrink-0 group hover:border-purple-500/40 transition-all flex flex-col">
+                    <div key={e.id} className="min-w-[280px] max-w-md h-[360px] rounded-xl border border-white/10 bg-black/40 flex-shrink-0 group hover:border-purple-500/40 transition-all flex flex-col md:desktop-hover-lift md:desktop-hover-scale">
                       <div className="relative h-1/2 w-full overflow-hidden rounded-t-xl">
                         <img
                           src={images[imgIdx]}
                           alt={e.title}
-                          className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                          className="w-full h-full object-cover md:grayscale md:group-hover:grayscale-0 transition-all duration-700"
                           onClick={() => setActiveEvent(e)}
                           style={{ cursor: 'pointer' }}
                         />

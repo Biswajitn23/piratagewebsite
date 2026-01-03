@@ -6,14 +6,20 @@ import { Play, Shield } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import HeroScene from "@/components/pirtatage/HeroScene";
+import MobileHeroScene from "@/components/pirtatage/MobileHeroScene";
 import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
 import { useLayoutBridge } from "@/contexts/LayoutBridgeContext";
 import useWebGL from "@/hooks/use-webgl";
 
-// Register GSAP plugin safely (avoid typing issues with core.globals)
-try {
-  (gsap as any).registerPlugin(ScrollTrigger);
-} catch {}
+// Defer GSAP plugin registration to idle time
+let gsapInitialized = false;
+const initGSAP = () => {
+  if (gsapInitialized) return;
+  try {
+    (gsap as any).registerPlugin(ScrollTrigger);
+    gsapInitialized = true;
+  } catch {}
+};
 
 const HeroSection = () => {
   const { settings } = useExperienceSettings();
@@ -22,12 +28,34 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const rootRef = useRef<HTMLDivElement>(null);
   const [pointerIntensity, setPointerIntensity] = useState(0.4);
+  const [isMobile, setIsMobile] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   // Glitch effect is now handled by GlitchScrollEffect
 
   useEffect(() => {
-    if (!rootRef.current || !settings.motionEnabled) {
+    const mm = window.matchMedia("(max-width: 768px)");
+    const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => {
+      setIsMobile(mm.matches);
+      setPrefersReducedMotion(rm.matches);
+    };
+    update();
+    mm.addEventListener("change", update, { passive: true });
+    rm.addEventListener("change", update, { passive: true });
+    return () => {
+      mm.removeEventListener("change", update);
+      rm.removeEventListener("change", update);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Skip GSAP animations only on mobile (keep on desktop)
+    if (!rootRef.current || !settings.motionEnabled || isMobile) {
       return;
     }
+
+    // On desktop: init GSAP immediately (no idle defer needed for desktop)
+    initGSAP();
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ".hero-content > *",
@@ -47,10 +75,11 @@ const HeroSection = () => {
       );
     }, rootRef);
     return () => ctx.revert();
-  }, [settings.motionEnabled]);
+  }, [settings.motionEnabled, isMobile]);
 
   const handlePointerMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    if (!settings.motionEnabled) {
+    // Only skip on mobile
+    if (!settings.motionEnabled || isMobile) {
       return;
     }
 
@@ -64,7 +93,7 @@ const HeroSection = () => {
     const centerDist = Math.sqrt((relX - 0.5) ** 2 + (relY - 0.5) ** 2);
     const intensity = Math.max(0.2, 1 - centerDist * 2.2);
     setPointerIntensity(intensity);
-  }, [settings.motionEnabled]);
+  }, [settings.motionEnabled, isMobile]);
 
   const goToEvents = () => {
     if (document.getElementById("events")) {
@@ -78,13 +107,15 @@ const HeroSection = () => {
     <section
       id="overview"
       ref={rootRef}
-      className="relative z-20 flex h-screen min-h-[100vh] w-full flex-col items-center justify-center overflow-hidden text-center px-4 pt-20 pb-8"
+      className="relative z-20 flex h-screen min-h-[100vh] w-full flex-col items-center justify-center overflow-hidden text-center px-3 sm:px-4 pt-16 sm:pt-20 pb-6 sm:pb-8"
       onMouseMove={handlePointerMove}
     >
       {/* Add a dark overlay for contrast to ensure text is always visible */}
       <div className="absolute inset-0 -z-30 bg-black/60 pointer-events-none" />
       <div className="absolute inset-0 -z-20">
-        {webglSupported && settings.webglPreferred ? (
+        {isMobile ? (
+          <MobileHeroScene fill />
+        ) : webglSupported && settings.webglPreferred && !prefersReducedMotion ? (
           <HeroScene pointerIntensity={pointerIntensity} fill />
         ) : (
           <FallbackHeroVisual />
@@ -93,42 +124,36 @@ const HeroSection = () => {
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#060115] via-[#060115]/80 to-transparent" />
 
       <div
-        className="relative z-0 w-full max-w-6xl px-4 flex flex-col items-center justify-center min-h-[80vh]"
+        className="relative z-0 w-full max-w-6xl px-4 sm:px-4 flex flex-col items-start md:items-center justify-center min-h-[100vh] sm:min-h-[80vh]"
       >
-        <div className="space-y-4 sm:space-y-6 md:space-y-8 hero-content">
-          <h1 className="hero-headline font-display text-3xl leading-tight text-glow drop-shadow-[0_0_28px_rgba(138,43,226,0.45)] sm:text-4xl md:text-5xl lg:text-6xl">
+        <div className="space-y-6 sm:space-y-6 md:space-y-8 hero-content w-full max-w-5xl md:max-w-4xl text-left md:text-center">
+          <h1 className="hero-headline font-display text-5xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight text-glow drop-shadow-[0_0_28px_rgba(138,43,226,0.45)] text-left md:text-center w-full whitespace-normal md:whitespace-nowrap">
             Piratage : The Ethical Hacking Club
           </h1>
-          <div className="mt-3 sm:mt-4 inline-block rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm px-3 py-2 sm:px-4 shadow-sm">
-            <p className="m-0 text-lg sm:text-xl md:text-2xl lg:text-3xl font-display font-semibold uppercase tracking-[0.08em] sm:tracking-[0.12em] text-accent/95">
+          <div className="sm:hidden h-1 w-24 bg-accent/90 rounded-full" aria-hidden="true" />
+          <div className="mt-3 sm:mt-4 inline-block rounded-xl sm:rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm px-5 py-2.5 sm:px-4 sm:py-2 shadow-sm">
+            <p className="m-0 text-2xl sm:text-xl md:text-2xl lg:text-3xl font-display font-semibold uppercase tracking-[0.1em] sm:tracking-[0.12em] text-accent/95 text-left md:text-center">
               Where Hackers become Protectors
             </p>
           </div>
-          <p className="hero-subhead mx-auto max-w-2xl text-sm sm:text-base md:text-lg text-muted-foreground px-2 mt-4 sm:mt-6">
+          <p className="hero-subhead max-w-none sm:max-w-3xl text-lg sm:text-base md:text-lg text-muted-foreground px-1 sm:px-2 mt-4 sm:mt-6 text-left md:text-center leading-relaxed md:translate-x-8">
             Piratage: University defenders turning curiosity into protection. We
             are the campus guild of ethical hackers crafting defenses, designing
             Hackathons, and teaching the next wave of guardians.
           </p>
-          {/* Increased margin below subhead to move buttons even further down */}
-          <div className="mt-16 sm:mt-24 md:mt-32" />
+          {/* Tighter gap to keep CTA closer on desktop */}
+          <div className="mt-8 sm:mt-14 md:mt-10" />
 
           {/* WhatsApp panel removed per user request */}
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-4 mt-4 sm:mt-6 md:mt-8">
-          <Button
-            size="lg"
-            className="hero-cta tilt-hover rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 px-6 py-5 sm:px-8 sm:py-6 text-sm sm:text-base font-semibold text-primary-foreground shadow-glow"
-            onClick={openJoinDialog}
-          >
-            Join the Crew
-          </Button>
+        <div className="flex flex-wrap items-center justify-start md:justify-center md:self-center md:max-w-max gap-3 sm:gap-4 mt-4 sm:mt-6 md:mt-8 w-full">
           <Button
             size="lg"
             variant="ghost"
-            className="hero-cta tilt-hover inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-5 sm:px-8 sm:py-6 text-sm sm:text-base font-semibold text-foreground"
+            className="hero-cta tilt-hover inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-4 sm:px-8 sm:py-6 text-xs sm:text-base font-semibold text-foreground md:desktop-hover-glow md:desktop-animate-glow-pulse"
             onClick={goToEvents}
           >
-            <Play className="h-4 w-4 sm:h-5 sm:w-5" /> See Events
+            <Play className="h-3 w-3 sm:h-5 sm:w-5" /> See Events
           </Button>
         </div>
       </div>
@@ -139,7 +164,7 @@ const HeroSection = () => {
 const FallbackHeroVisual = () => (
   <div className="absolute inset-0 flex h-full w-full items-center justify-center bg-gradient-to-br from-[#12062c] via-[#061127] to-[#080621]">
     <svg
-      className="h-[420px] w-[420px] animate-pulse text-neon-teal/60"
+      className="h-[420px] w-[420px] hidden md:block md:animate-pulse text-neon-teal/60"
       viewBox="0 0 512 512"
       fill="none"
       stroke="currentColor"
@@ -151,7 +176,7 @@ const FallbackHeroVisual = () => (
       <path d="M192 256l64 64 96-128" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="256" cy="176" r="36" />
     </svg>
-    <div className="absolute inset-0 animate-[pulse_3s_ease-in-out_infinite] bg-gradient-to-br from-neon-purple/10 via-transparent to-neon-teal/10" />
+    <div className="absolute inset-0 hidden md:block md:animate-[pulse_3s_ease-in-out_infinite] bg-gradient-to-br from-neon-purple/10 via-transparent to-neon-teal/10" />
   </div>
 );
 
