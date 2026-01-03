@@ -275,7 +275,6 @@ const GallerySection = () => {
                           className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105 flex-shrink-0"
                           loading="lazy"
                           decoding="async"
-                          fetchpriority="low"
                           sizes="280px"
                           width={280}
                           height={192}
@@ -373,7 +372,6 @@ const GallerySection = () => {
                         className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                         decoding="async"
-                        fetchpriority="low"
                         sizes="(max-width: 640px) 100vw, 420px"
                         width={1200}
                         height={800}
