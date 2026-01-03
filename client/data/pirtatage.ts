@@ -119,7 +119,7 @@ export const members: MemberRecord[] = [
     avatarImage: "/yuti.webp",
     social: {
       linkedin: "https://www.linkedin.com/in/yuti-sasane-54420a340?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
-      instagram: "https://www.instagram.com/btw_itz_yuti/",
+      instagram: "https://www.instagram.com/softmess.yuti?igsh=eHE5NTV5azN1dWsy",
     },
     notable: "",
   },
