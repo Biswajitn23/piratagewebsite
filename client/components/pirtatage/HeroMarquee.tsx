@@ -64,17 +64,23 @@ const PiratageTicker: React.FC = () => {
 
             <style>
                 {`
+                    @keyframes ticker-move {
+                        from { transform: translateX(0); }
+                        to { transform: translateX(-50%); }
+                    }
+
                     .ticker-scroll {
                         display: flex;
                         white-space: nowrap;
                         animation: ticker-move 25s linear infinite;
                         align-items: center;
+                        will-change: transform;
                     }
 
                     /* Mobile optimizations */
                     @media (max-width: 768px) {
                         .ticker-scroll {
-                            animation: ticker-move 6s linear infinite;
+                            animation: ticker-move 6s linear infinite !important;
                         }
                         
                         .ticker-wrapper {
@@ -107,11 +113,6 @@ const PiratageTicker: React.FC = () => {
                         .ticker-separator {
                             font-size: 1rem !important;
                         }
-                    }
-
-                    @keyframes ticker-move {
-                        from { transform: translateX(0); }
-                        to { transform: translateX(-50%); }
                     }
 
                     .ticker-scroll:hover {

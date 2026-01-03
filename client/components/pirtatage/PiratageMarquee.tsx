@@ -8,6 +8,15 @@ const PiratageMarquee: React.FC = () => {
   return (
     <div className="marquee-outer-section">
       <style>{`
+        @keyframes scroll-smooth {
+          from { 
+            transform: translate3d(0, 0, 0); 
+          }
+          to { 
+            transform: translate3d(-50%, 0, 0); 
+          }
+        }
+
         .marquee-outer-section {
           position: relative;
           height: 60px; 
@@ -19,7 +28,6 @@ const PiratageMarquee: React.FC = () => {
           align-items: center;
           overflow: hidden;
           pointer-events: none;
-          /* GPU optimization */
           backface-visibility: hidden;
         }
 
@@ -33,7 +41,6 @@ const PiratageMarquee: React.FC = () => {
           font-family: ui-sans-serif, system-ui, sans-serif;
           color: #ffffff;
           
-          /* Solid 3D Styling */
           background: linear-gradient(
             180deg, 
             rgba(255, 255, 255, 0.15) 0%, 
@@ -48,25 +55,13 @@ const PiratageMarquee: React.FC = () => {
         .marquee-track-inner {
           display: flex;
           width: max-content;
-          /* Force GPU rendering to stop lagging */
           will-change: transform;
           animation: scroll-smooth 30s linear infinite;
         }
 
-        /* Faster animation on mobile */
         @media (max-width: 768px) {
           .marquee-track-inner {
-            animation: scroll-smooth 6s linear infinite;
-          }
-        }
-
-        @keyframes scroll-smooth {
-          from { 
-            transform: translate3d(0, 0, 0); 
-          }
-          to { 
-            /* Moves exactly half the width of the duplicated content */
-            transform: translate3d(-50%, 0, 0); 
+            animation: scroll-smooth 6s linear infinite !important;
           }
         }
 
@@ -74,7 +69,6 @@ const PiratageMarquee: React.FC = () => {
           display: inline-block;
           padding-right: 30px;
           text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-          /* Prevents sub-pixel jittering */
           -webkit-font-smoothing: antialiased;
         }
       `}</style>
