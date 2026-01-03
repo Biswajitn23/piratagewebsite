@@ -10,3 +10,10 @@
 .blink-underline {
   animation: blink 1.2s steps(1, end) infinite;
 }
+
+/* Ensure animations work on mobile */
+@media (max-width: 768px) {
+  .blink-underline {
+    animation: blink 1.2s steps(1, end) infinite !important;
+  }
+}
