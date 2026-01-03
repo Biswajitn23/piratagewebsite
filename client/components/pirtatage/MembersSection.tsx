@@ -5,7 +5,7 @@ import { Linkedin, Instagram } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { members, type MemberRole, type MemberRecord } from "@/data/pirtatage";
 
 
@@ -28,11 +28,20 @@ const MembersSection = () => {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [selectedMember, setSelectedMember] = useState<MemberRecord | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile
+  useEffect(() => {
+    const mm = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mm.matches);
+    update();
+    mm.addEventListener("change", update);
+    return () => mm.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
-    const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isMobile = window.matchMedia("(max-width: 1023px)").matches;
-    if (!rootRef.current || isReduced || isMobile) return;
+    // Skip GSAP animations on mobile only
+    if (!rootRef.current || isMobile) return;
 
     const ctx = gsap.context(() => {
       const cards = gsap.utils.toArray<HTMLElement>(".team-card");
@@ -52,7 +61,7 @@ const MembersSection = () => {
             scrollTrigger: {
               trigger: card,
               start: "top 90%",
-              toggleActions: "play reverse play reverse",
+              toggleActions: "play none none none",
               invalidateOnRefresh: true,
             },
             onStart: () => {
@@ -92,18 +101,18 @@ const MembersSection = () => {
     <section
       id="members"
       ref={rootRef}
-      className="team-section relative mx-auto mt-16 md:mt-32 flex max-w-6xl flex-col gap-8 md:gap-12 px-4 md:px-6"
+      className="team-section relative mx-auto mt-8 sm:mt-16 md:mt-32 flex max-w-6xl flex-col gap-6 sm:gap-8 md:gap-12 px-3 sm:px-4 md:px-6 overflow-visible z-10"
       style={{ marginTop: 0, paddingTop: 0 }}
       aria-labelledby="members-title"
     >
-      <div className="space-y-4 text-center">
-        <h2 id="members-title" className="font-display text-4xl text-glow" style={{ lineHeight: 1, marginTop: 0 }}>
+      <div className="space-y-3 sm:space-y-4 text-center">
+        <h2 id="members-title" className="font-display text-2xl sm:text-3xl md:text-4xl text-glow" style={{ lineHeight: 1, marginTop: 0 }}>
           The Crew
         </h2>
-        <p className="mx-auto max-w-3xl text-base text-muted-foreground">
+        <p className="mx-auto max-w-3xl text-sm sm:text-base text-muted-foreground px-2">
           The builders, protectors, and dreamers behind the club.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.24em]">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[10px] sm:text-xs uppercase tracking-[0.18em] sm:tracking-[0.24em] overflow-visible">
           <Button
             variant={activeCategory === "All" ? "default" : "ghost"}
             className="rounded-full border border-white/10 bg-white/10"
@@ -123,12 +132,12 @@ const MembersSection = () => {
           ))}
         </div>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 overflow-visible">
         {filteredMembers.map((member) => (
           <article
             key={member.id}
             data-cardid={member.id}
-            className="team-card group glass-panel flex flex-col gap-4 rounded-[28px] border border-white/10 p-6 transition-transform duration-500 hover:-translate-y-1 hover:shadow-glow cursor-pointer"
+            className="team-card group glass-panel flex flex-col gap-4 rounded-[28px] border border-white/10 p-6 transition-transform duration-500 hover:-translate-y-1 hover:shadow-glow cursor-pointer md:desktop-hover-lift"
             onClick={() => setSelectedMember(member)}
           >
             <div className="flex items-center gap-4">
@@ -137,7 +146,7 @@ const MembersSection = () => {
                 alt={member.name}
                 loading="lazy"
                 decoding="async"
-                className="member-avatar h-16 w-16 rounded-2xl object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                className="member-avatar h-16 w-16 rounded-2xl object-cover transition-transform duration-500 group-hover:scale-[1.03] md:desktop-hover-scale"
               />
               <div>
                 <h3 className="font-display text-lg text-foreground group-hover:text-accent transition-colors">
@@ -197,6 +206,9 @@ const MembersSection = () => {
                 <DialogTitle className="font-display text-2xl text-foreground">
                   {selectedMember.name}
                 </DialogTitle>
+                <DialogDescription className="sr-only">
+                  {selectedMember.name} - {selectedMember.position}
+                </DialogDescription>
               </DialogHeader>
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">

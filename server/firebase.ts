@@ -10,6 +10,11 @@ function normalizePrivateKey(key?: string) {
 }
 
 export function initFirebaseIfPossible() {
+  // Check if Firebase is already initialized
+  if (admin.apps.length > 0) {
+    initialized = true;
+    return;
+  }
   if (initialized) return;
   try {
     // Option 1: Explicit FIREBASE_* env credentials (best for Vercel)

@@ -1,5 +1,4 @@
-/** @import must precede all other statements */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@400;600;700&display=swap");
+/** Fonts are now loaded via Bunny Fonts CDN (no third-party cookies) */
 
 @tailwind base;
 @tailwind components;
@@ -23,7 +22,7 @@
     --secondary-foreground: 216 100% 97%;
 
     --muted: 252 40% 18%;
-    --muted-foreground: 220 40% 78%;
+    --muted-foreground: 220 50% 85%;
 
     --accent: 45 100% 60%;
     --accent-foreground: 255 100% 16%;
@@ -334,8 +333,173 @@
   }
 }
 
+/* Desktop-only animations */
+@media (min-width: 768px) {
+  @keyframes float-gentle {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in-scale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 10px rgba(124, 77, 255, 0.3), 0 0 20px rgba(0, 255, 209, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(124, 77, 255, 0.5), 0 0 40px rgba(0, 255, 209, 0.4);
+    }
+  }
+
+  @keyframes rotate-border {
+    to { transform: rotate(360deg); }
+  }
+
+  .desktop-animate-float {
+    animation: float-gentle 4s ease-in-out infinite;
+  }
+
+  .desktop-animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out forwards;
+  }
+
+  .desktop-animate-fade-in-scale {
+    animation: fade-in-scale 0.6s ease-out forwards;
+  }
+
+  .desktop-animate-slide-right {
+    animation: slide-in-right 0.7s ease-out forwards;
+  }
+
+  .desktop-animate-slide-left {
+    animation: slide-in-left 0.7s ease-out forwards;
+  }
+
+  .desktop-animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  .desktop-hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .desktop-hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 10px 40px rgba(124, 77, 255, 0.4), 0 5px 20px rgba(0, 255, 209, 0.3);
+  }
+
+  .desktop-hover-glow {
+    transition: filter 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .desktop-hover-glow:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 30px rgba(124, 77, 255, 0.6), 0 0 50px rgba(0, 255, 209, 0.4);
+  }
+
+  .desktop-hover-scale {
+    transition: transform 0.3s ease;
+  }
+
+  .desktop-hover-scale:hover {
+    transform: scale(1.05);
+  }
+
+  .desktop-hover-rotate {
+    transition: transform 0.4s ease;
+  }
+
+  .desktop-hover-rotate:hover {
+    transform: rotate(5deg) scale(1.03);
+  }
+}
+
+.color-shift-text {
+  background: linear-gradient(90deg, #00d4ff, #00ffd0, #8a2be2);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 /* Mobile performance helpers: disable heavy backdrop-filter and reduce paint for small screens */
 @media (max-width: 1023px) {
+  /* Critical mobile performance optimizations */
+  * {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    animation: none !important;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+    overscroll-behavior: none;
+  }
+
+  /* Disable all animations on mobile */
+  .animate-pulse,
+  .animate-spin,
+  .animate-marquee,
+  [class*="animate-"] {
+    animation: none !important;
+  }
+
+  /* Force hardware acceleration for critical elements */
+  section,
+  .glass-panel {
+    transform: translateZ(0);
+    will-change: auto;
+  }
+  
+  /* Reduce image processing */
+  img {
+    will-change: auto;
+  }
+
+  /* Disable all heavy effects on mobile */
   .no-blur-on-mobile {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
@@ -346,6 +510,49 @@
   /* Reduce heavy transitions/animations on mobile to avoid jank */
   .tilt-hover {
     transition: none !important;
+    transform: none !important;
+  }
+
+  /* Disable all desktop animations on mobile */
+  .desktop-animate-float,
+  .desktop-animate-fade-in-up,
+  .desktop-animate-fade-in-scale,
+  .desktop-animate-slide-right,
+  .desktop-animate-slide-left,
+  .desktop-animate-glow-pulse,
+  .desktop-hover-lift,
+  .desktop-hover-glow,
+  .desktop-hover-scale,
+  .desktop-hover-rotate {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Optimize images for mobile */
+  img {
+    image-rendering: auto;
+  }
+
+  /* Optimize scrolling performance */
+  section {
+    contain: layout style;
+  }
+
+  /* Simplify complex gradients on mobile */
+  .glass-panel,
+  .shadow-glass {
+    background: rgba(20, 20, 28, 0.85) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  /* Disable text effects on mobile */
+  .text-glow {
+    text-shadow: none !important;
+  }
+  
+  /* Simplify backgrounds */
+  body {
+    background: #0d0d0d !important;
   }
 
   /* Prevent horizontal scroll on mobile - critical fixes */
@@ -376,5 +583,28 @@
   /* Ensure sections don't cause overflow */
   section {
     overflow-x: hidden;
+  }
+
+  /* Mobile contrast improvements */
+  @media (max-width: 768px) {
+    /* Improve text-muted-foreground contrast on mobile */
+    .text-muted-foreground {
+      @apply text-gray-300;
+    }
+    
+    /* Improve placeholder contrast */
+    ::placeholder {
+      @apply text-gray-400 opacity-100;
+    }
+    
+    /* Improve disabled state contrast */
+    :disabled {
+      @apply opacity-60;
+    }
+    
+    /* Improve secondary text contrast */
+    .text-secondary-foreground {
+      @apply brightness-110;
+    }
   }
 }

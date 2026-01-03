@@ -1,16 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 
 import Preloader from "@/components/pirtatage/Preloader";
 import EventsSection from "@/components/pirtatage/EventsSection";
 import PiratageMarquee from "@/components/pirtatage/PiratageMarquee";
 import HeroMarquee from "@/components/pirtatage/HeroMarquee";
-import GallerySection from "@/components/pirtatage/GallerySection";
 import GetInvolvedSection from "@/components/pirtatage/GetInvolvedSection";
-import HeroSection from "@/components/pirtatage/HeroSection";
-import MembersSection from "@/components/pirtatage/MembersSection";
 import AboutSection from "@/components/pirtatage/AboutSection";
 import BackgroundMusic from "@/components/BackgroundMusic";
-import ProgramsSection from "@/components/pirtatage/ProgramsSection";
+
+// Lazy load heavy components to reduce initial bundle
+const HeroSection = lazy(() => import("@/components/pirtatage/HeroSection"));
+const ProgramsSection = lazy(() => import("@/components/pirtatage/ProgramsSection"));
+const MembersSection = lazy(() => import("@/components/pirtatage/MembersSection"));
+const GallerySection = lazy(() => import("@/components/pirtatage/GallerySection"));
 
 import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
 
@@ -43,7 +45,7 @@ const Index = () => {
             if (settings.startupSoundEnabled && !chimePlayedRef.current) {
               const playChime = () => {
                 try {
-                  const Ctor = window.AudioContext || window.webkitAudioContext;oContext;
+                  const Ctor = window.AudioContext || (window as any).webkitAudioContext;
                   if (!Ctor) return;
                   const ctx = new Ctor();
                   const now = ctx.currentTime + 0.02;
@@ -78,16 +80,24 @@ const Index = () => {
           }}
         />
       ) : null}
-      <HeroSection />
+      <Suspense fallback={<div className="min-h-screen" />}>
+        <HeroSection />
+      </Suspense>
       <HeroMarquee />
 <div className="relative z-10 isolation-isolate mx-auto flex max-w-[1440px] flex-col gap-0 px-6 pb-24 md:pb-28">
   <AboutSection />
-  <ProgramsSection />
+  <Suspense fallback={<div className="min-h-[400px]" />}>
+    <ProgramsSection />
+  </Suspense>
   <EventsSection />
   <PiratageMarquee />
   <div style={{ marginTop: '1.5rem' }} />
-  <MembersSection />
-  <GallerySection />
+  <Suspense fallback={<div className="min-h-[400px]" />}>
+    <MembersSection />
+  </Suspense>
+  <Suspense fallback={<div className="min-h-[600px]" />}>
+    <GallerySection />
+  </Suspense>
   <GetInvolvedSection />
 </div>
     </div>
