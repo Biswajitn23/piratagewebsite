@@ -1,6 +1,13 @@
-import { useState, useRef, type SVGProps } from "react";
+import { useState, useRef, useEffect, type SVGProps } from "react";
 import { CalendarDays, CheckCircle2, Mail, Download, Plus } from "lucide-react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+
+// Debug: Log sitekey on component load
+const HCAPTCHA_SITEKEY = import.meta.env.VITE_HCAPTCHA_SITEKEY;
+if (!HCAPTCHA_SITEKEY) {
+  console.warn("⚠️ VITE_HCAPTCHA_SITEKEY is not set in environment variables");
+}
+console.log("🔍 hCaptcha sitekey loaded:", HCAPTCHA_SITEKEY ? "✓" : "✗");
 
 
 const WhatsApp = (props: SVGProps<SVGSVGElement>) => (
@@ -238,14 +245,29 @@ const GetInvolvedSection = () => {
                 </Button>
               </div>
               <div className="mt-3">
-                <HCaptcha
-                  ref={captchaRef}
-                  sitekey={import.meta.env.VITE_HCAPTCHA_SITEKEY}
-                  onVerify={(token) => setCaptchaToken(token)}
-                  onExpire={() => setCaptchaToken(null)}
-                  onError={() => setCaptchaToken(null)}
-                  theme="dark"
-                />
+                {!HCAPTCHA_SITEKEY ? (
+                  <div className="p-3 bg-red-900/20 border border-red-600 rounded text-red-400 text-sm">
+                    ⚠️ hCaptcha not configured. Please contact support.
+                  </div>
+                ) : (
+                  <HCaptcha
+                    ref={captchaRef}
+                    sitekey={HCAPTCHA_SITEKEY}
+                    onVerify={(token) => {
+                      console.log("✅ hCaptcha verified");
+                      setCaptchaToken(token);
+                    }}
+                    onExpire={() => {
+                      console.log("⏰ hCaptcha expired");
+                      setCaptchaToken(null);
+                    }}
+                    onError={(error) => {
+                      console.error("❌ hCaptcha error:", error);
+                      setCaptchaToken(null);
+                    }}
+                    theme="dark"
+                  />
+                )}
               </div>
               {subscribeMessage && (
                 <p className={`mt-2 text-xs ${subscribeMessage.includes('Success') ? 'text-green-400' : 'text-red-400'}`}>
