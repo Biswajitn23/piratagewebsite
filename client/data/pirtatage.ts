@@ -161,7 +161,7 @@ export const members: MemberRecord[] = [
   },
   {
     id: "gourav-behera",
-    name: "Gourav Behera",
+    name: "Gourav Kumar Behera",
     position: "Programming Lead",
     roles: ["Technical"],
     avatarImage: "/gourav.webp",
