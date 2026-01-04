@@ -75,8 +75,8 @@ const MobileHeroScene = ({ fill }: MobileHeroSceneProps) => {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
-    // Randomly select an effect on each visit (10 total effects)
-    const randomEffect = Math.floor(Math.random() * 10);
+    // Randomly select an effect on each visit (20 total effects)
+    const randomEffect = Math.floor(Math.random() * 20);
     console.log('Selected effect:', randomEffect);
 
     // Vertex shader
@@ -277,6 +277,226 @@ const MobileHeroScene = ({ fill }: MobileHeroSceneProps) => {
         float glow = h * step(0.75, h);
         vec3 col = vec3(0.0) + vec3(0.3, 0.0, 0.5) * char * 0.25 + mix(vec3(0.9, 0.2, 1.0), vec3(0.2, 1.0, 1.0), h) * glow * 0.9;
         col *= sin(vUv.y * 250.0 + time * 8.0) * 0.05 + 0.95;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 10: Liquid Metal
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec2 p = vUv * 3.0;
+        float liquid = 0.0;
+        for(float i = 0.0; i < 4.0; i++) {
+          vec2 offset = vec2(sin(time * 0.3 + i), cos(time * 0.25 + i * 1.5)) * 2.0;
+          liquid += sin(length(p + offset) * 3.0 - time * 2.0) * 0.5 + 0.5;
+        }
+        liquid = liquid / 4.0;
+        vec3 col = mix(vec3(0.6, 0.6, 0.7), vec3(0.9, 0.9, 1.0), liquid);
+        col = mix(col, vec3(0.4, 0.3, 0.6), smoothstep(0.4, 0.6, liquid)) + vec3(1.0) * pow(liquid, 8.0) * 0.8;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 11: Neural Network
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec2 grid = floor(vUv * 12.0);
+        vec3 col = vec3(0.0);
+        for(int y = -1; y <= 1; y++) {
+          for(int x = -1; x <= 1; x++) {
+            vec2 neighbor = grid + vec2(float(x), float(y));
+            float h = hash(neighbor);
+            if(h > 0.7) {
+              vec2 nodePos = (neighbor + 0.5) / 12.0;
+              float dist = length(vUv - nodePos);
+              float node = smoothstep(0.025, 0.0, dist);
+              float pulse = sin(time * 2.0 + h * 6.28) * 0.5 + 0.5;
+              col += vec3(0.0, 0.8, 1.0) * node * pulse;
+              vec2 toNode = vUv - nodePos;
+              float connection = exp(-dist * 15.0) * smoothstep(0.002, 0.0, abs(length(toNode) - fract(time * 0.5 + h) * 0.3));
+              col += vec3(0.0, 0.5, 0.8) * connection * 0.5;
+            }
+          }
+        }
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 12: Aurora Borealis
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float noise(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec2 p = vUv;
+        float aurora = 0.0;
+        for(float i = 0.0; i < 5.0; i++) {
+          float wave = sin(p.x * 8.0 + i + time * 0.5) * 0.1;
+          aurora += smoothstep(0.15, 0.0, abs(p.y - 0.5 - wave)) / (i + 1.0);
+        }
+        vec3 col1 = vec3(0.0, 0.8, 0.6);
+        vec3 col2 = vec3(0.4, 0.0, 0.8);
+        vec3 col3 = vec3(0.0, 0.6, 1.0);
+        vec3 col = mix(col1, col2, sin(time * 0.5 + vUv.x * 3.0) * 0.5 + 0.5);
+        col = mix(col, col3, sin(time * 0.3 + vUv.x * 5.0) * 0.5 + 0.5);
+        col *= aurora * 2.0;
+        col += vec3(1.0) * pow(aurora, 3.0) * 0.5;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 13: Cyber Rain
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec2 grid = vec2(floor(vUv.x * 40.0), 0.0);
+        float h = hash(grid);
+        float speed = 0.3 + h * 0.4;
+        float yPos = fract(vUv.y - time * speed + h);
+        float trail = smoothstep(0.0, 0.15, yPos) * smoothstep(0.3, 0.15, yPos);
+        float head = smoothstep(0.02, 0.0, abs(yPos - 0.15));
+        vec3 col = vec3(0.0, 1.0, 0.6) * trail * 0.4 + vec3(0.5, 1.0, 0.8) * head;
+        float flicker = step(0.5, hash(grid + floor(time * 10.0)));
+        col *= flicker;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 14: Nebula Cloud
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float noise(vec2 p) {
+        vec2 i = floor(p), f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+                   mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+      }
+      void main() {
+        vec2 p = vUv * 4.0;
+        float n = 0.0;
+        for(float i = 1.0; i < 6.0; i++) {
+          n += noise(p * i + time * 0.1) / i;
+        }
+        vec3 col1 = vec3(0.6, 0.0, 0.8);
+        vec3 col2 = vec3(0.0, 0.3, 0.9);
+        vec3 col3 = vec3(0.8, 0.1, 0.5);
+        vec3 col = mix(col1, col2, n);
+        col = mix(col, col3, smoothstep(0.4, 0.7, n));
+        col *= smoothstep(0.0, 0.3, n) * 1.2;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 15: Holographic Interference
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      void main() {
+        vec2 p = vUv * 20.0;
+        float pattern = sin(p.x * 3.14159) * sin(p.y * 3.14159);
+        pattern += sin((p.x + p.y) * 3.14159 + time * 2.0) * 0.5;
+        pattern += sin((p.x - p.y) * 3.14159 - time * 1.5) * 0.5;
+        pattern = abs(pattern);
+        vec3 col = vec3(0.0);
+        col += vec3(0.0, 0.8, 1.0) * smoothstep(0.5, 1.0, pattern);
+        col += vec3(0.8, 0.0, 1.0) * smoothstep(1.0, 1.5, pattern);
+        col += vec3(1.0, 0.8, 0.0) * smoothstep(1.5, 2.0, pattern);
+        float scanline = sin(vUv.y * 100.0 + time * 5.0) * 0.05 + 0.95;
+        col *= scanline;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 16: DNA Helix
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      void main() {
+        vec2 p = (vUv - 0.5) * 2.0;
+        float angle = atan(p.y, p.x) + time * 0.5;
+        float radius = length(p);
+        float helix1 = sin(angle * 6.0 + vUv.y * 15.0 - time * 2.0) * 0.2 + 0.4;
+        float helix2 = sin(angle * 6.0 + vUv.y * 15.0 - time * 2.0 + 3.14159) * 0.2 + 0.4;
+        float strand1 = smoothstep(0.05, 0.0, abs(radius - helix1));
+        float strand2 = smoothstep(0.05, 0.0, abs(radius - helix2));
+        float bonds = smoothstep(0.015, 0.0, abs(sin(vUv.y * 15.0 - time * 2.0))) * smoothstep(0.6, 0.4, radius) * 0.5;
+        vec3 col = vec3(0.0, 0.8, 1.0) * strand1 + vec3(1.0, 0.2, 0.6) * strand2 + vec3(0.5, 1.0, 0.5) * bonds;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 17: Quantum Foam
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec2 p = vUv * 15.0;
+        vec3 col = vec3(0.0);
+        for(float i = 0.0; i < 30.0; i++) {
+          vec2 bubblePos = vec2(hash(vec2(i, 0.0)), hash(vec2(i, 1.0)));
+          bubblePos += vec2(sin(time * 0.5 + i), cos(time * 0.3 + i)) * 0.3;
+          bubblePos *= 15.0;
+          float dist = length(p - bubblePos);
+          float size = 0.2 + hash(vec2(i)) * 0.3;
+          float bubble = smoothstep(size + 0.1, size, dist) - smoothstep(size, size - 0.05, dist);
+          float pulse = sin(time * 2.0 + i) * 0.5 + 0.5;
+          col += vec3(0.5, 0.3, 1.0) * bubble * pulse * 0.8 + vec3(0.8, 0.6, 1.0) * bubble * (1.0 - pulse) * 0.5;
+        }
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 18: Energy Waves
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      void main() {
+        vec2 p = (vUv - 0.5) * 2.0;
+        float angle = atan(p.y, p.x);
+        float radius = length(p);
+        float wave1 = sin(radius * 20.0 - time * 4.0 + angle * 3.0) * 0.5 + 0.5;
+        float wave2 = sin(radius * 15.0 - time * 3.0 - angle * 2.0) * 0.5 + 0.5;
+        float pattern = wave1 * wave2;
+        vec3 col = vec3(0.0);
+        col += vec3(1.0, 0.3, 0.0) * smoothstep(0.3, 0.6, pattern);
+        col += vec3(1.0, 0.8, 0.0) * smoothstep(0.6, 0.8, pattern);
+        col += vec3(1.0, 1.0, 1.0) * smoothstep(0.8, 1.0, pattern);
+        col *= 1.0 - radius * 0.5;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 19: Particle Swarm
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec3 col = vec3(0.0);
+        for(float i = 0.0; i < 80.0; i++) {
+          float h = hash(vec2(i));
+          float angle = h * 6.28318 + time * 0.5;
+          float radius = 0.3 + sin(time + i * 0.5) * 0.2;
+          vec2 center = vec2(0.5) + vec2(cos(angle), sin(angle)) * radius;
+          vec2 particlePos = center + vec2(sin(time * 2.0 + i), cos(time * 1.5 + i)) * 0.05;
+          float dist = length(vUv - particlePos);
+          float size = 0.008 + hash(vec2(i + 100.0)) * 0.006;
+          float particle = smoothstep(size, 0.0, dist);
+          float trail = exp(-dist * 30.0) * 0.3;
+          vec3 color = mix(vec3(0.0, 0.6, 1.0), vec3(0.8, 0.2, 1.0), h);
+          col += color * (particle + trail);
+        }
         gl_FragColor = vec4(col, 1.0);
       }`
     ];
