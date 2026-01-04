@@ -45,6 +45,8 @@ const SiteLayout = ({ children }: { children: ReactNode }) => {
         openAccessibilityPanel,
         closeAccessibilityPanel,
         accessibilityPanelOpen,
+        mobileNavOpen,
+        setMobileNavOpen,
       }) => (
         <div className="relative flex min-h-screen flex-col">
           <a
@@ -56,6 +58,8 @@ const SiteLayout = ({ children }: { children: ReactNode }) => {
           <SiteHeader
             onJoin={openJoinDialog}
             onAccessibility={openAccessibilityPanel}
+            mobileNavOpen={mobileNavOpen}
+            onMobileNavChange={setMobileNavOpen}
           />
           <main id="main-content" className="flex-1">
             {children}

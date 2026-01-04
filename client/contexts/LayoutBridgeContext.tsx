@@ -13,6 +13,8 @@ type LayoutBridgeContextValue = {
   openAccessibilityPanel: () => void;
   closeAccessibilityPanel: () => void;
   accessibilityPanelOpen: boolean;
+  mobileNavOpen: boolean;
+  setMobileNavOpen: (open: boolean) => void;
 };
 
 const LayoutBridgeContext = createContext<LayoutBridgeContextValue | undefined>(
@@ -26,12 +28,19 @@ export const LayoutBridgeProvider = ({
 }) => {
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [accessibilityPanelOpen, setAccessibilityPanelOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const openJoinDialog = useCallback(() => setJoinDialogOpen(true), []);
   const closeJoinDialog = useCallback(() => setJoinDialogOpen(false), []);
 
   const openAccessibilityPanel = useCallback(
-    () => setAccessibilityPanelOpen(true),
+    () => {
+      // Close mobile nav when opening accessibility panel on mobile
+      if (window.innerWidth < 1024) {
+        setMobileNavOpen(false);
+      }
+      setAccessibilityPanelOpen(true);
+    },
     [],
   );
   const closeAccessibilityPanel = useCallback(
@@ -46,6 +55,8 @@ export const LayoutBridgeProvider = ({
     openAccessibilityPanel,
     closeAccessibilityPanel,
     accessibilityPanelOpen,
+    mobileNavOpen,
+    setMobileNavOpen,
   };
 
   return (

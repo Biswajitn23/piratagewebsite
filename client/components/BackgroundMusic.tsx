@@ -31,6 +31,16 @@ const BackgroundMusic = () => {
   }, [settings.backgroundMusicVolume]);
 
   useEffect(() => {
+    // Kill any existing AudioContext instances immediately
+    try {
+      // @ts-ignore - Access global audio contexts if they exist
+      if (window.audioContexts) {
+        window.audioContexts.forEach((ctx: any) => {
+          try { ctx.close(); } catch {}
+        });
+      }
+    } catch {}
+
     // Only use /background.mp3 for playback
     const cleanupWebAudio = () => {
       const w = webAudioRef.current;
@@ -43,7 +53,14 @@ const BackgroundMusic = () => {
       }
     };
 
+    // Immediately cleanup any existing WebAudio on mount
+    cleanupWebAudio();
+
     const startWebAudioPad = async (volume = 0.12) => {
+      // Disabled: WebAudio fallback creates unwanted noise
+      // If background.mp3 is missing, simply don't play anything
+      return;
+      /* Original oscillator code commented out to prevent noise
       if (webAudioRef.current) return;
       try {
         const Ctor = window.AudioContext || (window as any).webkitAudioContext;
@@ -77,6 +94,7 @@ const BackgroundMusic = () => {
       } catch (e) {
         console.warn("WebAudio pad start failed", e);
       }
+      */
     };
 
     const stopWebAudioPad = () => {

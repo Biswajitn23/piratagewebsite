@@ -397,6 +397,35 @@
     to { transform: rotate(360deg); }
   }
 
+  @keyframes slow-blink {
+    0%, 100% { 
+      opacity: 1;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.8),
+                  0 0 20px rgba(251, 191, 36, 0.4);
+    }
+    50% { 
+      opacity: 0.2;
+      box-shadow: 0 0 5px rgba(251, 191, 36, 0.3);
+    }
+  }
+
+  .mobile-blink-line {
+    animation: slow-blink 2s ease-in-out infinite;
+  }
+
+  @keyframes mobile-white-glow {
+    0%, 100% {
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.6),
+                   0 0 40px rgba(255, 255, 255, 0.4),
+                   0 0 60px rgba(255, 255, 255, 0.2);
+    }
+    50% {
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.8),
+                   0 0 50px rgba(255, 255, 255, 0.6),
+                   0 0 70px rgba(255, 255, 255, 0.4);
+    }
+  }
+
   .desktop-animate-float {
     animation: float-gentle 4s ease-in-out infinite;
   }
