@@ -311,7 +311,7 @@ export const members: MemberRecord[] = [
     avatarImage: "/anshu.webp",
     social: {
       linkedin: "",
-      instagram: "",
+      instagram: "https://www.instagram.com/notso_sama?igsh=MTN0YTJubzZobTVt",
     },
     notable: "",
    },
