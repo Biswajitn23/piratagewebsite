@@ -159,7 +159,10 @@ async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivat
     
   // EmailJS template parameters - customize these to match your EmailJS template variables
   const templateParams = {
+    email: email,
     to_email: email,
+    recipient_email: email,
+    user_email: email,
     to_name: email.split('@')[0],
     subject: subjectBase,
     app_url: appUrl,
