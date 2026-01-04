@@ -185,7 +185,7 @@ async function sendEventInvitesToSubscribers(eventId: string) {
         const templateParams = {
           to_email: email,
           to_name: email.split('@')[0],
-          subject: `New Event: ${event.title} 📅`,
+          subject: `New Event Alert: ${event.title} | Piratage Club`,
           event_title: event.title,
           event_date: formattedDate,
           event_time: formattedTime,
