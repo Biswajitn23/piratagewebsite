@@ -18,9 +18,11 @@ const NAV_ITEMS = [
 export type SiteHeaderProps = {
   onJoin: () => void;
   onAccessibility: () => void;
+  mobileNavOpen: boolean;
+  onMobileNavChange: (open: boolean) => void;
 };
 
-const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
+const SiteHeader = ({ onJoin, onAccessibility, mobileNavOpen, onMobileNavChange }: SiteHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { settings, updateSetting } = useExperienceSettings();
@@ -228,7 +230,7 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
             </Button>
           </div>
           {/* Join button hidden while membership is full */}
-          <Sheet>
+          <Sheet open={mobileNavOpen} onOpenChange={onMobileNavChange}>
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
@@ -248,7 +250,7 @@ const SiteHeader = ({ onJoin, onAccessibility }: SiteHeaderProps) => {
                   to="/"
                   className="flex items-center gap-0 rounded-full font-display text-lg"
                 >
-                  <OptimizedImage src="/piratagelogo.webp" alt="Piratage logo" width={32} height={32} className="h-8 w-8" />
+                  <OptimizedImage src="/piratagelogo.webp" alt="Piratage logo" width={64} height={64} className="h-16 w-16" />
                 </Link>
                 {renderNavLinks("mobile")}
                 <div className="flex flex-col gap-4">

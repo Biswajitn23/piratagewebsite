@@ -36,8 +36,10 @@ const HeroSection = () => {
     const mm = window.matchMedia("(max-width: 768px)");
     const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => {
-      setIsMobile(mm.matches);
+      const isMobileDevice = mm.matches;
+      setIsMobile(isMobileDevice);
       setPrefersReducedMotion(rm.matches);
+      console.log('Mobile detected:', isMobileDevice);
     };
     update();
     mm.addEventListener("change", update, { passive: true });
@@ -127,16 +129,16 @@ const HeroSection = () => {
         className="relative z-0 w-full max-w-6xl px-4 sm:px-4 flex flex-col items-start md:items-center justify-center min-h-[100vh] sm:min-h-[80vh]"
       >
         <div className="space-y-6 sm:space-y-6 md:space-y-8 hero-content w-full max-w-5xl md:max-w-4xl text-left md:text-center">
-          <h1 className="hero-headline font-display text-5xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight text-glow drop-shadow-[0_0_28px_rgba(138,43,226,0.45)] text-left md:text-center w-full whitespace-normal md:whitespace-nowrap">
+          <h1 className="hero-headline font-display text-5xl md:text-6xl lg:text-7xl leading-tight text-glow text-left w-full whitespace-normal md:whitespace-nowrap md:-ml-32 [animation:mobile-white-glow_2s_ease-in-out_infinite] md:[animation:none] md:drop-shadow-[0_0_28px_rgba(138,43,226,0.45)]">
             Piratage : The Ethical Hacking Club
           </h1>
-          <div className="sm:hidden h-1 w-24 bg-accent/90 rounded-full" aria-hidden="true" />
-          <div className="mt-3 sm:mt-4 inline-block rounded-xl sm:rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm px-5 py-2.5 sm:px-4 sm:py-2 shadow-sm">
+          <div className="sm:hidden h-1 w-24 bg-accent rounded-full mobile-blink-line" aria-hidden="true" />
+          <div className="mt-3 sm:mt-4 inline-block md:block rounded-xl sm:rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm px-5 py-2.5 sm:px-4 sm:py-2 shadow-sm">
             <p className="m-0 text-2xl sm:text-xl md:text-2xl lg:text-3xl font-display font-semibold uppercase tracking-[0.1em] sm:tracking-[0.12em] text-accent/95 text-left md:text-center">
               Where Hackers become Protectors
             </p>
           </div>
-          <p className="hero-subhead max-w-none sm:max-w-3xl text-lg sm:text-base md:text-lg text-muted-foreground px-1 sm:px-2 mt-4 sm:mt-6 text-left md:text-center leading-relaxed md:translate-x-8">
+          <p className="hero-subhead max-w-none sm:max-w-3xl text-lg sm:text-base md:text-lg text-muted-foreground px-1 sm:px-2 mt-4 sm:mt-6 text-left md:text-center leading-relaxed md:mx-auto">
             Piratage: University defenders turning curiosity into protection. We
             are the campus guild of ethical hackers crafting defenses, designing
             Hackathons, and teaching the next wave of guardians.

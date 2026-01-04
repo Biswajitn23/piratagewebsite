@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -67,23 +67,27 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="glass-panel w-full max-w-2xl overflow-hidden border border-white/10 p-0 text-foreground"
+        className="glass-panel w-[95vw] max-w-[min(95vw,32rem)] sm:max-w-2xl overflow-hidden border border-white/10 p-0 text-foreground max-h-[90vh] sm:max-h-[85vh] !z-[100]"
       >
         <div
-          className="relative max-h-[85vh] overflow-y-auto overscroll-contain touch-pan-y"
-          style={{ WebkitOverflowScrolling: "touch", maxHeight: "85dvh" }}
+          className="relative max-h-[85vh] sm:max-h-[85vh] overflow-y-auto overscroll-contain touch-pan-y"
+          style={{ 
+            WebkitOverflowScrolling: "touch", 
+            maxHeight: "min(85vh, 85dvh)",
+            paddingBottom: "env(safe-area-inset-bottom)"
+          }}
           onWheelCapture={(e) => e.stopPropagation()}
           onTouchMoveCapture={(e) => e.stopPropagation()}
         >
           <div className="pointer-events-none absolute inset-0 rounded-xl bg-cyber-grid opacity-60" aria-hidden="true" />
-          <div className="relative space-y-10 p-8">
+          <div className="relative space-y-6 sm:space-y-10 p-4 sm:p-8">
             <DialogHeader>
               <DialogTitle className="font-display text-3xl text-glow">
                 Accessibility &amp; Experience
               </DialogTitle>
-              <p className="text-sm text-muted-foreground mt-2">
+              <DialogDescription className="text-sm text-muted-foreground mt-2">
                 Full control over visuals, motion, audio, and interface scaling. All changes apply instantly.
-              </p>
+              </DialogDescription>
             </DialogHeader>
             <section aria-labelledby="motion-controls" className="space-y-6">
               <header className="flex items-center gap-3">
@@ -258,14 +262,14 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
                 description="Play a subtle ambient loop while browsing. Use volume to control loudness."
                 active={settings.backgroundMusicEnabled}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                   <Switch
                     checked={settings.backgroundMusicEnabled}
                     onCheckedChange={(checked) =>
                       updateSetting("backgroundMusicEnabled", Boolean(checked))
                     }
                   />
-                  <div className="w-40">
+                  <div className="flex-1 sm:w-40 min-w-[120px]">
                     <Slider
                       value={[settings.backgroundMusicVolume ?? 0.35]}
                       min={0}
@@ -313,19 +317,19 @@ type PreferenceRowProps = {
 
 const PreferenceRow = ({ label, description, children, active }: PreferenceRowProps) => (
   <div className={cn(
-    "flex flex-col gap-3 rounded-2xl border px-4 py-3 md:flex-row md:items-center md:justify-between transition-colors",
+    "flex flex-col gap-3 rounded-2xl border px-3 py-3 sm:px-4 transition-colors",
     active 
       ? "border-primary/40 bg-primary/10" 
       : "border-white/10 bg-white/5"
   )}>
-    <div>
+    <div className="flex-1 min-w-0">
       <p className={cn(
         "text-sm font-medium",
         active ? "text-primary" : "text-foreground"
       )}>{label}</p>
-      <p className="text-xs text-muted-foreground/80">{description}</p>
+      <p className="text-xs text-muted-foreground/80 mt-1">{description}</p>
     </div>
-    <div className="flex items-center justify-end gap-3">{children}</div>
+    <div className="flex items-center justify-start sm:justify-end gap-3 w-full">{children}</div>
   </div>
 );
 

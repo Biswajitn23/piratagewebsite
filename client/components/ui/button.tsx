@@ -67,11 +67,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
-      playBleep();
+      // Disabled to prevent unwanted audio
+      // playBleep();
       if (props.onMouseEnter) props.onMouseEnter(e);
     };
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      playBleep();
+      // Disabled to prevent unwanted audio
+      // playBleep();
       if (props.onClick) props.onClick(e);
     };
 

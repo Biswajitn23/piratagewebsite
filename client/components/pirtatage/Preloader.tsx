@@ -26,6 +26,9 @@ const Preloader = ({ onFinish }: PreloaderProps) => {
     let lfo: OscillatorNode | null = null;
 
     const createAudio = () => {
+      // DISABLED: Audio oscillator creates unwanted continuous sound
+      return;
+      /* Original audio code commented out
       // Respect user preference: if startup sound is disabled, don't create audio
       if (!settings.startupSoundEnabled) return;
       try {
@@ -73,6 +76,7 @@ const Preloader = ({ onFinish }: PreloaderProps) => {
       } catch (e) {
         ctx = null;
       }
+      */
     };
 
 
