@@ -51,6 +51,7 @@ if (hasIssues) {
 const testEvent = {
   to_email: process.env.TEST_EMAIL || "nbiswajit978@gmail.com",
   to_name: "Biswajit",
+  subject: "New Event Alert: Advanced Web Security Workshop | Piratage Club",
   event_title: "Advanced Web Security Workshop",
   event_date: "January 15, 2026",
   event_time: "6:00 PM - 8:00 PM IST",
