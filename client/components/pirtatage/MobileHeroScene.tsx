@@ -50,9 +50,10 @@ const MobileHeroScene = ({ fill }: MobileHeroSceneProps) => {
     const gl = canvas.getContext('webgl', {
       alpha: true,
       antialias: false,
-      depth: true,
+      depth: false,
       stencil: false,
-      powerPreference: 'low-power'
+      powerPreference: 'low-power',
+      desynchronized: true
     }) as WebGLRenderingContext | null;
 
     if (!gl) {
@@ -69,135 +70,218 @@ const MobileHeroScene = ({ fill }: MobileHeroSceneProps) => {
     };
     resize();
 
-    // Enable depth testing
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
+    // Disable depth testing for 2D shaders
+    gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
-    // Iridescent Silk shader with Perlin noise deformation
+    // Randomly select an effect on each visit (10 total effects)
+    const randomEffect = Math.floor(Math.random() * 10);
+    console.log('Selected effect:', randomEffect);
+
+    // Vertex shader
     const vertexShaderSource = `
       precision mediump float;
       attribute vec2 position;
       varying vec2 vUv;
-      varying vec3 vNormal;
-      varying vec3 vPosition;
-      uniform float time;
-      
-      // Simplex noise function
-      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-      vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-      vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
-      
-      float snoise(vec2 v) {
-        const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
-      varying vec3 vNormal;
-      varying vec3 vPosition;
-      uniform float time;
-      uniform vec2 resolution;
       
       void main() {
-        vec2 uv = vUv;
-        
-        // Iridescent color palette - shifting purples and metallics
-        vec3 deepPlum = vec3(0.29, 0.0, 0.51);        // #4b0082
-        vec3 electricViolet = vec3(0.54, 0.17, 0.89); // #8a2be2
-        vec3 magenta = vec3(0.7, 0.1, 0.5);           // Bright magenta
-        vec3 silver = vec3(0.75, 0.75, 0.8);          // Metallic silver
-        vec3 darkBg = vec3(0.024, 0.008, 0.09);       // Deep background
-        
-        // Fresnel effect for iridescence (viewing angle dependent)
-        vec3 viewDir = normalize(vec3(0.0, 0.0, 1.0) - vPosition);
-        float fresnel = pow(1.0 - max(dot(vNormal, viewDir), 0.0), 2.5);
-        
-        // Animated iridescent shift
-        float iridescent = sin(vPosition.z * 15.0 + time * 0.5 + uv.x * 3.0) * 0.5 + 0.5;
-        iridescent += cos(vPosition.z * 20.0 - time * 0.4 + uv.y * 4.0) * 0.3;
-        
-        // Base metallic purple color
-        vec3 baseColor = mix(deepPlum, electricViolet, iridescent);
-        
-        // Add iridescent highlights based on surface angle
-        vec3 iridColor = mix(electricViolet, magenta, fresnel);
-        iridColor = mix(iridColor, silver, fresnel * 0.4);
-        
-        // Combine base and iridescent colors
-        vec3 col = mix(baseColor, iridColor, fresnel * 0.6);
-        
-        // Add shimmer/sparkle effect on peaks
-        float shimmer = smoothstep(0.1, 0.3, vPosition.z);
-        col += silver * shimmer * 0.3 * sin(time * 2.0 + uv.x * 10.0);
-        
-        // Flowing color waves
-        float wave = sin(uv.x * 4.0 + time * 0.3 + vPosition.z * 10.0) * 0.5 + 0.5;
-        col = mix(col, magenta, wave * 0.2);
-        
-        // Soft gradient from center
-        float dist = length(uv - 0.5);
-        float radialGlow = 1.0 - smoothstep(0.2, 0.8, dist);
-        col += electricViolet * radialGlow * 0.15;
-        
-        // Vignette for depth
-        float vignette = 1.0 - dist * 0.6;
-        col *= vignette;
-        
-        // Ensure it blends with dark background
-        col = mix(darkBg, col, 0.85
-        return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-      }
-      
-      void main() {
-        vec2 uv = vUv;
-        vec2 p = uv * 3.0;
-        
-        // Website color palette - deep purples and dark tones
-        vec3 deepPurple = vec3(0.29, 0.0, 0.51);      // #4b0082
-        vec3 mediumPurple = vec3(0.54, 0.17, 0.89);   // #8a2be2
-        vec3 darkCyan = vec3(0.0, 0.4, 0.5);          // Teal accent
-        vec3 deepBg = vec3(0.024, 0.008, 0.09);       // Dark background
-        
-        // Flowing particles effect
-        float n1 = smoothNoise(p + time * 0.3);
-        float n2 = smoothNoise(p * 2.0 - vec2(time * 0.2, time * 0.4));
-        float n3 = smoothNoise(p * 1.5 + vec2(-time * 0.15, time * 0.25));
-        
-        // Combine noise for flowing effect
-        float flow = (n1 + n2 * 0.5 + n3 * 0.3) / 1.8;
-        
-        // Create depth layers
-        float layer1 = sin(p.x * 2.0 + flow * 3.0 + time * 0.5) * 0.5 + 0.5;
-        float layer2 = cos(p.y * 1.5 - flow * 2.0 - time * 0.4) * 0.5 + 0.5;
-        
-        // Mix colors based on flow
-        vec3 col = mix(deepBg, deepPurple, flow * 0.6);
-        col = mix(col, mediumPurple, layer1 * 0.4);
-        col = mix(col, darkCyan, layer2 * n2 * 0.3);
-        
-        // Subtle scanlines
-        float scanline = sin(uv.y * 150.0 + time * 2.0) * 0.02 + 0.98;
-        col *= scanline;
-        
-        // Radial gradient from center
-        float dist = length(uv - 0.5);
-        float radial = 1.0 - smoothstep(0.0, 0.8, dist);
-        col += mediumPurple * radial * 0.1 * sin(time * 0.5);
-        
-        // Subtle particle sparkles
-        float sparkle = smoothNoise(p * 8.0 + time * 0.8);
-        if (sparkle > 0.92) {
-          col += mediumPurple * (sparkle - 0.92) * 5.0;
-        }
-        
-        // Vignette matching website style
-        float vignette = 1.0 - dist * 0.7;
-        col *= vignette;
-        
-        // Ensure minimum darkness to match website
-        col = max(col, deepBg * 0.8);
-        
-        gl_FragColor = vec4(col, 1.0);
+        vUv = position * 0.5 + 0.5;
+        gl_Position = vec4(position, 0.0, 1.0);
       }
     `;
+
+    // Fragment shader variations - Enhanced intense effects for mobile
+    const fragmentShaders = [
+      // Effect 0: Void Tendrils (Enhanced)
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      void main() {
+        vec2 p = (vUv - 0.5) * 2.0;
+        vec3 col = vec3(0.0);
+        for(float i = 0.0; i < 8.0; i++) {
+          float angle = i * 0.785 + time * 0.5;
+          vec2 dir = vec2(cos(angle), sin(angle));
+          float tentacle = sin(dot(p, dir) * 12.0 - time * 3.0) * 0.5 + 0.5;
+          tentacle = pow(tentacle, 3.0);
+          float glow = tentacle / (1.0 + length(p - dir * 0.4) * 2.0);
+          col += vec3(0.5, 0.0, 0.8) * glow * 0.8 + vec3(0.9, 0.2, 1.0) * pow(glow, 2.0) * 0.6;
+        }
+        col *= 1.0 - length(p) * 0.2;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 1: Obsidian Veins (Enhanced)
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec2 p = vUv * 10.0;
+        vec2 id = floor(p), gv = fract(p) - 0.5;
+        float cracks = 0.0;
+        for(int y = -1; y <= 1; y++) {
+          for(int x = -1; x <= 1; x++) {
+            vec2 offset = vec2(float(x), float(y));
+            float h = hash(id + offset);
+            vec2 point = offset + sin(h * 6.28 + time * 0.8) * 0.4;
+            cracks += 0.04 / length(gv - point);
+          }
+        }
+        cracks = min(cracks, 1.5);
+        vec3 col = mix(vec3(0.0, 0.0, 0.02), vec3(0.08, 0.08, 0.12), cracks * 0.5);
+        vec3 glow = mix(vec3(0.7, 0.0, 1.0), vec3(0.0, 0.8, 1.0), sin(time + length(p)) * 0.5 + 0.5);
+        col += glow * smoothstep(0.1, 0.6, cracks) * 0.7;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 2: Dark Matter Waves (Enhanced)
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      void main() {
+        vec2 p = (vUv - 0.5) * 2.0;
+        float dist = length(p);
+        float ripple1 = sin(dist * 18.0 - time * 3.0) * 0.5 + 0.5;
+        float ripple2 = sin(dist * 12.0 - time * 2.0 + 3.14) * 0.5 + 0.5;
+        float waves = pow(ripple1 * ripple2, 2.0);
+        vec3 col = vec3(0.0) + vec3(0.25, 0.0, 0.4) * waves * 0.9 + vec3(0.7, 0.2, 1.0) * waves * smoothstep(0.7, 1.0, waves) * 0.8;
+        col *= 1.0 - dist * 0.3;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 3: Shadow Lattice (Enhanced)
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec2 grid = fract(vUv * 18.0);
+        float lines = min(smoothstep(0.08, 0.0, abs(grid.x - 0.5)), smoothstep(0.08, 0.0, abs(grid.y - 0.5)));
+        vec2 cell = floor(vUv * 18.0);
+        float h = hash(cell);
+        float pulse = step(0.95, sin(time * 4.0 + h * 6.28) * 0.5 + 0.5) * step(h, 0.15);
+        vec3 col = vec3(0.0, 0.0, 0.03) + vec3(0.6, 0.0, 0.9) * lines * 0.4 + vec3(1.0, 0.8, 1.0) * pulse * 1.0;
+        col *= 1.0 - length(vUv - 0.5) * 0.6;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 4: Abyssal Smoke (Enhanced)
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float noise(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec2 p = (vUv - 0.5) * 2.0;
+        float smoke = 0.0;
+        for(float i = 0.0; i < 6.0; i++) {
+          vec2 offset = vec2(sin(time * 0.5 + i), cos(time * 0.4 + i)) * 0.6;
+          smoke += noise(p * (2.5 + i) + offset + time * 0.2) / (i + 1.0);
+        }
+        smoke = smoothstep(0.2, 0.8, smoke);
+        vec3 col = mix(vec3(0.0), vec3(0.15, 0.12, 0.2), smoke * 0.8);
+        col = mix(col, vec3(0.5, 0.2, 0.8), smoke * smoothstep(0.5, 1.0, smoke) * 0.7);
+        col *= 1.0 - length(p) * 0.3;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 5: Midnight Prism (Enhanced)
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      void main() {
+        vec2 p = (vUv - 0.5) * 2.0;
+        float angle = atan(p.y, p.x), radius = length(p);
+        float prism = pow(abs(sin(angle * 8.0 + time * 0.8) * sin(radius * 12.0 - time * 1.5)), 1.5);
+        vec3 col = vec3(0.0) + vec3(0.4, 0.0, 0.7) * prism * 0.8;
+        col = mix(col, vec3(0.6, 0.2, 0.9), prism * 0.6) + vec3(0.2, 0.6, 0.9) * smoothstep(0.7, 1.0, prism) * 0.6;
+        col *= 1.0 - radius * 0.2;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 6: Phantom Circuit (Enhanced)
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec2 grid = floor(vUv * 25.0), gv = fract(vUv * 25.0);
+        float h = hash(grid), circuit = 0.0;
+        if(h > 0.6) circuit = smoothstep(0.12, 0.0, abs(gv.x - 0.5));
+        else if(h > 0.3) circuit = smoothstep(0.12, 0.0, abs(gv.y - 0.5));
+        float pulse = sin(time * 3.0 + h * 6.28) * 0.5 + 0.5;
+        float node = smoothstep(0.18, 0.0, length(gv - 0.5));
+        vec3 col = vec3(0.0) + vec3(0.0, 0.08, 0.25) * circuit * 0.5 + vec3(0.2, 0.7, 1.0) * circuit * pulse * 0.8 + vec3(0.8, 1.0, 1.0) * node * pulse * 1.0;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 7: Eclipse Halo (Enhanced)
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      void main() {
+        vec2 p = (vUv - 0.5) * 2.0;
+        float dist = length(p);
+        float eclipse = smoothstep(0.55, 0.6, dist) * smoothstep(0.85, 0.75, dist);
+        float corona = 1.2 / (1.0 + abs(dist - 0.7) * 25.0);
+        float flare = pow(sin(atan(p.y, p.x) * 12.0 + time * 1.5) * 0.5 + 0.5, 2.0) * eclipse;
+        vec3 col = vec3(0.0) + vec3(0.5, 0.0, 0.8) * eclipse * 0.9 + vec3(1.0, 0.2, 0.9) * corona * 0.8 + vec3(1.0, 1.0, 1.0) * flare * 0.6;
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 8: Starfield Warp (Enhanced)
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        vec2 p = (vUv - 0.5) * 2.0;
+        vec3 col = vec3(0.0);
+        float speed = time * 0.8;
+        for(float i = 0.0; i < 60.0; i++) {
+          vec2 starPos = vec2(hash(vec2(i, 0.0)), hash(vec2(i, 1.0))) * 2.0 - 1.0;
+          vec2 dir = normalize(starPos);
+          float warp = fract(length(starPos) - speed + hash(vec2(i)) * 2.0);
+          vec2 pos = dir * warp * 1.8;
+          float size = mix(0.003, 0.012, warp);
+          float star = smoothstep(size, 0.0, length(p - pos));
+          float trail = smoothstep(0.015, 0.0, length(p - pos * 0.85)) * (1.0 - warp);
+          col += vec3(1.0, 0.9, 1.0) * star * 1.2 + vec3(0.5, 0.6, 1.0) * trail * 0.6;
+        }
+        gl_FragColor = vec4(col, 1.0);
+      }`,
+      
+      // Effect 9: Glitch Matrix (Enhanced)
+      `precision mediump float;
+      varying vec2 vUv;
+      uniform float time;
+      uniform vec2 resolution;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      void main() {
+        float glitchTime = floor(time * 12.0);
+        vec2 glitchUv = vUv;
+        if(hash(vec2(glitchTime, floor(vUv.y * 25.0))) > 0.85) glitchUv.x += (hash(vec2(glitchTime)) - 0.5) * 0.15;
+        vec2 grid = floor(glitchUv * vec2(50.0, 30.0));
+        float h = hash(grid + vec2(glitchTime * 0.15));
+        float char = step(0.5, h);
+        float glow = h * step(0.75, h);
+        vec3 col = vec3(0.0) + vec3(0.3, 0.0, 0.5) * char * 0.25 + mix(vec3(0.9, 0.2, 1.0), vec3(0.2, 1.0, 1.0), h) * glow * 0.9;
+        col *= sin(vUv.y * 250.0 + time * 8.0) * 0.05 + 0.95;
+        gl_FragColor = vec4(col, 1.0);
+      }`
+    ];
+
+    const fragmentShaderSource = fragmentShaders[randomEffect];
 
     const createShader = (type: number, source: string) => {
       const shader = gl.createShader(type);
@@ -273,6 +357,12 @@ const MobileHeroScene = ({ fill }: MobileHeroSceneProps) => {
 
       lastFrameTime = now;
       const time = (now - startTime) * 0.001;
+
+      // Skip frames if page is not visible
+      if (document.hidden) {
+        rafRef.current = requestAnimationFrame(render);
+        return;
+      }
 
       gl.clearColor(0.024, 0.004, 0.082, 1);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);

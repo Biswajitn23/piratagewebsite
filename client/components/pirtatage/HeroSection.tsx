@@ -11,6 +11,35 @@ import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
 import { useLayoutBridge } from "@/contexts/LayoutBridgeContext";
 import useWebGL from "@/hooks/use-webgl";
 
+// Blinking line component
+const BlinkingLine = () => {
+  const [opacity, setOpacity] = useState(1);
+  
+  useEffect(() => {
+    let frame = 0;
+    const animate = () => {
+      frame++;
+      // Sine wave for smooth fade: 1 -> 0.1 -> 1 (more pronounced)
+      const newOpacity = 0.55 + 0.45 * Math.sin(frame * 0.025);
+      setOpacity(newOpacity);
+      requestAnimationFrame(animate);
+    };
+    const id = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(id);
+  }, []);
+  
+  return (
+    <div 
+      className="sm:hidden h-1 w-24 bg-accent rounded-full" 
+      aria-hidden="true"
+      style={{ 
+        opacity,
+        transition: 'opacity 0.1s ease-out'
+      }}
+    />
+  );
+};
+
 // Defer GSAP plugin registration to idle time
 let gsapInitialized = false;
 const initGSAP = () => {
@@ -132,7 +161,7 @@ const HeroSection = () => {
           <h1 className="hero-headline font-display text-5xl md:text-6xl lg:text-7xl leading-tight text-glow text-left w-full whitespace-normal md:whitespace-nowrap md:-ml-32 [animation:mobile-white-glow_2s_ease-in-out_infinite] md:[animation:none] md:drop-shadow-[0_0_28px_rgba(138,43,226,0.45)]">
             Piratage : The Ethical Hacking Club
           </h1>
-          <div className="sm:hidden h-1 w-24 bg-accent rounded-full mobile-blink-line" aria-hidden="true" />
+          <BlinkingLine />
           <div className="mt-3 sm:mt-4 inline-block md:block rounded-xl sm:rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm px-5 py-2.5 sm:px-4 sm:py-2 shadow-sm">
             <p className="m-0 text-2xl sm:text-xl md:text-2xl lg:text-3xl font-display font-semibold uppercase tracking-[0.1em] sm:tracking-[0.12em] text-accent/95 text-left md:text-center">
               Where Hackers become Protectors
