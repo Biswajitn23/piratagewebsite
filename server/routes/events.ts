@@ -171,6 +171,17 @@ async function sendEventInvitesToSubscribers(eventId: string) {
     // Send emails to all subscribers
     for (const email of subscribers) {
       try {
+        // Get unsubscribe token
+        const subscriberDoc = await db.collection("subscribers")
+          .where("email", "==", email)
+          .limit(1)
+          .get();
+
+        const unsubscribeToken = subscriberDoc.docs[0]?.data().unsubscribe_token || '';
+        const unsubscribeUrl = unsubscribeToken 
+          ? `${appUrl}/api/unsubscribe?token=${unsubscribeToken}`
+          : '';
+
         const templateParams = {
           to_email: email,
           to_name: email.split('@')[0],
@@ -180,8 +191,10 @@ async function sendEventInvitesToSubscribers(eventId: string) {
           event_time: formattedTime,
           event_location: event.location || event.venue || 'TBA',
           event_description: event.description || 'No description provided',
+          event_cover_url: event.coverImage || '',
           event_url: event.registrationLink || `${appUrl}/#events`,
           ics_download_url: icsDownloadUrl,
+          unsubscribe_url: unsubscribeUrl,
           app_url: appUrl,
           logo_url: 'https://piratageauc.vercel.app/piratagelogo.webp',
           year: new Date().getFullYear().toString(),
