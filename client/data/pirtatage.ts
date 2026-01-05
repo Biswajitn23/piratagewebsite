@@ -227,7 +227,7 @@ export const members: MemberRecord[] = [
     avatarImage: "/swati.jpeg",
     social: {
       linkedin: "",
-      instagram: "",
+      instagram: "https://www.instagram.com/swati_agrawall_13/",
     },
     notable: "",
   },
@@ -284,10 +284,10 @@ export const members: MemberRecord[] = [
     name: "Rupendra Kumar Sahu",
     position: "UI/UX Expert",
     roles: ["Design"],
-    avatarImage: "/rupendra.webp",
+    avatarImage: "/rupendra.jpeg",
     social: {
       linkedin: "",
-      instagram: "",
+      instagram: "https://www.instagram.com/rupendra7323?igsh=MTRwdjh0ZWp0OGt6MQ==",
     },
     notable: "",
   },
