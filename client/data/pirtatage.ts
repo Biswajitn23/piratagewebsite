@@ -215,7 +215,7 @@ export const members: MemberRecord[] = [
     avatarImage: "/yash.webp",
     social: {
       linkedin: "https://www.linkedin.com/in/yash-bhikhwani-957200330/",
-      instagram: "",
+      instagram: "https://www.instagram.com/yashbhikhwani108/",
     },
     notable: "",
   },
