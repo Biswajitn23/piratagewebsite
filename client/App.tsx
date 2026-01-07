@@ -10,6 +10,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ExperienceSettingsProvider } from "@/contexts/ExperienceSettingsContext";
 import Index from "./pages/Index";
+import Events from "./pages/Events";
+import Team from "./pages/Team";
+import Gallery from "./pages/Gallery";
+import Programs from "./pages/Programs";
+import GetInvolved from "./pages/GetInvolved";
 import LegalPlaceholder from "./pages/LegalPlaceholder";
 import NotFound from "./pages/NotFound";
 import { usePerfMonitor } from "@/hooks/use-perf-monitor";
@@ -28,6 +33,11 @@ const App = () => (
           <SiteLayout>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/programs" element={<Programs />} />
+              <Route path="/get-involved" element={<GetInvolved />} />
               <Route
                 path="/code-of-conduct"
                 element={<LegalPlaceholder type="code-of-conduct" />}

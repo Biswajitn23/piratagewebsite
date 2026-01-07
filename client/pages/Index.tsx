@@ -1,18 +1,13 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 
 import Preloader from "@/components/pirtatage/Preloader";
-import EventsSection from "@/components/pirtatage/EventsSection";
-import PiratageMarquee from "@/components/pirtatage/PiratageMarquee";
 import HeroMarquee from "@/components/pirtatage/HeroMarquee";
-import GetInvolvedSection from "@/components/pirtatage/GetInvolvedSection";
 import AboutSection from "@/components/pirtatage/AboutSection";
 import BackgroundMusic from "@/components/BackgroundMusic";
 
 // Lazy load heavy components to reduce initial bundle
 const HeroSection = lazy(() => import("@/components/pirtatage/HeroSection"));
 const ProgramsSection = lazy(() => import("@/components/pirtatage/ProgramsSection"));
-const MembersSection = lazy(() => import("@/components/pirtatage/MembersSection"));
-const GallerySection = lazy(() => import("@/components/pirtatage/GallerySection"));
 
 import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
 
@@ -84,22 +79,12 @@ const Index = () => {
         <HeroSection />
       </Suspense>
       <HeroMarquee />
-<div className="relative z-10 isolation-isolate mx-auto flex max-w-[1440px] flex-col gap-0 px-6 pb-24 md:pb-28">
-  <AboutSection />
-  <Suspense fallback={<div className="min-h-[400px]" />}>
-    <ProgramsSection />
-  </Suspense>
-  <EventsSection />
-  <PiratageMarquee />
-  <div style={{ marginTop: '1.5rem' }} />
-  <Suspense fallback={<div className="min-h-[400px]" />}>
-    <MembersSection />
-  </Suspense>
-  <Suspense fallback={<div className="min-h-[600px]" />}>
-    <GallerySection />
-  </Suspense>
-  <GetInvolvedSection />
-</div>
+      <div className="relative z-10 isolation-isolate mx-auto flex max-w-[1440px] flex-col gap-0 px-6">
+        <AboutSection />
+        <Suspense fallback={<div className="min-h-[400px]" />}>
+          <ProgramsSection />
+        </Suspense>
+      </div>
     </div>
   );
 };

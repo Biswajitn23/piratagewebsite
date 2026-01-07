@@ -145,7 +145,7 @@ const AboutSection = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center justify-center md:absolute md:right-0 md:top-0 md:h-full md:w-1/2 w-full h-64 sm:h-72 md:h-full md:rounded-r-3xl overflow-hidden p-6 md:p-0 mt-4 md:mt-0 bg-black/20 md:bg-transparent rounded-2xl md:rounded-none md:desktop-animate-slide-right">
+              <div className="flex items-center justify-center md:absolute md:right-0 md:top-0 md:h-full md:w-1/2 w-full h-64 sm:h-72 md:h-full md:rounded-r-3xl overflow-hidden p-6 md:p-0 mt-4 md:mt-0 bg-white/5 md:bg-transparent rounded-2xl md:rounded-none md:desktop-animate-slide-right">
                 <OptimizedImage
                   src="/bgremove.svg"
                   alt="Piratage Logo"
