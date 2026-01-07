@@ -237,6 +237,31 @@ const SiteHeader = ({ onJoin, onAccessibility, mobileNavOpen, onMobileNavChange 
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="hidden md:flex items-center gap-2 sm:gap-3">
+            <button
+              className="sponsor-star-btn"
+              onClick={() => handleNavigate('/sponsors')}
+              aria-label="Sponsor us"
+            >
+              Sponsor Us
+              <div className="star-1 star-hide">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+              </div>
+              <div className="star-2 star-hide">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+              </div>
+              <div className="star-3 star-hide">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+              </div>
+              <div className="star-4 star-hide">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+              </div>
+              <div className="star-5 star-hide">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+              </div>
+              <div className="star-6 star-hide">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+              </div>
+            </button>
             <Button
               variant="ghost"
               size="sm"
@@ -272,6 +297,36 @@ const SiteHeader = ({ onJoin, onAccessibility, mobileNavOpen, onMobileNavChange 
                 </Link>
                 {renderNavLinks("mobile")}
                 <div className="flex flex-col gap-4">
+                  <div className="w-full flex justify-start">
+                    <button
+                      className="sponsor-star-btn"
+                      onClick={() => {
+                        handleNavigate('/sponsors');
+                        onMobileNavChange(false);
+                      }}
+                      aria-label="Sponsor us"
+                    >
+                      Sponsor Us
+                      <div className="star-1 star-hide">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+                      </div>
+                      <div className="star-2 star-hide">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+                      </div>
+                      <div className="star-3 star-hide">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+                      </div>
+                      <div className="star-4 star-hide">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+                      </div>
+                      <div className="star-5 star-hide">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+                      </div>
+                      <div className="star-6 star-hide">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 784.11 815.53"><path className="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"/></svg>
+                      </div>
+                    </button>
+                  </div>
                   <Button
                     variant="ghost"
                     className="justify-start gap-3 text-sm"
