@@ -115,7 +115,9 @@ const MembersSection = () => {
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[10px] sm:text-xs uppercase tracking-[0.18em] sm:tracking-[0.24em] overflow-visible">
           <Button
             variant={activeCategory === "All" ? "default" : "ghost"}
-            className="rounded-full border border-white/10 bg-white/10"
+            className={activeCategory === "All" 
+              ? "rounded-full border border-primary/50 bg-primary/30 text-white font-semibold shadow-[0_0_15px_rgba(20,255,236,0.3)]" 
+              : "rounded-full border border-white/10 bg-white/5 hover:bg-white/10"}
             onClick={() => setActiveCategory("All")}
           >
             All
@@ -124,7 +126,9 @@ const MembersSection = () => {
             <Button
               key={category.label}
               variant={activeCategory === category.label ? "default" : "ghost"}
-              className="rounded-full border border-white/10 bg-white/10"
+              className={activeCategory === category.label
+                ? "rounded-full border border-primary/50 bg-primary/30 text-white font-semibold shadow-[0_0_15px_rgba(20,255,236,0.3)]"
+                : "rounded-full border border-white/10 bg-white/5 hover:bg-white/10"}
               onClick={() => setActiveCategory(category.label)}
             >
               {category.label}
@@ -174,6 +178,8 @@ const MembersSection = () => {
                 {member.social.linkedin && (
                   <a
                     href={member.social.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="tilt-hover inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5"
                     aria-label={`${member.name} LinkedIn`}
                     onClick={(e) => e.stopPropagation()}
@@ -184,6 +190,8 @@ const MembersSection = () => {
                 {member.social.instagram && (
                   <a
                     href={member.social.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="tilt-hover inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5"
                     aria-label={`${member.name} Instagram`}
                     onClick={(e) => e.stopPropagation()}

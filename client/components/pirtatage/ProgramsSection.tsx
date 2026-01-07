@@ -50,7 +50,7 @@ const ProgramsSection = () => {
   return (
     <section
       id="programs"
-      className="relative mx-auto mt-8 sm:mt-16 md:mt-28 mb-8 sm:mb-12 md:mb-20 flex max-w-6xl flex-col gap-6 sm:gap-8 md:gap-12 px-3 sm:px-4 md:px-6 overflow-visible"
+      className="relative mx-auto mt-8 sm:mt-16 md:mt-28 mb-6 sm:mb-8 flex max-w-6xl flex-col gap-6 sm:gap-8 md:gap-12 px-3 sm:px-4 md:px-6 overflow-visible"
       aria-labelledby="programs-title"
     >
       <div className="space-y-3 sm:space-y-4 text-center">
@@ -66,7 +66,7 @@ const ProgramsSection = () => {
           return (
             <motion.article
               key={program.name}
-              className="tilt-hover group flex h-full flex-col justify-between rounded-2xl sm:rounded-3xl tubelight-border bg-white/5 p-4 sm:p-6 shadow-glass overflow-visible"
+              className="tilt-hover group flex h-full flex-col justify-between rounded-2xl sm:rounded-3xl tubelight-border bg-white/8 backdrop-blur-xl p-4 sm:p-6 shadow-glass overflow-visible"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false, amount: 0.4 }}
@@ -74,7 +74,7 @@ const ProgramsSection = () => {
             >
               <div className="flex flex-col gap-3 sm:gap-4">
                 <h3 className="font-display text-lg sm:text-xl text-foreground color-shift-text">{program.name}</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground">{program.blurb}</p>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{program.blurb}</p>
               </div>
             </motion.article>
           );

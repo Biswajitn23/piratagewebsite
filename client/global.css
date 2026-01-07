@@ -134,12 +134,16 @@
     @apply bg-background text-foreground antialiased;
     min-height: 100vh;
     background: linear-gradient(
-      135deg,
-      #0d0d0d 0%,
-      #1c1c1c 25%,
-      #4b0082 50%,
-      #8a2be2 75%,
-      #f0f0f0 100%
+      to bottom,
+      #000000 0%,
+      #000000 10%,
+      #0a0a0f 25%,
+      #0f0a1a 40%,
+      #1a0f2e 55%,
+      #2d1b4e 70%,
+      #4b0082 80%,
+      #6a1b9a 90%,
+      #8a2be2 100%
     );
     position: relative;
     overflow-x: hidden;
@@ -586,11 +590,13 @@
     contain: layout style;
   }
 
-  /* Simplify complex gradients on mobile */
+  /* Keep semi-transparent glass effect on mobile */
   .glass-panel,
   .shadow-glass {
-    background: rgba(20, 20, 28, 0.85) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
   }
   
   /* Disable text effects on mobile */

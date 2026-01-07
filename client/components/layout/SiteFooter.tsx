@@ -13,7 +13,7 @@ export type SiteFooterProps = {
 const SiteFooter = ({ onJoin }: SiteFooterProps) => {
 
   return (
-    <footer className="relative mt-32 border-t border-white/10 bg-[#05021a]/80 backdrop-blur-3xl">
+    <footer className="relative mt-8 border-t border-white/10 bg-[#05021a]/80 backdrop-blur-3xl">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#07031f] via-transparent to-transparent opacity-60" />
       <div className="relative mx-auto flex max-w-7xl flex-col gap-16 px-6 py-16">
         <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">
@@ -21,11 +21,11 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
             <div className="relative z-10">
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-primary/30">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-primary/30 animate-pulse">
                   <MessageCircle className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-display text-xl text-foreground tracking-wide">
+                  <h3 className="font-display text-xl text-foreground tracking-wide animate-pulse">
                     Message from the President
                   </h3>
                   <p className="text-xs text-muted-foreground/60 uppercase tracking-wider">Leadership Vision</p>

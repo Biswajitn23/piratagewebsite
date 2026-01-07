@@ -9,10 +9,12 @@ import { cn } from "@/lib/utils";
 import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
 
 const NAV_ITEMS = [
-  { label: "Overview", hash: "overview" },
-  { label: "About", hash: "about" },
-  { label: "Events", hash: "events" },
-  { label: "Get Involved", hash: "get-involved" },
+  { label: "Overview", path: "/#overview" },
+  { label: "About", path: "/#about" },
+  { label: "Events", path: "/events" },
+  { label: "Team", path: "/team" },
+  { label: "Gallery", path: "/gallery" },
+  { label: "Get Involved", path: "/get-involved" },
 ];
 
 export type SiteHeaderProps = {
@@ -47,27 +49,15 @@ const SiteHeader = ({ onJoin, onAccessibility, mobileNavOpen, onMobileNavChange 
     [],
   );
 
-  // Track section in view for active nav state
+  // Track active path
   useEffect(() => {
-    const ids = NAV_ITEMS.map((i) => i.hash);
-    const elements = ids
-      .map((id) => document.getElementById(id))
-      .filter(Boolean) as HTMLElement[];
-    if (!elements.length || typeof window === "undefined") return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveHash(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: "-40% 0% -55% 0%", threshold: 0 },
-    );
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [location.pathname]);
+    // For hash links, track the full path with hash
+    if (location.hash) {
+      setActiveHash(location.pathname + location.hash);
+    } else {
+      setActiveHash(location.pathname);
+    }
+  }, [location.pathname, location.hash]);
 
   // Observe global hide flag
   useEffect(() => {
@@ -85,6 +75,17 @@ const SiteHeader = ({ onJoin, onAccessibility, mobileNavOpen, onMobileNavChange 
 
   // Compact header after hero section (transparent over hero, opaque after)
   useEffect(() => {
+    // For gallery page, make it compact after minimal scroll
+    if (location.pathname === '/gallery') {
+      const onScroll = () => {
+        setCompact(window.scrollY > 10);
+      };
+      onScroll();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      return () => window.removeEventListener("scroll", onScroll);
+    }
+
+    // For other pages, use hero-based detection
     const hero = typeof document !== "undefined" ? document.getElementById("overview") : null;
     if (hero && typeof IntersectionObserver !== "undefined") {
       const obs = new IntersectionObserver(
@@ -110,23 +111,34 @@ const SiteHeader = ({ onJoin, onAccessibility, mobileNavOpen, onMobileNavChange 
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [location.pathname]);
 
   const handleNavigate = useCallback(
-    (hash: string) => {
-      const sanitized = hash.startsWith("#") ? hash : `#${hash}`;
-      if (location.pathname !== "/") {
-        navigate(`/${sanitized}`);
-        return;
+    (path: string) => {
+      // Handle hash-based navigation
+      if (path.includes('#')) {
+        const [pathname, hash] = path.split('#');
+        
+        // If we're on the same page, just scroll
+        if (pathname === '' || pathname === location.pathname) {
+          const element = document.getElementById(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+            // Update URL without page reload
+            window.history.replaceState(null, "", path);
+            setActiveHash(path);
+          }
+        } else {
+          // Navigate to different page with hash
+          navigate(path);
+        }
+      } else {
+        // Regular page navigation - scroll to top
+        window.scrollTo({ top: 0, behavior: "instant" });
+        navigate(path);
       }
-      if (window.location.hash !== sanitized) {
-        window.history.replaceState(null, "", sanitized);
-      }
-      const element = document.getElementById(hash.replace("#", ""));
-      if (element)
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
     },
-    [location.pathname, navigate],
+    [navigate, location.pathname],
   );
 
 
@@ -139,18 +151,24 @@ const SiteHeader = ({ onJoin, onAccessibility, mobileNavOpen, onMobileNavChange 
         )}
       >
         {NAV_ITEMS.map((item) => {
-          const isActive = activeHash === item.hash;
+          const isActive = activeHash === item.path;
           return (
-            <li key={item.hash} className="list-none">
+            <li key={item.path} className="list-none">
               <button
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "relative text-sm font-semibold uppercase tracking-[0.18em] text-foreground/80 transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:outline-none",
+                  "relative text-sm font-semibold uppercase tracking-[0.18em] text-foreground/80 transition-colors hover:text-accent focus-visible:text-accent focus-visible:outline-none",
                   "after:absolute after:-bottom-2 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-gradient-to-r after:from-[#ad5389] after:via-[#8f3c8a] after:to-[#3c1053] after:transition-transform after:duration-300 hover:after:scale-x-100 focus-visible:after:scale-x-100",
                   isActive && "text-foreground after:scale-x-100",
                   variant === "mobile" && "text-base",
                 )}
-                onClick={() => handleNavigate(item.hash)}
+                onClick={() => {
+                  handleNavigate(item.path);
+                  // Close mobile nav when a nav item is clicked
+                  if (variant === "mobile") {
+                    onMobileNavChange(false);
+                  }
+                }}
               >
                 {item.label}
               </button>

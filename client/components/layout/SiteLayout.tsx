@@ -5,6 +5,7 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import AccessibilityPanel from "@/components/layout/AccessibilityPanel";
 import JoinCrewDialog from "@/components/modals/JoinCrewDialog";
+import PiratageMarquee from "@/components/pirtatage/PiratageMarquee";
 import { LayoutBridgeProvider } from "@/contexts/LayoutBridgeContext";
 import { useLenisSmoothScroll } from "@/hooks/use-lenis";
 
@@ -13,6 +14,13 @@ const SiteLayout = ({ children }: { children: ReactNode }) => {
 
   // Initialize Lenis smooth scrolling globally
   useLenisSmoothScroll();
+
+  // Scroll to top when navigating to a new page (not hash changes)
+  useEffect(() => {
+    if (!location.hash) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+  }, [location.pathname]);
 
   // Handle hash-based navigation with Lenis when available
   useEffect(() => {
@@ -64,6 +72,7 @@ const SiteLayout = ({ children }: { children: ReactNode }) => {
           <main id="main-content" className="flex-1">
             {children}
           </main>
+          <PiratageMarquee />
           <SiteFooter onJoin={openJoinDialog} />
           <JoinCrewDialog
             open={joinDialogOpen}

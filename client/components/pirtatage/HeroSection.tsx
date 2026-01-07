@@ -19,8 +19,8 @@ const BlinkingLine = () => {
     let frame = 0;
     const animate = () => {
       frame++;
-      // Sine wave for smooth fade: 1 -> 0.1 -> 1 (more pronounced)
-      const newOpacity = 0.55 + 0.45 * Math.sin(frame * 0.025);
+      // Sine wave for smooth fade: 1 -> 0.1 -> 1 (increased speed for mobile)
+      const newOpacity = 0.55 + 0.45 * Math.sin(frame * 0.06);
       setOpacity(newOpacity);
       requestAnimationFrame(animate);
     };
@@ -34,7 +34,7 @@ const BlinkingLine = () => {
       aria-hidden="true"
       style={{ 
         opacity,
-        transition: 'opacity 0.1s ease-out'
+        transition: 'opacity 0.05s ease-out'
       }}
     />
   );
@@ -127,11 +127,7 @@ const HeroSection = () => {
   }, [settings.motionEnabled, isMobile]);
 
   const goToEvents = () => {
-    if (document.getElementById("events")) {
-      document.getElementById("events")?.scrollIntoView({ behavior: "smooth" });
-    } else {
-      navigate("/#events");
-    }
+    navigate("/events");
   };
 
   return (
@@ -158,7 +154,7 @@ const HeroSection = () => {
         className="relative z-0 w-full max-w-6xl px-4 sm:px-4 flex flex-col items-start md:items-center justify-center min-h-[100vh] sm:min-h-[80vh]"
       >
         <div className="space-y-6 sm:space-y-6 md:space-y-8 hero-content w-full max-w-5xl md:max-w-4xl text-left md:text-center">
-          <h1 className="hero-headline font-display text-5xl md:text-6xl lg:text-7xl leading-tight text-glow text-left w-full whitespace-normal md:whitespace-nowrap md:-ml-32 [animation:mobile-white-glow_2s_ease-in-out_infinite] md:[animation:none] md:drop-shadow-[0_0_28px_rgba(138,43,226,0.45)]">
+          <h1 className="hero-headline font-display text-5xl md:text-6xl lg:text-7xl leading-tight text-glow text-left w-full whitespace-normal md:whitespace-nowrap md:-ml-32 mobile-white-glow md:purple-glow">
             Piratage : The Ethical Hacking Club
           </h1>
           <BlinkingLine />
@@ -208,6 +204,42 @@ const FallbackHeroVisual = () => (
       <circle cx="256" cy="176" r="36" />
     </svg>
     <div className="absolute inset-0 hidden md:block md:animate-[pulse_3s_ease-in-out_infinite] bg-gradient-to-br from-neon-purple/10 via-transparent to-neon-teal/10" />
+    <style>{`
+      @media (max-width: 768px) {
+        .mobile-white-glow {
+          text-shadow: 
+            0 0 20px rgba(255, 255, 255, 0.9),
+            0 0 40px rgba(255, 255, 255, 0.7),
+            0 0 60px rgba(255, 255, 255, 0.5),
+            0 0 80px rgba(255, 255, 255, 0.3);
+          animation: pulse-white-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-white-glow {
+          0%, 100% {
+            text-shadow: 
+              0 0 20px rgba(255, 255, 255, 0.9),
+              0 0 40px rgba(255, 255, 255, 0.7),
+              0 0 60px rgba(255, 255, 255, 0.5),
+              0 0 80px rgba(255, 255, 255, 0.3);
+          }
+          50% {
+            text-shadow: 
+              0 0 30px rgba(255, 255, 255, 1),
+              0 0 60px rgba(255, 255, 255, 0.9),
+              0 0 90px rgba(255, 255, 255, 0.7),
+              0 0 120px rgba(255, 255, 255, 0.5);
+          }
+        }
+      }
+      
+      @media (min-width: 769px) {
+        .purple-glow {
+          text-shadow: 0 0 28px rgba(138, 43, 226, 0.45);
+          filter: drop-shadow(0 0 28px rgba(138, 43, 226, 0.45));
+        }
+      }
+    `}</style>
   </div>
 );
 
