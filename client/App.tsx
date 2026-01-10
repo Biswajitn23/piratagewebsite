@@ -16,6 +16,7 @@ import Gallery from "./pages/Gallery";
 import Programs from "./pages/Programs";
 import GetInvolved from "./pages/GetInvolved";
 import LegalPlaceholder from "./pages/LegalPlaceholder";
+import Sponsors from "./pages/sponsors";
 import NotFound from "./pages/NotFound";
 import { usePerfMonitor } from "@/hooks/use-perf-monitor";
 
@@ -30,23 +31,30 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <SiteLayout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/team" element={<Team />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/programs" element={<Programs />} />
-              <Route path="/get-involved" element={<GetInvolved />} />
-              <Route
-                path="/code-of-conduct"
-                element={<LegalPlaceholder type="code-of-conduct" />}
-              />
-              <Route path="/privacy" element={<LegalPlaceholder type="privacy" />} />
-              <Route path="/sponsors" element={<LegalPlaceholder type="sponsors" />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </SiteLayout>
+          <Routes>
+            <Route
+              path="/sponsors"
+              element={<Sponsors />}
+            />
+            <Route
+              path="*"
+              element={
+                <SiteLayout>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/events" element={<Events />} />
+                    <Route path="/team" element={<Team />} />
+                    <Route path="/gallery" element={<Gallery />} />
+                    <Route path="/programs" element={<Programs />} />
+                    <Route path="/get-involved" element={<GetInvolved />} />
+                    <Route path="/code-of-conduct" element={<LegalPlaceholder type="code-of-conduct" />} />
+                    <Route path="/privacy" element={<LegalPlaceholder type="privacy" />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </SiteLayout>
+              }
+            />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </ExperienceSettingsProvider>

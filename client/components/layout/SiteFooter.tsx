@@ -26,7 +26,7 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
                 </div>
                 <div>
                   <h3 className="font-display text-xl text-foreground tracking-wide animate-pulse">
-                    Message from the President
+                    Message from Us
                   </h3>
                   <p className="text-xs text-muted-foreground/60 uppercase tracking-wider">Leadership Vision</p>
                 </div>
@@ -44,8 +44,8 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
               <div className="mt-8 flex items-center gap-4 rounded-2xl border border-white/10 bg-black/40 p-4 backdrop-blur-sm">
                 <div className="relative h-16 w-16 flex-shrink-0">
                   <OptimizedImage 
-                    src="/nitin.jpg" 
-                    alt="Nitin Singh" 
+                    src="/piratagelogo.webp" 
+                    alt="Piratage Club Auc Team" 
                     width={80}
                     height={80}
                     className="h-full w-full rounded-xl border-2 border-primary/50 object-cover shadow-lg shadow-primary/20"
@@ -53,11 +53,8 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
                   <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-black bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)] animate-pulse"></div>
                 </div>
                 <div className="flex-1">
-                  <p className="font-display text-lg font-semibold text-foreground">
-                    Nitin Singh
-                  </p>
-                  <p className="text-xs text-primary">
-                    President, Piratage AUC
+                  <p className="font-display text-lg font-semibold text-green-500">
+                    Piratage Club Auc Team
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground/60">
                     ● Leading with Vision & Purpose
