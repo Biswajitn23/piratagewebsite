@@ -72,12 +72,12 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
       .where("email", "==", email.toLowerCase())
       .limit(1)
       .get();
-    
+
     const existing = !snapshot.empty ? snapshot.docs[0].data() : null;
 
     if (existing) {
       if (existing.is_active) {
-        // Already subscribed - no email, just acknowledge
+        console.log("ℹ️ Already subscribed in DB for email:", email);
         return res.status(200).json({ message: "Already subscribed" });
       } else {
         // Reactivate subscription
@@ -86,17 +86,18 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
             is_active: true, 
             subscribed_at: Timestamp.now() 
           });
+          console.log("🔄 Reactivated subscription for email:", email);
         } catch (error) {
           console.error("Error reactivating subscription:", error);
           return res.status(500).json({ error: "Failed to reactivate subscription" });
         }
-
         // No email on reactivation - only for new subscriptions
         return res.status(200).json({ message: "Subscription reactivated" });
       }
     }
 
     // New subscription
+    console.log("🆕 Creating new subscriber in DB for email:", email);
     let subscriberId: string;
     try {
       subscriberId = randomUUID();

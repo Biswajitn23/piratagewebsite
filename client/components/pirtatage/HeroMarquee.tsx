@@ -36,15 +36,13 @@ const PiratageTicker: React.FC = () => {
         const items = [];
         const separatorStyle = {
             ...styles.separator,
-            margin: isMobile ? '0 28px' : '0 50px',
+            margin: isMobile ? '0 28px' : '0 50px', // Tighter but consistent gap on mobile
         };
-        
-        // Create base items
-        const baseItemCount = isMobile ? 25 : 15;
-        const baseItems = [];
-        for (let i = 0; i < baseItemCount; i++) {
-            baseItems.push(
-                <div key={`base-${i}`} className="ticker-marquee-item" style={styles.marqueeItem}>
+        // Duplicate sequence to ensure seamless looping - increase for mobile
+        const totalItems = isMobile ? 50 : 30;
+        for (let i = 0; i < totalItems; i++) {
+            items.push(
+                <div key={i} className="ticker-marquee-item" style={styles.marqueeItem}>
                     <span className="ticker-live-tag" style={styles.liveTag}>LIVE</span>
                     <span className="ticker-main-text" style={styles.mainText}>
                         {isHappyEvent ? "HAPPY " : ""}{displayText}
@@ -53,22 +51,7 @@ const PiratageTicker: React.FC = () => {
                 </div>
             );
         }
-        
-        // Duplicate the entire sequence for seamless loop
-        const duplicatedItems = [];
-        for (let i = 0; i < baseItemCount; i++) {
-            duplicatedItems.push(
-                <div key={`dup-${i}`} className="ticker-marquee-item" style={styles.marqueeItem}>
-                    <span className="ticker-live-tag" style={styles.liveTag}>LIVE</span>
-                    <span className="ticker-main-text" style={styles.mainText}>
-                        {isHappyEvent ? "HAPPY " : ""}{displayText}
-                    </span>
-                    <span className="ticker-separator" style={separatorStyle}>//</span>
-                </div>
-            );
-        }
-        
-        return [...baseItems, ...duplicatedItems];
+        return items;
     };
 
     return (
