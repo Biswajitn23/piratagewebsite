@@ -107,10 +107,9 @@ async function triggerCalendarAddForAllUsers(eventId: string) {
  */
 async function sendEventInvitesToSubscribers(eventId: string) {
   if (!isFirestoreEnabled()) return;
-
-  // Check EmailJS credentials
-  if (!process.env.EMAILJS_SERVICE_ID || !process.env.EMAILJS_EVENT_TEMPLATE_ID || !process.env.EMAILJS_PUBLIC_KEY || !process.env.EMAILJS_PRIVATE_KEY) {
-    console.warn("[Event Invites] EmailJS not configured, skipping email invites");
+  // Check Brevo credentials
+  if (!process.env.BREVO_API_KEY) {
+    console.warn("[Event Invites] Brevo not configured, skipping email invites");
     return;
   }
 
@@ -182,40 +181,79 @@ async function sendEventInvitesToSubscribers(eventId: string) {
           ? `${appUrl}/api/unsubscribe?token=${unsubscribeToken}`
           : '';
 
-        const templateParams = {
-          to_email: email,
-          to_name: email.split('@')[0],
+        // Build HTML email content (reuse template from notifications)
+        const emailHtml = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>New Event: ${event.title}</title>
+          </head>
+          <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #0a0a0a; color: #e0e0e0;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0a0a0a;">
+              <tr>
+                <td align="center" style="padding: 40px 20px;">
+                  <table width="600" cellpadding="0" cellspacing="0" style="background-color: #1a1a1a; border-radius: 12px; overflow: hidden; border: 1px solid #2a2a2a;">
+                    <tr>
+                      <td style="background: linear-gradient(135deg, #4b0082 0%, #8a2be2 100%); padding: 30px; text-align: center;">
+                        <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">🚀 New Event from Piratage</h1>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 40px 30px;">
+                        <h2 style="margin: 0 0 20px 0; color: #00ffff; font-size: 24px;">${event.title}</h2>
+                        <div style="background-color: #2a2a2a; border-left: 4px solid #00ffff; padding: 15px 20px; margin: 20px 0; border-radius: 4px;">
+                          <p style="margin: 0; color: #b0b0b0; font-size: 14px;"><strong style="color: #00ffff;">📅 Date:</strong> ${formattedDate}</p>
+                          ${event.type ? `<p style=\"margin: 10px 0 0 0; color: #b0b0b0; font-size: 14px;\"><strong style=\"color: #00ffff;\">📌 Type:</strong> ${event.type}</p>` : ''}
+                        </div>
+                        ${event.description ? `<div style=\"margin: 20px 0;\"><p style=\"color: #e0e0e0; font-size: 16px; line-height: 1.6;\">${event.description}</p></div>` : ''}
+                        ${event.coverImage ? `<div style=\"margin: 20px 0; text-align: center;\"><img src=\"${event.coverImage}\" alt=\"${event.title}\" style=\"max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #2a2a2a;\" /></div>` : ''}
+                        ${event.registrationLink ? `<div style=\"text-align: center; margin: 30px 0;\"><a href=\"${event.registrationLink}\" style=\"display: inline-block; background: linear-gradient(135deg, #8a2be2 0%, #4b0082 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-weight: bold; font-size: 16px;\">Register Now →</a></div>` : ''}
+                        <div style=\"margin-top: 30px; padding-top: 20px; border-top: 1px solid #2a2a2a;\">
+                          <p style=\"margin: 0; color: #b0b0b0; font-size: 14px; line-height: 1.6;\">
+                            Don't miss this opportunity to be part of the Piratage community! Mark your calendar and we'll see you there.
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style=\"background-color: #0f0f0f; padding: 20px 30px; border-top: 1px solid #2a2a2a;\">
+                        <p style=\"margin: 0 0 10px 0; color: #808080; font-size: 12px; line-height: 1.5;\">
+                          You're receiving this because you subscribed to Piratage event notifications.
+                        </p>
+                        <p style=\"margin: 0; color: #808080; font-size: 12px;\">
+                          <a href=\"${unsubscribeUrl}\" style=\"color: #8a2be2; text-decoration: none;\">Unsubscribe</a> | 
+                          <a href=\"${appUrl}\" style=\"color: #8a2be2; text-decoration: none;\">Visit Website</a>
+                        </p>
+                        <p style=\"margin: 10px 0 0 0; color: #606060; font-size: 11px;\">
+                          © ${new Date().getFullYear()} Piratage - The Ethical Hacking Club
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </body>
+          </html>
+        `;
+
+        // Send with Brevo
+        const { sendWelcomeEmailBrevo } = await import("../lib/brevo.js");
+        await sendWelcomeEmailBrevo({
+          toEmail: email,
+          toName: email.split('@')[0],
           subject: `New Event Alert: ${event.title} | Piratage Club`,
-          event_title: event.title,
-          event_date: formattedDate,
-          event_time: formattedTime,
-          event_location: event.location || event.venue || 'TBA',
-          event_description: event.description || 'No description provided',
-          event_cover_url: event.coverImage || '',
-          event_url: event.registrationLink || `${appUrl}/#events`,
-          ics_download_url: icsDownloadUrl,
-          unsubscribe_url: unsubscribeUrl,
-          app_url: appUrl,
-          logo_url: 'https://piratageauc.vercel.app/piratagelogo.webp',
-          year: new Date().getFullYear().toString(),
-        };
-
-        await emailjs.send(
-          process.env.EMAILJS_SERVICE_ID,
-          process.env.EMAILJS_EVENT_TEMPLATE_ID,
-          templateParams,
-          {
-            publicKey: process.env.EMAILJS_PUBLIC_KEY,
-            privateKey: process.env.EMAILJS_PRIVATE_KEY,
-          }
-        );
-
+          htmlContent: emailHtml,
+          senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratageauc.vercel.app',
+          senderName: process.env.BREVO_SENDER_NAME || 'Piratage Club',
+        });
         successCount++;
       } catch (error: any) {
         console.error(`[Event Invites] Failed to send invite to ${email}:`, error?.message || error);
         failCount++;
       }
-
       // Add small delay to avoid rate limiting
       await new Promise(resolve => setTimeout(resolve, 100));
     }
