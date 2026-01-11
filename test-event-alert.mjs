@@ -6,7 +6,7 @@
  * Run: node test-event-alert.mjs
  */
 
-import emailjs from "@emailjs/nodejs";
+// import emailjs from "@emailjs/nodejs";
 import { config } from "dotenv";
 import { existsSync } from "fs";
 

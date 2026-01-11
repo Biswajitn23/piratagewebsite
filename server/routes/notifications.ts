@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { getFirestore, isFirestoreEnabled } from "../firebase.js";
-import emailjs from "@emailjs/nodejs";
+// import emailjs from "@emailjs/nodejs";
 
 /**
  * Send email notifications for pending events using Firestore + EmailJS
@@ -11,60 +11,36 @@ export async function processPendingNotifications() {
     throw new Error("Email notification service unavailable");
   }
 
-  const eventTemplateId = process.env.EMAILJS_EVENT_TEMPLATE_ID;
-  if (!eventTemplateId) {
-    console.warn("⚠️ EMAILJS_EVENT_TEMPLATE_ID not configured, falling back to EMAILJS_TEMPLATE_ID");
-  }
-  const templateId = eventTemplateId || process.env.EMAILJS_TEMPLATE_ID;
-
-  if (!process.env.EMAILJS_SERVICE_ID || !templateId || !process.env.EMAILJS_PUBLIC_KEY || !process.env.EMAILJS_PRIVATE_KEY) {
-    throw new Error("Email service not configured. Add EmailJS credentials to .env file");
-  }
   const db = getFirestore();
 
-  // Get pending notifications
-  const notificationsSnapshot = await db.collection("email_notifications")
-    .where("status", "==", "pending")
-    .orderBy("created_at", "asc")
-    .limit(10)
-    .get();
-
-  if (notificationsSnapshot.empty) {
-    return { message: "No pending notifications", results: [] as any[] };
-  }
-
-  // Get active subscribers
-  const subscribersSnapshot = await db.collection("subscribers")
-    .where("is_active", "==", true)
-    .get();
-
+  // Get all active subscribers
+  const subscribersSnapshot = await db.collection("subscribers").where("is_active", "==", true).get();
   const subscribers = subscribersSnapshot.docs.map(doc => doc.data());
+
+  // Get all pending notifications
+  const notificationsSnapshot = await db.collection("email_notifications").where("status", "==", "pending").orderBy("created_at", "asc").limit(10).get();
 
   let sentCount = 0;
   const results = [];
 
   for (const notificationDoc of notificationsSnapshot.docs) {
     const notification = notificationDoc.data();
-    
     try {
       await notificationDoc.ref.update({ status: "processing" });
 
       const eventDoc = await db.collection("events").doc(notification.event_id).get();
-
       if (!eventDoc.exists) {
-        await notificationDoc.ref.update({ 
-          status: "failed", 
-          error_message: "Event not found" 
+        await notificationDoc.ref.update({
+          status: "failed",
+          error_message: "Event not found"
         });
         continue;
       }
-
       const event = eventDoc.data();
 
       const emailPromises = subscribers.map(async (subscriber: any) => {
         const appUrl = process.env.APP_URL || 'http://localhost:8080';
         const unsubscribeUrl = `${appUrl}/api/unsubscribe?token=${subscriber.unsubscribe_token}`;
-        
         const eventDate = new Date(event!.date);
         const formattedDate = eventDate.toLocaleDateString('en-US', {
           weekday: 'long',
@@ -74,7 +50,6 @@ export async function processPendingNotifications() {
           hour: '2-digit',
           minute: '2-digit'
         });
-
         const emailHtml = `
           <!DOCTYPE html>
           <html>
@@ -132,32 +107,18 @@ export async function processPendingNotifications() {
           </html>
         `;
 
+        // Send email using Brevo
         try {
-          await emailjs.send(
-            process.env.EMAILJS_SERVICE_ID!,
-            templateId!,
-            {
-              to_email: subscriber.email,
-              to_name: subscriber.email.split('@')[0],
-              subject: `🚀 New Event: ${event!.title}`,
-              event_title: event!.title,
-              event_description: event!.description || 'Join us for an exciting event!',
-              event_date: event!.date || 'TBA',
-              event_time: event!.time || 'TBA',
-              event_location: event!.location || 'TBA',
-              event_cover_url: event!.coverImage || '',
-              event_url: event!.registrationLink || appUrl,
-              ics_download_url: `${appUrl}/api/download-ics?eventId=${notification.event_id}`,
-              app_url: appUrl,
-              logo_url: 'https://piratageauc.vercel.app/piratagelogo.webp',
-              unsubscribe_url: unsubscribeUrl,
-              year: new Date().getFullYear().toString(),
-            },
-            {
-              publicKey: process.env.EMAILJS_PUBLIC_KEY!,
-              privateKey: process.env.EMAILJS_PRIVATE_KEY!,
-            }
-          );
+          // Import sendWelcomeEmailBrevo dynamically to avoid circular deps
+          const { sendWelcomeEmailBrevo } = await import("../lib/brevo.js");
+          await sendWelcomeEmailBrevo({
+            toEmail: subscriber.email,
+            toName: subscriber.email.split('@')[0],
+            subject: `🚀 New Event: ${event!.title}`,
+            htmlContent: emailHtml,
+            senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratageauc.vercel.app',
+            senderName: process.env.BREVO_SENDER_NAME || 'Piratage Club',
+          });
           return { success: true, email: subscriber.email };
         } catch (error) {
           console.error(`Failed to send email to ${subscriber.email}:`, error);
@@ -170,19 +131,19 @@ export async function processPendingNotifications() {
       const failedCount = emailResults.filter(r => !r.success).length;
 
       if (failedCount === 0) {
-        await notificationDoc.ref.update({ 
-          status: "sent", 
+        await notificationDoc.ref.update({
+          status: "sent",
           sent_at: new Date().toISOString(),
           sent_to_count: successCount
         });
       } else if (successCount === 0) {
-        await notificationDoc.ref.update({ 
-          status: "failed", 
-          error_message: `Failed to send to all ${failedCount} subscribers` 
+        await notificationDoc.ref.update({
+          status: "failed",
+          error_message: `Failed to send to all ${failedCount} subscribers`
         });
       } else {
-        await notificationDoc.ref.update({ 
-          status: "sent", 
+        await notificationDoc.ref.update({
+          status: "sent",
           sent_at: new Date().toISOString(),
           sent_to_count: successCount,
           error_message: `Partially sent: ${failedCount} failed`
@@ -198,9 +159,9 @@ export async function processPendingNotifications() {
       });
     } catch (error) {
       console.error(`Error processing notification ${notification.id}:`, error);
-      await notificationDoc.ref.update({ 
-        status: "failed", 
-        error_message: error instanceof Error ? error.message : "Unknown error" 
+      await notificationDoc.ref.update({
+        status: "failed",
+        error_message: error instanceof Error ? error.message : "Unknown error"
       });
     }
   }

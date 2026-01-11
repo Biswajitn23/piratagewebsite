@@ -1,12 +1,18 @@
 import { RequestHandler } from "express";
 import { getFirestore, isFirestoreEnabled } from "../firebase.js";
-import emailjs from "@emailjs/nodejs";
+// import brevo/sendinblue integration here (to be added)
 import { Timestamp } from "firebase-admin/firestore";
 import { randomUUID } from "crypto";
 import axios from "axios";
+import { sendWelcomeEmailBrevo } from "../lib/brevo.js";
 
 // Helper function to verify hCaptcha token
 async function verifyHCaptcha(token: string): Promise<boolean> {
+  // Bypass hCaptcha in development or if SKIP_HCAPTCHA is set
+  if (process.env.NODE_ENV === "development" || process.env.SKIP_HCAPTCHA === "true") {
+    console.log("⚠️ Skipping hCaptcha verification in development mode or due to SKIP_HCAPTCHA");
+    return true;
+  }
   try {
     const secret = process.env.HCAPTCHA_SECRET;
     if (!secret) {
@@ -133,73 +139,32 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
   }
 };
 
-// Helper to send a welcome/confirmation email via EmailJS.
+
+// Helper to send a welcome/confirmation email via Brevo (Sendinblue)
 async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivated?: boolean; repeat?: boolean }) {
-  console.log("📧 Attempting to send welcome email to:", email);
-  
-  // Validate credentials
-  const { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY, EMAILJS_PRIVATE_KEY } = process.env;
-  
-  if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY || !EMAILJS_PRIVATE_KEY) {
-    console.error("❌ EmailJS credentials missing:");
-    console.error("  - SERVICE_ID:", EMAILJS_SERVICE_ID ? "✓" : "✗");
-    console.error("  - TEMPLATE_ID:", EMAILJS_TEMPLATE_ID ? "✓" : "✗");
-    console.error("  - PUBLIC_KEY:", EMAILJS_PUBLIC_KEY ? "✓" : "✗");
-    console.error("  - PRIVATE_KEY:", EMAILJS_PRIVATE_KEY ? "✓" : "✗");
-    throw new Error("EmailJS credentials not configured");
-  }
-  
-  console.log("✅ All EmailJS credentials are configured");
-  const appUrl = process.env.APP_URL || 'https://piratageauc.vercel.app';
-  
+  const toName = email.split('@')[0];
   const subjectBase = flags.reactivated
-    ? 'Welcome back to Piratage'
+    ? `Welcome back to Piratage: The Ethical Hacking Club, ${toName}`
     : flags.repeat
     ? 'You are already subscribed'
-    : 'Welcome to Piratage: The Ethical Hacking Club';
-    
-  // EmailJS template parameters - customize these to match your EmailJS template variables
-  const templateParams = {
-    email: email,
-    to_email: email,
-    recipient_email: email,
-    user_email: email,
-    to_name: email.split('@')[0],
+    : `Welcome to Piratage: The Ethical Hacking Club, ${toName}`;
+  const appUrl = process.env.APP_URL || 'https://piratageauc.vercel.app';
+  const htmlContent = `
+    <h1>Welcome to Piratage, ${toName}!</h1>
+    <p>Your registration for <strong>${email}</strong> is complete. You are now on the list for priority alerts, exclusive workshops, and deep-dive technical sessions.</p>
+    <p>Visit our <a href="${appUrl}">website</a> or join our <a href="https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G">WhatsApp</a> group.</p>
+    <p>Stay Curious. Stay Ethical.<br/>Piratage Team</p>
+  `;
+  const senderEmail = process.env.FROM_EMAIL || 'piratage.auc@gmail.com';
+  const senderName = 'Piratage Club';
+  return sendWelcomeEmailBrevo({
+    toEmail: email,
+    toName,
     subject: subjectBase,
-    app_url: appUrl,
-    logo_url: 'https://piratageauc.vercel.app/piratagelogo.webp',
-    whatsapp_link: 'https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G',
-    linkedin_link: 'https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/',
-    instagram_link: 'https://www.instagram.com/piratage_club_auc/',
-    discord_link: 'https://discord.gg/9gZKmd8b',
-    year: new Date().getFullYear().toString(),
-  };
-
-  console.log("📨 Email template params:", {
-    to_email: templateParams.to_email,
-    subject: templateParams.subject,
+    htmlContent,
+    senderEmail,
+    senderName
   });
-
-  try {
-    console.log("🔄 Sending email via EmailJS...");
-    const result = await emailjs.send(
-      EMAILJS_SERVICE_ID,
-      EMAILJS_TEMPLATE_ID,
-      templateParams,
-      {
-        publicKey: EMAILJS_PUBLIC_KEY,
-        privateKey: EMAILJS_PRIVATE_KEY,
-      }
-    );
-    console.log("✅ Email sent successfully. Response ID:", result.status);
-    return result;
-  } catch (error: any) {
-    console.error("❌ Failed to send email. Error details:");
-    console.error("  - Message:", error?.message);
-    console.error("  - Status:", error?.status);
-    console.error("  - Response:", error?.response);
-    throw new Error(`EmailJS error: ${error?.message || 'Unknown error'}`);
-  }
 }
 
 export const unsubscribeEmail: RequestHandler = async (req, res) => {

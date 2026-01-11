@@ -5,7 +5,7 @@
  * Tests EmailJS configuration and sends a test email
  */
 
-import emailjs from "@emailjs/nodejs";
+// import emailjs from "@emailjs/nodejs";
 import fs from "fs";
 import path from "path";
 

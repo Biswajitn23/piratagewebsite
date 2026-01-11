@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { getFirestore, isFirestoreEnabled } from "../firebase.js";
 import { EventRecordDTO } from "@shared/api";
-import emailjs from "@emailjs/nodejs";
+// import emailjs from "@emailjs/nodejs";
 import { generateICS } from "../utils/ics-generator.js";
 
 /**
@@ -19,11 +19,7 @@ export const sendEventInvites: RequestHandler = async (req, res) => {
       return res.status(503).json({ error: "Service unavailable - Firestore not configured" });
     }
 
-    // Check EmailJS credentials
-    if (!process.env.EMAILJS_SERVICE_ID || !process.env.EMAILJS_EVENT_TEMPLATE_ID || !process.env.EMAILJS_PUBLIC_KEY || !process.env.EMAILJS_PRIVATE_KEY) {
-      console.error("❌ EmailJS credentials not configured");
-      return res.status(503).json({ error: "Email service not configured" });
-    }
+    // TODO: Add brevo credential checks if needed
 
     const db = getFirestore();
 
