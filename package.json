@@ -22,16 +22,19 @@
     "analyze": "npm run build && start dist/stats.html"
   },
   "dependencies": {
-    "@emailjs/nodejs": "^5.0.2",
     "@hcaptcha/react-hcaptcha": "^1.17.4",
     "axios": "^1.13.2",
+    "brevo": "^1.0.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "firebase-admin": "^13.5.0",
     "lenis": "^1.3.11",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^7.0.12",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "resend": "^6.4.2",
+    "sib-api-v3-sdk": "^8.5.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

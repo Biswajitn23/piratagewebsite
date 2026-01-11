@@ -5,7 +5,7 @@ import { CreateEventRequest, CreateEventResponse, EventRecordDTO, ListEventsResp
 import { randomUUID } from "crypto";
 import { getFirestore, isFirestoreEnabled } from "../firebase.js";
 import { processPendingNotifications } from "./notifications.js";
-import emailjs from "@emailjs/nodejs";
+// import emailjs from "@emailjs/nodejs";
 import { generateICS } from "../utils/ics-generator.js";
 import { getEventStatus, normalizeEventStatus } from "../utils/event-status.js";
 import { notifyDiscordNewEvent } from "../utils/discord-webhook.js";

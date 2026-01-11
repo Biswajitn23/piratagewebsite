@@ -5,7 +5,7 @@
  * Run: node test-emailjs-simple.mjs
  */
 
-import emailjs from "@emailjs/nodejs";
+// import emailjs from "@emailjs/nodejs";
 import { config } from "dotenv";
 import { existsSync } from "fs";
 

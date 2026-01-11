@@ -1,4 +1,4 @@
-import emailjs from "@emailjs/nodejs";
+// import emailjs from "@emailjs/nodejs";
 import dotenv from "dotenv";
 
 dotenv.config({ path: ".env.local" });
