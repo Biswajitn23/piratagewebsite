@@ -207,7 +207,7 @@ const MembersSection = () => {
 
       {/* Member Detail Modal */}
       <Dialog open={!!selectedMember} onOpenChange={() => setSelectedMember(null)}>
-        <DialogContent className="max-w-2xl bg-[#14141c] border-white/10">
+        <DialogContent className="max-w-2xl bg-[#14141c] border-white/10 sm:top-1/2 sm:translate-y-[-50%] top-0 translate-y-0 rounded-none sm:rounded-lg">
           {selectedMember && (
             <>
               <DialogHeader>

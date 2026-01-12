@@ -67,7 +67,7 @@ const AccessibilityPanel = ({ open, onOpenChange }: AccessibilityPanelProps) => 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="glass-panel w-[95vw] max-w-[min(95vw,32rem)] sm:max-w-2xl overflow-hidden border border-white/10 p-0 text-foreground max-h-[90vh] sm:max-h-[85vh] !z-[100]"
+        className="glass-panel w-full h-full max-w-none max-h-none sm:w-[95vw] sm:max-w-2xl sm:max-h-[85vh] overflow-hidden border border-white/10 p-0 text-foreground top-0 left-0 translate-x-0 translate-y-0 rounded-none sm:top-1/2 sm:left-1/2 sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-2xl !z-[100]"
       >
         <div
           className="relative max-h-[85vh] sm:max-h-[85vh] overflow-y-auto overscroll-contain touch-pan-y"

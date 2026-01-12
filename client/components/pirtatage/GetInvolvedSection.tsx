@@ -211,7 +211,7 @@ const GetInvolvedSection = () => {
                 Join our Discord for real-time event updates, member discussions, and announcements.
               </p>
               <Button variant="ghost" className="mt-3 gap-2 text-xs uppercase tracking-[0.24em]" asChild>
-                <a href="https://discord.gg/9gZKmd8b" target="_blank" rel="noreferrer">
+                <a href="https://discord.gg/BYcgdwHPYu" target="_blank" rel="noreferrer">
                   Join Discord
                 </a>
               </Button>

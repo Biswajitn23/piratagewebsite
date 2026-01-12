@@ -81,7 +81,7 @@ const ProgramsSection = () => {
         })}
       </div>
       <Dialog open={Boolean(selectedProgram)} onOpenChange={(open) => (!open ? setSelectedProgram(null) : undefined)}>
-        <DialogContent className="glass-panel max-w-4xl border border-white/10 bg-[#060218]/90 text-foreground">
+        <DialogContent className="glass-panel max-w-4xl border border-white/10 bg-[#060218]/90 text-foreground sm:top-1/2 sm:translate-y-[-50%] top-0 translate-y-0 rounded-none sm:rounded-lg w-full h-full sm:w-auto sm:h-auto">
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">
               {selectedProgram?.name}
