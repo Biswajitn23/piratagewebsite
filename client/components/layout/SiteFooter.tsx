@@ -16,11 +16,11 @@ export type SiteFooterProps = {
 
 const SiteFooter = ({ onJoin }: SiteFooterProps) => {
   return (
-    <footer className="w-full px-4 pt-12 pb-8 relative overflow-hidden" style={{background: 'linear-gradient(135deg, #0a0a0f 25%, #0f0a1a 40%, #1a0f2e 55%, #2d1b4e 70%, #4b0082 80%, #6a1b9a 90%, #8a2be2 100%)'}}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <footer className="w-full px-4 pt-12 pb-8 relative overflow-hidden" style={{background: '#1a0f2e'}}>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-stretch gap-8 w-full">
         {/* Left: Institutional Affiliation and Connect */}
-        <div className="space-y-8">
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:shadow-xl">
+        <div className="flex-1 flex flex-col gap-3 min-w-0">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] py-6 px-6 min-h-[120px] md:min-h-[160px] backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:shadow-xl h-full">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 opacity-50"></div>
             <div className="relative z-10">
               <p className="mb-4 text-xs uppercase tracking-[0.3em] text-muted-foreground/60">
@@ -53,7 +53,7 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
               </div>
             </div>
           </div>
-          <div className="glass-panel rounded-3xl border border-white/10 p-6 mt-4">
+          <div className="glass-panel rounded-3xl border border-white/10 p-6 mt-4 h-full">
             <h3 className="font-display text-lg uppercase tracking-[0.3em] text-muted-foreground">
               Connect
             </h3>
@@ -94,17 +94,10 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
             </div>
           </div>
         </div>
-        {/* Navigation Links */}
-        <div className="mt-8">
-          <ul className="space-y-2 text-gray-400">
-            <li><a href="/about" className="hover:text-purple-400">About Us</a></li>
-            <li><a href="/events" className="hover:text-purple-400">Upcoming Events</a></li>
-            <li><a href="/team" className="hover:text-purple-400">Join the Team</a></li>
-            <li><a href="/gallery" className="hover:text-purple-400">Gallery</a></li>
-          </ul>
-          <p className="mt-8 text-sm text-gray-500">
-            Built with <span className="text-pink-500">❤️</span> by the <span className="text-white">Piratage Dev Team</span>.
-          </p>
+        {/* Site Map in a styled box, full height */}
+        <div className="flex-1 flex items-stretch mt-8 md:mt-0">
+          <div className="relative flex items-center justify-center py-32 bg-[#0d0d16] w-full rounded-3xl overflow-hidden group border border-white/5">
+          </div>
         </div>
       </div>
       {/* Footer Bottom Bar */}
@@ -115,6 +108,9 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
           </Link>
           <Link to="/privacy" className={linkClassName} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             Privacy
+          </Link>
+          <Link to="/sponsors" className={linkClassName} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            Sponsor
           </Link>
         </div>
         <div className="flex flex-col gap-3 text-xs uppercase tracking-[0.24em] text-muted-foreground/70 md:flex-row md:items-center md:justify-between">

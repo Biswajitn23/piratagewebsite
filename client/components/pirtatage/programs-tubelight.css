@@ -23,13 +23,13 @@
   border-width: 2.5px !important;
   border-style: solid !important;
   border-color: #00ffd1;
-  animation: tubelight-blink 2.2s linear infinite;
+  animation: tubelight-blink 3.5s linear infinite;
   transition: border-color 0.2s;
 }
 
 /* Ensure tubelight animation works on mobile */
 @media (max-width: 768px) {
   .tubelight-border {
-    animation: tubelight-blink 2.2s linear infinite !important;
+    animation: tubelight-blink 3.5s linear infinite !important;
   }
 }
