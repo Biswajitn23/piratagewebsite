@@ -1,4 +1,3 @@
-
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { OptimizedImage } from "@/components/ui/optimized-image";
@@ -96,7 +95,17 @@ const SiteFooter = ({ onJoin }: SiteFooterProps) => {
         </div>
         {/* Site Map in a styled box, full height */}
         <div className="flex-1 flex items-stretch mt-8 md:mt-0">
-          <div className="relative flex items-center justify-center py-32 bg-[#0d0d16] w-full rounded-3xl overflow-hidden group border border-white/5">
+          <div className="relative w-full h-[180px] sm:h-[250px] md:h-[300px] rounded-3xl overflow-hidden group border border-white/5">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3714.839470066965!2d81.8926943!3d21.396224600000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a289395e43e9897%3A0x2066843c02474507!2sAmity%20University%2C%20Raipur!5e0!3m2!1sen!2sin!4v1768399946467!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              style={{ border: 0, width: '100%', height: '100%', display: 'block' }}
+              allowFullScreen={true}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Amity University Raipur Map"
+            />
           </div>
         </div>
       </div>
