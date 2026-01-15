@@ -1,6 +1,7 @@
 // Brevo (Sendinblue) transactional email integration for Node.js
 // This file exports a function to send a welcome email using Brevo API
 
+import "dotenv/config";
 import SibApiV3Sdk from 'sib-api-v3-sdk';
 
 const defaultClient = SibApiV3Sdk.ApiClient.instance;

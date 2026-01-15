@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { RequestHandler } from "express";
 import { getFirestore, isFirestoreEnabled } from "../firebase.js";
 // import brevo/sendinblue integration here (to be added)
