@@ -8,4 +8,10 @@
       "destination": "/index.html"
     }
   ]
+  ,
+  "functions": {
+    "api/**/*.ts": {
+      "includeFiles": ["shared/**"]
+    }
+  }
 }
