@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+// @ts-ignore
 import { sendWelcomeEmailBrevo } from '../../server/lib/brevo.js';
+// @ts-ignore
 import { getFirestore } from '../../server/firebase.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
