@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-import { sendWelcomeEmailBrevo } from '../../server/lib/brevo.js';
-import { getFirestore } from '../../server/firebase.js';
+import { sendWelcomeEmailBrevo } from '../../shared/brevo';
+import { getFirestore } from '../../shared/firebase';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
