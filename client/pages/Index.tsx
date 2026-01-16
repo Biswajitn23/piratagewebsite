@@ -8,6 +8,7 @@ import BackgroundMusic from "@/components/BackgroundMusic";
 // Lazy load heavy components to reduce initial bundle
 const HeroSection = lazy(() => import("@/components/pirtatage/HeroSection"));
 const ProgramsSection = lazy(() => import("@/components/pirtatage/ProgramsSection"));
+const GetInvolvedSection = lazy(() => import("@/components/pirtatage/GetInvolvedSection"));
 
 import { useExperienceSettings } from "@/contexts/ExperienceSettingsContext";
 
@@ -83,6 +84,10 @@ const Index = () => {
         <AboutSection />
         <Suspense fallback={<div className="min-h-[400px]" />}>
           <ProgramsSection />
+        </Suspense>
+        {/* Move GetInvolvedSection slightly up by reducing margin-top */}
+        <Suspense fallback={<div className="min-h-[400px]" />}>
+          <GetInvolvedSection />
         </Suspense>
       </div>
     </div>

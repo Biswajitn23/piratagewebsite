@@ -76,7 +76,7 @@ const GetInvolvedSection = () => {
   return (
     <section
       id="get-involved"
-      className="relative mx-auto mt-16 md:mt-32 flex max-w-6xl flex-col gap-8 md:gap-12 px-4 md:px-6"
+      className="relative mx-auto mt-6 md:mt-16 flex max-w-6xl flex-col gap-8 md:gap-12 px-4 md:px-6"
       aria-labelledby="get-involved-title"
     >
       <div className="space-y-4 text-center">

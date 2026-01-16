@@ -805,6 +805,11 @@
     animation: none !important;
   }
 
+  /* Allow gestures for embedded maps on mobile */
+  .map-iframe {
+    touch-action: auto !important;
+  }
+
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
