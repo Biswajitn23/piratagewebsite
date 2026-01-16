@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { getFirestore, isFirestoreEnabled } from "../firebase.js";
 import { EventRecordDTO } from "@shared/api";
-// import emailjs from "@emailjs/nodejs";
+import emailjs from "@emailjs/nodejs";
 import { generateICS } from "../utils/ics-generator.js";
 
 /**
