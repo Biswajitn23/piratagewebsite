@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { getFirestore, isFirestoreEnabled } from "../firebase.js";
 import { EventRecordDTO } from "@shared/api";
-import emailjs from "@emailjs/nodejs";
+// import Brevo email sending utility here when ready
 import { generateICS } from "../utils/ics-generator.js";
 
 /**
@@ -94,15 +94,16 @@ export const sendEventInvites: RequestHandler = async (req, res) => {
           year: new Date().getFullYear().toString(),
         };
 
-        await emailjs.send(
-          process.env.EMAILJS_SERVICE_ID,
-          process.env.EMAILJS_EVENT_TEMPLATE_ID,
-          templateParams,
-          {
-            publicKey: process.env.EMAILJS_PUBLIC_KEY,
-            privateKey: process.env.EMAILJS_PRIVATE_KEY,
-          }
-        );
+
+        // TODO: Send email using Brevo API here
+        // await sendBrevoEmail({
+        //   to: email,
+        //   subject: templateParams.subject,
+        //   html: ...
+        // });
+
+        // For now, just log as if sent
+        console.log(`[MOCK] Would send invite to ${email}`);
 
         console.log(`✅ Sent invite to ${email}`);
         successCount++;

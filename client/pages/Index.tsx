@@ -85,10 +85,7 @@ const Index = () => {
         <Suspense fallback={<div className="min-h-[400px]" />}>
           <ProgramsSection />
         </Suspense>
-        {/* Move GetInvolvedSection slightly up by reducing margin-top */}
-        <Suspense fallback={<div className="min-h-[400px]" />}>
-          <GetInvolvedSection />
-        </Suspense>
+
       </div>
     </div>
   );

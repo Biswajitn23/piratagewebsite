@@ -8,6 +8,7 @@ import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { readFileSync } from 'fs';
 import { randomUUID } from 'crypto';
+import { notifySubscribersOfEvent } from './notify_event_subscribers.mjs';
 
 // Load Firebase credentials
 const serviceAccount = JSON.parse(
@@ -49,6 +50,7 @@ async function addDemoEvent() {
     console.log('✅ Ongoing event added!');
     console.log(`   Title: ${ongoingEventData.title}`);
     console.log(`   Status: ${ongoingEventData.status}\n`);
+    await notifySubscribersOfEvent(ongoingEventData);
 
     // 2. Add an UPCOMING event
     const upcomingEventId = randomUUID();
@@ -90,6 +92,7 @@ async function addDemoEvent() {
     console.log(`   Title: ${upcomingEventData.title}`);
     console.log(`   Date: ${nextWeek.toLocaleDateString()} at ${nextWeek.toLocaleTimeString()}`);
     console.log(`   Status: ${upcomingEventData.status}\n`);
+    await notifySubscribersOfEvent(upcomingEventData);
 
     // 3. Add a PAST event
     const pastEventId = randomUUID();
@@ -131,6 +134,7 @@ async function addDemoEvent() {
     console.log(`   Title: ${pastEventData.title}`);
     console.log(`   Date: ${lastMonth.toLocaleDateString()}`);
     console.log(`   Status: ${pastEventData.status}\n`);
+    await notifySubscribersOfEvent(pastEventData);
     
     console.log('🎯 All demo events added successfully!\n');
     console.log('📝 Next steps:');

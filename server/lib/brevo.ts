@@ -12,14 +12,18 @@ export async function sendWelcomeEmailBrevo({
   subject,
   htmlContent,
   senderEmail,
-  senderName
+  senderName,
+  templateId,
+  params
 }: {
   toEmail: string;
   toName: string;
-  subject: string;
-  htmlContent: string;
+  subject?: string;
+  htmlContent?: string;
   senderEmail: string;
   senderName: string;
+  templateId?: number;
+  params?: Record<string, any>;
 }) {
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) throw new Error('BREVO_API_KEY is not set');
@@ -27,12 +31,15 @@ export async function sendWelcomeEmailBrevo({
 
   const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
   const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-  sendSmtpEmail.subject = subject;
-  sendSmtpEmail.htmlContent = htmlContent;
+  if (templateId) {
+    sendSmtpEmail.templateId = templateId;
+    if (params) sendSmtpEmail.params = params;
+  } else {
+    sendSmtpEmail.subject = subject;
+    sendSmtpEmail.htmlContent = htmlContent;
+  }
   sendSmtpEmail.sender = { email: senderEmail, name: senderName };
   sendSmtpEmail.to = [{ email: toEmail, name: toName }];
-
-  // Optionally add more fields (cc, bcc, attachments, etc.)
 
   try {
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
