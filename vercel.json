@@ -11,7 +11,7 @@
   ,
   "functions": {
     "api/**/*.ts": {
-      "includeFiles": ["shared/**"]
+      "includeFiles": "shared/**"
     }
   }
 }
