@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-import { sendWelcomeEmailBrevo } from '../../shared/brevo';
-import { getFirestore } from '../../shared/firebase';
+import { sendWelcomeEmailBrevo } from '../server/lib/brevo';
+import { getFirestore, isFirestoreEnabled } from '../server/firebase';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -15,6 +15,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Optionally: verify captchaToken here
+
+  // DEBUG: Dump all env variables (remove after debugging)
+  console.log('ENV DUMP:', JSON.stringify({
+    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
+    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL,
+    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY ? '[HIDDEN]' : undefined,
+    GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    BREVO_API_KEY: process.env.BREVO_API_KEY ? '[HIDDEN]' : undefined,
+    NODE_ENV: process.env.NODE_ENV,
+  }, null, 2));
+
+  // Fail fast if any Firebase env is missing
+  if (!process.env.FIREBASE_PROJECT_ID) {
+    return res.status(503).json({ error: 'Missing FIREBASE_PROJECT_ID in environment' });
+  }
+  if (!process.env.FIREBASE_CLIENT_EMAIL) {
+    return res.status(503).json({ error: 'Missing FIREBASE_CLIENT_EMAIL in environment' });
+  }
+  if (!process.env.FIREBASE_PRIVATE_KEY) {
+    return res.status(503).json({ error: 'Missing FIREBASE_PRIVATE_KEY in environment' });
+  }
+
+  // Debug: Log Firebase env variables
+  console.log('FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID);
+  console.log('FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL);
+  console.log('FIREBASE_PRIVATE_KEY exists:', !!process.env.FIREBASE_PRIVATE_KEY);
+  console.log('GOOGLE_APPLICATION_CREDENTIALS:', process.env.GOOGLE_APPLICATION_CREDENTIALS);
+
+  // Debug: Log isFirestoreEnabled
+  console.log('isFirestoreEnabled:', isFirestoreEnabled());
+
+  if (!isFirestoreEnabled()) {
+    return res.status(503).json({ error: 'Email subscription service unavailable' });
+  }
 
   try {
     // Store subscriber in Firestore
