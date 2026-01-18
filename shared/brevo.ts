@@ -32,7 +32,7 @@ export async function sendWelcomeEmailBrevo({
   if (templateId) {
     sendSmtpEmail.templateId = templateId;
     // Merge provided params with defaults (e.g., logoUrl)
-    const defaultLogo = process.env.MAIL_LOGO_URL || 'https://piratage.tech/logo.png';
+    const defaultLogo = process.env.MAIL_LOGO_URL || ((process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : '') + '/piratagelogo.webp');
     const mergedParams = Object.assign({ logoUrl: defaultLogo }, params || {});
     sendSmtpEmail.params = mergedParams;
   } else {
