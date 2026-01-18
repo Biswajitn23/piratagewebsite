@@ -19,6 +19,7 @@ const GetInvolvedSection = () => {
   
   // Email subscription state
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const [subscribeMessage, setSubscribeMessage] = useState("");
 
@@ -40,7 +41,7 @@ const GetInvolvedSection = () => {
       const response = await fetch(`${apiUrl}/api/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, name }),
       });
 
       if (response.ok) {
@@ -219,6 +220,13 @@ const GetInvolvedSection = () => {
                   className="flex-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Your name (optional)"
+                  className="ml-2 hidden sm:block w-56 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
                 <Button 
                   variant="ghost" 

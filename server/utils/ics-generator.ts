@@ -79,7 +79,7 @@ export function generateICS(event: EventRecordDTO, method: 'PUBLISH' | 'CANCEL' 
   }
 
   // Add organizer
-  ics.push('ORGANIZER;CN=Piratage Club:mailto:piratageauc@gmail.com');
+  ics.push('ORGANIZER;CN=Piratage Club:mailto:noreply@piratageauc.tech');
 
   ics.push('END:VEVENT');
   ics.push('END:VCALENDAR');

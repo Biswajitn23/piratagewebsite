@@ -146,7 +146,7 @@ async function sendEventInvitesToSubscribers(eventId: string) {
       return;
     }
 
-    const appUrl = process.env.APP_URL || 'https://piratageauc.vercel.app';
+    const appUrl = process.env.APP_URL || 'https://piratageauc.tech';
     const icsDownloadUrl = `${appUrl}/api/download-ics?eventId=${eventId}`;
 
     // Format event date for display
@@ -246,7 +246,7 @@ async function sendEventInvitesToSubscribers(eventId: string) {
           toName: email.split('@')[0],
           subject: `New Event Alert: ${event.title} | Piratage Club`,
           htmlContent: emailHtml,
-          senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratageauc.vercel.app',
+          senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratageauc.tech',
           senderName: process.env.BREVO_SENDER_NAME || 'Piratage Club',
         });
         successCount++;

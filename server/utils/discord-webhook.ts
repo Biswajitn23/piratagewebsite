@@ -25,7 +25,7 @@ export async function notifyDiscordNewEvent(event: EventRecordDTO): Promise<void
       hour12: true,
     });
 
-    const appUrl = process.env.APP_URL || "https://piratageauc.vercel.app";
+    const appUrl = process.env.APP_URL || "https://piratageauc.tech";
     const eventUrl = `${appUrl}/#events`;
 
     // Create Discord embed message
@@ -64,7 +64,7 @@ export async function notifyDiscordNewEvent(event: EventRecordDTO): Promise<void
         : undefined,
       footer: {
         text: "Piratage - The Ethical Hacking Club AUC",
-        icon_url: "https://piratageauc.vercel.app/piratagelogo.webp",
+        icon_url: "https://piratageauc.tech/piratagelogo.webp",
       },
       timestamp: new Date().toISOString(),
     };
@@ -81,7 +81,7 @@ export async function notifyDiscordNewEvent(event: EventRecordDTO): Promise<void
     // Create webhook payload
     const payload = {
       username: "Piratage Events",
-      avatar_url: "https://piratageauc.vercel.app/piratagelogo.webp",
+      avatar_url: "https://piratageauc.tech/piratagelogo.webp",
       embeds: [embed],
       components: [
         {

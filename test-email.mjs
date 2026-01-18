@@ -23,8 +23,8 @@ const emailData = {
   htmlContent: `
     <h2>Welcome to Piratage!</h2>
     <p>This is a <b>test email</b> to verify Brevo (Sendinblue) is working correctly.</p>
-    <p>Visit our <a href="https://piratageauc.vercel.app">website</a>.</p>
-    <img src="https://piratageauc.vercel.app/piratagelogo.webp" alt="Logo" width="120" />
+    <p>Visit our <a href="https://piratageauc.tech">website</a>.</p>
+    <img src="https://piratageauc.tech/piratagelogo.webp" alt="Logo" width="120" />
     <p>
       <a href="https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G">WhatsApp</a> |
       <a href="https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/">LinkedIn</a> |

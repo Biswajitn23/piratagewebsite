@@ -44,7 +44,7 @@ async function verifyHCaptcha(token: string): Promise<boolean> {
 export const subscribeEmail: RequestHandler = async (req, res) => {
   console.log("🔵 Subscribe endpoint called with body:", req.body);
   try {
-    const { email, captchaToken } = req.body;
+    const { email, captchaToken, name } = req.body;
 
     if (!email || !email.includes("@")) {
       console.log("❌ Invalid email:", email);
@@ -90,7 +90,8 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
         try {
           await snapshot.docs[0].ref.update({ 
             is_active: true, 
-            subscribed_at: Timestamp.now() 
+            subscribed_at: Timestamp.now(),
+            name: name || snapshot.docs[0].data().name || ''
           });
           console.log("🔄 Reactivated subscription for email:", email);
         } catch (error) {
@@ -110,6 +111,7 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
       await db.collection("subscribers").doc(subscriberId).set({
         id: subscriberId,
         email: email.toLowerCase(),
+        name: name || '',
         subscribed_at: Timestamp.now(),
         is_active: true,
         unsubscribe_token: randomUUID()
@@ -122,7 +124,7 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
 
     // Send welcome email synchronously (wait for completion)
     try {
-      await sendWelcomeEmail(email.toLowerCase(), { new: true });
+      await sendWelcomeEmail(email.toLowerCase(), name || undefined, { new: true });
       console.log("✅ Welcome email sent successfully to:", email);
       res.status(201).json({ message: "Successfully subscribed. Check your email for confirmation!" });
     } catch (error: any) {
@@ -141,14 +143,14 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
 
 
 // Helper to send a welcome/confirmation email via Brevo (Sendinblue)
-async function sendWelcomeEmail(email: string, flags: { new?: boolean; reactivated?: boolean; repeat?: boolean }) {
-  const toName = email.split('@')[0];
+async function sendWelcomeEmail(email: string, providedName?: string, flags?: { new?: boolean; reactivated?: boolean; repeat?: boolean }) {
+  const toName = providedName || email.split('@')[0];
   const subjectBase = flags.reactivated
     ? `Welcome back to Piratage: The Ethical Hacking Club, ${toName}`
     : flags.repeat
     ? 'You are already subscribed'
     : `Welcome to Piratage: The Ethical Hacking Club, ${toName}`;
-  const appUrl = process.env.APP_URL || 'https://piratageauc.vercel.app';
+  const appUrl = process.env.APP_URL || 'https://piratageauc.tech';
   const htmlContent = `
     <h1>Welcome to Piratage, ${toName}!</h1>
     <p>Your registration for <strong>${email}</strong> is complete. You are now on the list for priority alerts, exclusive workshops, and deep-dive technical sessions.</p>

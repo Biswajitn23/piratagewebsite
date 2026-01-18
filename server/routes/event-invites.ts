@@ -54,7 +54,7 @@ export const sendEventInvites: RequestHandler = async (req, res) => {
       return res.status(500).json({ error: "Failed to generate calendar invite" });
     }
 
-    const appUrl = process.env.APP_URL || 'https://piratageauc.vercel.app';
+    const appUrl = process.env.APP_URL || 'https://piratageauc.tech';
     const icsDownloadUrl = `${appUrl}/api/download-ics?eventId=${eventId}`;
 
     // Format event date for display
@@ -90,7 +90,7 @@ export const sendEventInvites: RequestHandler = async (req, res) => {
           event_url: event.registrationLink || `${appUrl}/#events`,
           ics_download_url: icsDownloadUrl,
           app_url: appUrl,
-          logo_url: 'https://piratageauc.vercel.app/piratagelogo.webp',
+          logo_url: 'https://piratageauc.tech/piratagelogo.webp',
           year: new Date().getFullYear().toString(),
         };
 

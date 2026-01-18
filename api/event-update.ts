@@ -32,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       toName: email,
       subject: undefined,
       htmlContent: undefined,
-      senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratage.com',
+      senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratageauc.tech',
       senderName: 'Piratage Team',
       templateId: 2,
       params: {

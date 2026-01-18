@@ -28,10 +28,10 @@ const eventData = {
   event_location: "Auditorium, Piratage Campus",
   event_description: "Join us for a full-day bootcamp covering advanced cybersecurity topics, hands-on labs, and expert talks.",
   event_cover_url: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=600&fit=crop",
-  event_url: "https://piratageauc.vercel.app/events",
-  ics_download_url: "https://piratageauc.vercel.app/api/calendar/export-event?id=cyber-bootcamp-2026",
-  unsubscribe_url: "https://piratageauc.vercel.app/api/unsubscribe?token=test-token",
-  logo_url: "https://piratageauc.vercel.app/piratagelogo.webp",
+  event_url: "https://piratageauc.tech/events",
+  ics_download_url: "https://piratageauc.tech/api/calendar/export-event?id=cyber-bootcamp-2026",
+  unsubscribe_url: "https://piratageauc.tech/api/unsubscribe?token=test-token",
+  logo_url: "https://piratageauc.tech/piratagelogo.webp",
   year: new Date().getFullYear().toString(),
   email: recipient
 };

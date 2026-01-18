@@ -10,11 +10,106 @@ const PORT = process.env.PORT || 10000;
 app.use(cors());
 app.use(bodyParser.json());
 
+const fs = require('fs');
+const path = require('path');
+const DATA_DIR = process.env.DATA_DIR || '.data';
+
+function ensureDataDir() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  } catch (err) {
+    console.warn('[Backend] Cannot create data directory, continuing without local file fallback');
+  }
+}
+
+async function writeLocalSubscriber(email, name) {
+  try {
+    ensureDataDir();
+    const file = path.join(DATA_DIR, 'subscribers.json');
+    let list = [];
+    if (fs.existsSync(file)) {
+      try {
+        list = JSON.parse(fs.readFileSync(file, 'utf8') || '[]');
+      } catch (e) {
+        list = [];
+      }
+    }
+    // Upsert by email
+    const lower = String(email).toLowerCase();
+    const idx = list.findIndex(s => s.email === lower);
+    const now = new Date().toISOString();
+    const entry = { email: lower, name: name || '', is_active: true, subscribed_at: now };
+    if (idx >= 0) {
+      list[idx] = Object.assign(list[idx], entry);
+    } else {
+      list.push(entry);
+    }
+    const tmp = file + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(list, null, 2));
+    fs.renameSync(tmp, file);
+    console.log('Local file: subscriber saved:', email);
+    return true;
+  } catch (err) {
+    console.error('Local file save error:', err?.message || err);
+    return false;
+  }
+}
+
+// Firestore (optional) - initialize if FIREBASE_* envs are present
+const admin = require('firebase-admin');
+function initFirestoreIfNeeded() {
+  if (admin.apps && admin.apps.length) return;
+
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKeyRaw = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (!projectId || !clientEmail || !privateKeyRaw) {
+    // Not configured — skip initialization
+    console.warn('Firestore not configured in backend (missing FIREBASE envs)');
+    return;
+  }
+
+  const privateKey = privateKeyRaw.replace(/\\n/g, '\n');
+
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId,
+      clientEmail,
+      privateKey,
+    }),
+  });
+  console.log('✅ Firebase admin initialized in backend');
+}
+
 // Simple GET for quick browser checks (POST is still used for subscribing)
 app.post('/api/subscribe', async (req, res) => {
-  const { email } = req.body || {};
+  const { email, name } = req.body || {};
   if (!email || typeof email !== 'string' || !email.includes('@')) {
     return res.status(400).json({ error: 'Invalid email address' });
+  }
+
+  // Try to save subscriber to Firestore (best-effort). If it fails, continue to send email.
+  try {
+    initFirestoreIfNeeded();
+    if (admin.apps && admin.apps.length) {
+      const db = admin.firestore();
+      const docId = email.toLowerCase();
+      const unsubscribeToken = require('crypto').randomUUID ? require('crypto').randomUUID() : (String(Date.now()) + Math.random().toString(36).slice(2,8));
+      await db.collection('subscribers').doc(docId).set({
+        email: email.toLowerCase(),
+        name: name || '',
+        is_active: true,
+        subscribed_at: admin.firestore.FieldValue.serverTimestamp(),
+        unsubscribe_token: unsubscribeToken
+      }, { merge: true });
+      console.log('Firestore: subscriber saved:', email);
+    } else {
+      console.warn('Firestore not initialized; using local-file fallback for', email);
+      await writeLocalSubscriber(email, name);
+    }
+  } catch (dbErr) {
+    console.error('Firestore save error (continuing):', dbErr?.message || dbErr);
   }
 
   // Send email via Brevo
@@ -28,12 +123,19 @@ app.post('/api/subscribe', async (req, res) => {
     // Try sending using template (if configured). If Brevo rejects due to missing template params,
     // fall back to a simple subject/htmlContent email so subscriptions still work.
     const templatePayload = {
-      sender: { email: senderEmail, name: 'Piratage Team' },
+      sender: { email: senderEmail, name: process.env.BREVO_SENDER_NAME || 'Piratage Team' },
       to: [{ email }],
       templateId,
+      params: {
+        app_url: (process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : 'https://piratageauc.tech'),
+        to_email: email,
+        to_name: name || email.split('@')[0],
+        logo_url: process.env.MAIL_LOGO_URL || ((process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : '') + '/piratagelogo.webp'),
+      },
     };
 
     try {
+      console.log('Brevo template payload:', JSON.stringify(Object.assign({}, templatePayload, { sender: undefined, to: undefined, params: templatePayload.params }), null, 2));
       const resp = await axios.post('https://api.brevo.com/v3/smtp/email', templatePayload, {
         headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
       });
@@ -44,7 +146,7 @@ app.post('/api/subscribe', async (req, res) => {
       // If error indicates missing params for template, retry with a basic email payload
       if (errData && errData.code && errData.code.toString().includes('missing_parameter')) {
         const fallback = {
-          sender: { email: senderEmail, name: 'Piratage Team' },
+          sender: { email: senderEmail, name: process.env.BREVO_SENDER_NAME || 'Piratage Team' },
           to: [{ email }],
           subject: "Welcome to Piratage",
           htmlContent: `<p>Thanks for subscribing to Piratage updates — we'll keep you posted.</p>`,

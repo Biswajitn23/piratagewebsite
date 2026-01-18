@@ -29,8 +29,8 @@ try {
     .replace(/{{to_name}}/g, toName)
     .replace(/{{to_email}}/g, recipient)
     .replace(/{{subject}}/g, "Welcome to Piratage: The Ethical Hacking Club")
-    .replace(/{{app_url}}/g, "https://piratageauc.vercel.app")
-    .replace(/{{logo_url}}/g, "https://piratageauc.vercel.app/piratagelogo.webp");
+    .replace(/{{app_url}}/g, "https://piratageauc.tech")
+    .replace(/{{logo_url}}/g, "https://piratageauc.tech/piratagelogo.webp");
 } catch (err) {
   console.error(`❌ Failed to read template: ${templatePath}`);
   process.exit(1);

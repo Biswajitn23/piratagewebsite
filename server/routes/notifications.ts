@@ -39,7 +39,7 @@ export async function processPendingNotifications() {
       const event = eventDoc.data();
 
       const emailPromises = subscribers.map(async (subscriber: any) => {
-        const appUrl = process.env.APP_URL || 'http://localhost:8080';
+        const appUrl = process.env.APP_URL || 'https://piratageauc.tech';
         const unsubscribeUrl = `${appUrl}/api/unsubscribe?token=${subscriber.unsubscribe_token}`;
         const eventDate = new Date(event!.date);
         const formattedDate = eventDate.toLocaleDateString('en-US', {
@@ -116,7 +116,7 @@ export async function processPendingNotifications() {
             toName: subscriber.email.split('@')[0],
             subject: `🚀 New Event: ${event!.title}`,
             htmlContent: emailHtml,
-            senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratageauc.vercel.app',
+            senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratageauc.tech',
             senderName: process.env.BREVO_SENDER_NAME || 'Piratage Club',
           });
           return { success: true, email: subscriber.email };
