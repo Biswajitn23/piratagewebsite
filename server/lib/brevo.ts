@@ -33,7 +33,10 @@ export async function sendWelcomeEmailBrevo({
   const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
   if (templateId) {
     sendSmtpEmail.templateId = templateId;
-    if (params) sendSmtpEmail.params = params;
+    // Merge provided params with defaults (e.g., logoUrl)
+    const defaultLogo = process.env.MAIL_LOGO_URL || 'https://piratage.tech/logo.png';
+    const mergedParams = Object.assign({ logoUrl: defaultLogo }, params || {});
+    sendSmtpEmail.params = mergedParams;
   } else {
     sendSmtpEmail.subject = subject;
     sendSmtpEmail.htmlContent = htmlContent;
