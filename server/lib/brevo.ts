@@ -35,7 +35,16 @@ export async function sendWelcomeEmailBrevo({
     sendSmtpEmail.templateId = templateId;
     // Merge provided params with defaults (e.g., logoUrl)
     const defaultLogo = process.env.MAIL_LOGO_URL || ((process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : '') + '/piratagelogo.webp');
-    const mergedParams = Object.assign({ logoUrl: defaultLogo }, params || {});
+    const defaults = {
+      logo_url: defaultLogo,
+      app_url: process.env.APP_URL || 'https://piratageauc.vercel.app',
+      whatsapp_link: process.env.WHATSAPP_LINK || 'https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G',
+      linkedin_link: process.env.LINKEDIN_LINK || 'https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/',
+      instagram_link: process.env.INSTAGRAM_LINK || 'https://www.instagram.com/piratage_club_auc/',
+      discord_link: process.env.DISCORD_LINK || 'https://discord.gg/9gZKmd8b',
+      year: new Date().getFullYear().toString(),
+    };
+    const mergedParams = Object.assign(defaults, params || {});
     sendSmtpEmail.params = mergedParams;
   } else {
     sendSmtpEmail.subject = subject;

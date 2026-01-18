@@ -72,15 +72,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Send welcome email using Brevo template
     const templateId = process.env.BREVO_WELCOME_TEMPLATE_ID ? Number(process.env.BREVO_WELCOME_TEMPLATE_ID) : 1;
     try {
+      const appUrl = process.env.APP_URL || 'https://piratageauc.vercel.app';
       await sendWelcomeEmailBrevo({
         toEmail: email,
-        toName: email,
+        toName: email.split('@')[0],
         subject: undefined, // subject handled by template
         htmlContent: undefined, // content handled by template
         senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratage.com',
-        senderName: 'Piratage Team',
+        senderName: process.env.BREVO_SENDER_NAME || 'Piratage Team',
         templateId,
-        params: {}, // Add template params if needed
+        params: {
+          app_url: appUrl,
+          to_email: email,
+          to_name: email.split('@')[0],
+        },
       });
       console.log('Brevo: welcome email sent to', email);
     } catch (emailErr) {
