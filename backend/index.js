@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 10000;
 app.use(cors());
 app.use(bodyParser.json());
 
-app.post('/subscribe', async (req, res) => {
+app.post('/api/subscribe', async (req, res) => {
   const { email } = req.body || {};
   if (!email || typeof email !== 'string' || !email.includes('@')) {
     return res.status(400).json({ error: 'Invalid email address' });
