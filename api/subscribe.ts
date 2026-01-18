@@ -51,7 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('isFirestoreEnabled:', isFirestoreEnabled());
 
     if (!isFirestoreEnabled()) {
-      return res.status(503).json({ error: 'Email subscription service unavailable' });
+      return res.status(503).send('Subscription service unavailable - Firestore not configured');
     }
 
     // Store subscriber in Firestore
