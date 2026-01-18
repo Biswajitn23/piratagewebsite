@@ -1,13 +1,5 @@
 import { useState, useRef, useEffect, type SVGProps } from "react";
 import { CalendarDays, CheckCircle2, Mail, Download, Plus } from "lucide-react";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
-
-// Debug: Log sitekey on component load
-const HCAPTCHA_SITEKEY = import.meta.env.VITE_HCAPTCHA_SITEKEY;
-if (!HCAPTCHA_SITEKEY) {
-  console.warn("⚠️ VITE_HCAPTCHA_SITEKEY is not set in environment variables");
-}
-console.log("🔍 hCaptcha sitekey loaded:", HCAPTCHA_SITEKEY ? "✓" : "✗");
 
 
 const WhatsApp = (props: SVGProps<SVGSVGElement>) => (
@@ -29,8 +21,7 @@ const GetInvolvedSection = () => {
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const [subscribeMessage, setSubscribeMessage] = useState("");
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const captchaRef = useRef<HCaptcha>(null);
+
 
   const handleEmailSubscribe = async () => {
     if (!email || !email.includes("@")) {
@@ -38,10 +29,8 @@ const GetInvolvedSection = () => {
       return;
     }
 
-    if (!captchaToken) {
-      setSubscribeMessage("Please complete the captcha verification");
-      return;
-    }
+
+
 
     setSubscribing(true);
     setSubscribeMessage("");
@@ -51,24 +40,20 @@ const GetInvolvedSection = () => {
       const response = await fetch(`${apiUrl}/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, captchaToken }),
+        body: JSON.stringify({ email }),
       });
 
       if (response.ok) {
         setSubscribeMessage("Success! You'll receive notifications for new events.");
         setEmail("");
-        setCaptchaToken(null);
-        captchaRef.current?.resetCaptcha();
       } else {
         const data = await response.json();
         setSubscribeMessage(data.error || "Failed to subscribe. Please try again.");
-        setCaptchaToken(null);
-        captchaRef.current?.resetCaptcha();
+        
       }
     } catch (error) {
       setSubscribeMessage("Network error. Please try again.");
-      setCaptchaToken(null);
-      captchaRef.current?.resetCaptcha();
+      
     } finally {
       setSubscribing(false);
     }
@@ -240,36 +225,12 @@ const GetInvolvedSection = () => {
                   size="sm"
                   className="gap-2 text-xs uppercase tracking-[0.24em] w-full sm:w-auto"
                   onClick={handleEmailSubscribe}
-                  disabled={subscribing || !captchaToken}
+                  disabled={subscribing}
                 >
                   {subscribing ? "..." : "Subscribe"}
                 </Button>
               </div>
-              <div className="mt-3">
-                {!HCAPTCHA_SITEKEY ? (
-                  <div className="p-3 bg-red-900/20 border border-red-600 rounded text-red-400 text-sm">
-                    ⚠️ hCaptcha not configured. Please contact support.
-                  </div>
-                ) : (
-                  <HCaptcha
-                    ref={captchaRef}
-                    sitekey={HCAPTCHA_SITEKEY}
-                    onVerify={(token) => {
-                      console.log("✅ hCaptcha verified");
-                      setCaptchaToken(token);
-                    }}
-                    onExpire={() => {
-                      console.log("⏰ hCaptcha expired");
-                      setCaptchaToken(null);
-                    }}
-                    onError={(error) => {
-                      console.error("❌ hCaptcha error:", error);
-                      setCaptchaToken(null);
-                    }}
-                    theme="dark"
-                  />
-                )}
-              </div>
+              {/* hCaptcha removed */}
               {subscribeMessage && (
                 <p className={`mt-2 text-xs ${subscribeMessage.includes('Success') ? 'text-green-400' : 'text-red-400'}`}>
                   {subscribeMessage}
