@@ -51,21 +51,20 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Valid email is required" });
     }
 
-    // Verify hCaptcha
-    if (!captchaToken) {
-      console.log("❌ No captcha token provided");
-      return res.status(400).json({ error: "Captcha verification required" });
-    }
+    // Verify hCaptcha if provided
+    if (captchaToken) {
+      console.log("🔍 Verifying hCaptcha token...");
+      const isCaptchaValid = await verifyHCaptcha(captchaToken);
+      
+      if (!isCaptchaValid) {
+        console.log("❌ Invalid captcha token");
+        return res.status(400).json({ error: "Captcha verification failed. Please try again." });
+      }
 
-    console.log("🔍 Verifying hCaptcha token...");
-    const isCaptchaValid = await verifyHCaptcha(captchaToken);
-    
-    if (!isCaptchaValid) {
-      console.log("❌ Invalid captcha token");
-      return res.status(400).json({ error: "Captcha verification failed. Please try again." });
+      console.log("✅ Captcha verified successfully");
+    } else {
+      console.log("⚠️ No captcha token provided, skipping verification");
     }
-
-    console.log("✅ Captcha verified successfully");
     console.log("✅ Valid email received:", email);
 
     if (!isFirestoreEnabled()) {
