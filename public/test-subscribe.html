@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Test Subscribe</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:20px}input{margin:6px 0;padding:6px}</style>
+  </head>
+  <body>
+    <h1>Test Subscribe</h1>
+    <p>Use this page to POST an email to your subscribe API.</p>
+    <label>API URL<br/>
+      <input id="apiUrl" value="http://localhost:10000/api/subscribe" style="width:480px" />
+    </label>
+    <form id="f">
+      <div>
+        <input id="email" type="email" placeholder="you@example.com" required style="width:300px" />
+        <button type="submit">Send</button>
+      </div>
+    </form>
+    <pre id="out" style="white-space:pre-wrap;border:1px solid #ddd;padding:10px;margin-top:12px;min-height:80px"></pre>
+
+    <script>
+      const out = document.getElementById('out');
+      document.getElementById('f').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        out.textContent = 'Sending...';
+        const api = document.getElementById('apiUrl').value;
+        const email = document.getElementById('email').value;
+        try {
+          const res = await fetch(api, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+          const text = await res.text();
+          try { // pretty-print JSON if possible
+            out.textContent = 'Status: ' + res.status + '\n' + JSON.stringify(JSON.parse(text), null, 2);
+          } catch (_) {
+            out.textContent = 'Status: ' + res.status + '\n' + text;
+          }
+        } catch (err) {
+          out.textContent = 'Network error: ' + err.message;
+        }
+      });
+    </script>
+  </body>
+</html>
