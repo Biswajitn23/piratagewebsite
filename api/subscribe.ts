@@ -87,6 +87,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         params: {
           app_url: appUrl,
           to_email: email,
+          to_name: email.split('@')[0],
+          logo_url: 'https://piratageauc.tech/piratagelogo.webp',
+          whatsapp_link: 'https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G',
+          linkedin_link: 'https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/',
+          instagram_link: 'https://www.instagram.com/piratage_club_auc/',
+          discord_link: 'https://discord.gg/BYcgdwHPYu',
+          year: new Date().getFullYear(),
         },
       });
       console.log('Brevo: welcome email sent to', email);
