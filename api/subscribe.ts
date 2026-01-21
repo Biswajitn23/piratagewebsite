@@ -12,7 +12,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Log the incoming request body
     console.log('Request body:', req.body);
-    const { email, captchaToken, name } = req.body || {};
+    const { email, captchaToken } = req.body || {};
 
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       return res.status(400).json({ error: 'Invalid email address' });
@@ -62,7 +62,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const unsubscribeToken = cryptoRandomToken();
       await db.collection('subscribers').doc(lower).set({
         email: lower,
-        name: name || '',
         is_active: true,
         subscribed_at: new Date().toISOString(),
         unsubscribe_token: unsubscribeToken,
@@ -79,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const appUrl = process.env.APP_URL || 'https://piratageauc.tech';
       await sendWelcomeEmailBrevo({
         toEmail: email,
-        toName: name || email.split('@')[0],
+        toName: email.split('@')[0],
         subject: undefined, // subject handled by template
         htmlContent: undefined, // content handled by template
         senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratageauc.tech',
@@ -88,8 +87,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         params: {
           app_url: appUrl,
           to_email: email,
-          to_name: name || email.split('@')[0],
-          name: name || '',
         },
       });
       console.log('Brevo: welcome email sent to', email);
