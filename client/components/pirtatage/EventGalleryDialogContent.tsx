@@ -1,5 +1,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import type { EventRecord } from "@/data/pirtatage";
@@ -17,6 +18,7 @@ const EventGalleryDialogContent: React.FC<Props> = ({ event }) => {
   ];
   const [current, setCurrent] = useState(0);
   const timer = useRef<NodeJS.Timeout | null>(null);
+  const [openSpeakerIdx, setOpenSpeakerIdx] = useState<number | null>(null);
 
   useEffect(() => {
     if (images.length <= 1) return;
@@ -82,11 +84,31 @@ const EventGalleryDialogContent: React.FC<Props> = ({ event }) => {
           <div className="flex flex-wrap gap-3">
             {event.speakers.map((sp, idx) => (
               <div key={sp.name + idx} className="flex items-center gap-2 bg-white/5 rounded-lg px-2 py-1">
-                {sp.avatar && <img src={sp.avatar} alt={sp.name} className="w-8 h-8 rounded-full object-cover" />}
+                {sp.avatar && (
+                  <img
+                    src={sp.avatar}
+                    alt={sp.name}
+                    className="w-8 h-8 rounded-full object-cover cursor-pointer"
+                    onClick={() => setOpenSpeakerIdx(idx)}
+                  />
+                )}
                 <div>
                   <div className="font-semibold text-white/90 text-sm">{sp.name}</div>
                   <div className="text-xs text-white/60">{sp.role}</div>
                 </div>
+                {/* Speaker Image Modal */}
+                <Dialog open={openSpeakerIdx === idx} onOpenChange={() => setOpenSpeakerIdx(null)}>
+                  <DialogContent className="max-w-md bg-[#0a001a] border-white/10 text-white flex flex-col items-center">
+                    <img
+                      src={sp.avatar}
+                      alt={sp.name + ' full'}
+                      className="w-full max-w-xs h-auto rounded-xl mb-2"
+                      style={{objectFit:'contain'}}
+                    />
+                    <div className="font-semibold text-lg mb-1">{sp.name}</div>
+                    <div className="text-sm text-white/70 mb-2">{sp.role}</div>
+                  </DialogContent>
+                </Dialog>
               </div>
             ))}
           </div>
