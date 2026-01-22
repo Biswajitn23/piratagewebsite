@@ -90,6 +90,7 @@ app.post('/api/subscribe', async (req, res) => {
   }
 
   // Try to save subscriber to Firestore (best-effort). If it fails, continue to send email.
+  let dbSaveSuccess = false;
   try {
     initFirestoreIfNeeded();
     if (admin.apps && admin.apps.length) {
@@ -104,70 +105,72 @@ app.post('/api/subscribe', async (req, res) => {
         unsubscribe_token: unsubscribeToken
       }, { merge: true });
       console.log('Firestore: subscriber saved:', email);
+      dbSaveSuccess = true;
     } else {
       console.warn('Firestore not initialized; using local-file fallback for', email);
       await writeLocalSubscriber(email, name);
+      dbSaveSuccess = true;
     }
   } catch (dbErr) {
     console.error('Firestore save error (continuing):', dbErr?.message || dbErr);
   }
 
-  // Send email via Brevo
-  try {
-    const apiKey = process.env.BREVO_API_KEY;
-    const senderEmail = process.env.BREVO_SENDER_EMAIL;
-    const templateId = process.env.BREVO_WELCOME_TEMPLATE_ID ? Number(process.env.BREVO_WELCOME_TEMPLATE_ID) : 1;
-    if (!apiKey || !senderEmail) {
-      return res.status(500).json({ error: 'Missing Brevo config' });
-    }
-    // Try sending using template (if configured). If Brevo rejects due to missing template params,
-    // fall back to a simple subject/htmlContent email so subscriptions still work.
-    const templatePayload = {
-      sender: { email: senderEmail, name: process.env.BREVO_SENDER_NAME || 'Piratage Team' },
-      to: [{ email }],
-      templateId,
-      params: {
-        app_url: (process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : 'https://piratageauc.tech'),
-        to_email: email,
-        to_name: name || email.split('@')[0],
-        logo_url: process.env.MAIL_LOGO_URL || ((process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : '') + '/piratagelogo.webp'),
-      },
-    };
+  // Respond immediately after DB save
+  if (dbSaveSuccess) {
+    res.json({ success: true, message: "Subscribed and saved to database." });
+  } else {
+    res.status(500).json({ error: "Failed to save subscriber to database." });
+    return;
+  }
 
+  // Send email via Brevo in background
+  (async () => {
     try {
-      console.log('Brevo template payload:', JSON.stringify(Object.assign({}, templatePayload, { sender: undefined, to: undefined, params: templatePayload.params }), null, 2));
-      const resp = await axios.post('https://api.brevo.com/v3/smtp/email', templatePayload, {
-        headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
-      });
-      return res.json({ success: true, brevo: resp.data });
-    } catch (templateErr) {
-      const errData = templateErr?.response?.data;
-      console.error('Brevo template send error:', errData || templateErr.message);
-      // If error indicates missing params for template, retry with a basic email payload
-      if (errData && errData.code && errData.code.toString().includes('missing_parameter')) {
-        const fallback = {
-          sender: { email: senderEmail, name: process.env.BREVO_SENDER_NAME || 'Piratage Team' },
-          to: [{ email }],
-          subject: "Welcome to Piratage",
-          htmlContent: `<p>Thanks for subscribing to Piratage updates — we'll keep you posted.</p>`,
-        };
-        try {
-          const resp2 = await axios.post('https://api.brevo.com/v3/smtp/email', fallback, {
-            headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
-          });
-          return res.json({ success: true, brevo: resp2.data, fallback: true });
-        } catch (fallbackErr) {
-          console.error('Brevo fallback error:', fallbackErr?.response?.data || fallbackErr.message);
-          return res.status(500).json({ error: fallbackErr?.response?.data || fallbackErr.message });
+      const apiKey = process.env.BREVO_API_KEY;
+      const senderEmail = process.env.BREVO_SENDER_EMAIL;
+      const templateId = process.env.BREVO_WELCOME_TEMPLATE_ID ? Number(process.env.BREVO_WELCOME_TEMPLATE_ID) : 1;
+      if (!apiKey || !senderEmail) {
+        console.error('Missing Brevo config');
+        return;
+      }
+      const templatePayload = {
+        sender: { email: senderEmail, name: process.env.BREVO_SENDER_NAME || 'Piratage Team' },
+        to: [{ email }],
+        templateId,
+        params: {
+          app_url: (process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : 'https://piratageauc.tech'),
+          to_email: email,
+          to_name: name || email.split('@')[0],
+          logo_url: process.env.MAIL_LOGO_URL || ((process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : '') + '/piratagelogo.webp'),
+        },
+      };
+      try {
+        await axios.post('https://api.brevo.com/v3/smtp/email', templatePayload, {
+          headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
+        });
+      } catch (templateErr) {
+        const errData = templateErr?.response?.data;
+        console.error('Brevo template send error:', errData || templateErr.message);
+        if (errData && errData.code && errData.code.toString().includes('missing_parameter')) {
+          const fallback = {
+            sender: { email: senderEmail, name: process.env.BREVO_SENDER_NAME || 'Piratage Team' },
+            to: [{ email }],
+            subject: "Welcome to Piratage",
+            htmlContent: `<p>Thanks for subscribing to Piratage updates — we'll keep you posted.</p>`,
+          };
+          try {
+            await axios.post('https://api.brevo.com/v3/smtp/email', fallback, {
+              headers: { 'api-key': apiKey, 'Content-Type': 'application/json' },
+            });
+          } catch (fallbackErr) {
+            console.error('Brevo fallback error:', fallbackErr?.response?.data || fallbackErr.message);
+          }
         }
       }
-      // Other template errors: return as-is
-      return res.status(500).json({ error: errData || templateErr.message });
+    } catch (err) {
+      console.error('Brevo error:', err?.response?.data || err.message);
     }
-  } catch (err) {
-    console.error('Brevo error:', err?.response?.data || err.message);
-    return res.status(500).json({ error: err?.response?.data || err.message });
-  }
+  })();
 });
 
 app.get('/', (req, res) => {
