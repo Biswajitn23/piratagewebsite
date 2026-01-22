@@ -138,10 +138,16 @@ app.post('/api/subscribe', async (req, res) => {
         to: [{ email }],
         templateId,
         params: {
-          app_url: (process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : 'https://piratageauc.tech'),
+          app_url: process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : 'https://piratageauc.tech',
           to_email: email,
-          to_name: name || email.split('@')[0],
+          to_name: name || (email ? email.split('@')[0] : ''),
           logo_url: process.env.MAIL_LOGO_URL || ((process.env.APP_URL ? process.env.APP_URL.replace(/\/$/, '') : '') + '/piratagelogo.webp'),
+          subject: `Welcome to Piratage: The Ethical Hacking Club, ${name || (email ? email.split('@')[0] : '')}`,
+          whatsapp_link: process.env.WHATSAPP_LINK || 'https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G',
+          linkedin_link: process.env.LINKEDIN_LINK || 'https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/',
+          instagram_link: process.env.INSTAGRAM_LINK || 'https://www.instagram.com/piratage_club_auc/',
+          discord_link: process.env.DISCORD_LINK || 'https://discord.gg/BYcgdwHPYu',
+          year: new Date().getFullYear().toString(),
         },
       };
       try {
