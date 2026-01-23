@@ -1,105 +1,115 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
-    <title>Welcome to Piratage, {{to_name}}</title>
+    <title>Welcome to Piratage, {{ contact.FIRSTNAME | default: "Member" }}</title>
     <style>
         body, table, td, p, a {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
         }
         h1 { font-family: 'Montserrat', sans-serif !important; }
         @media screen and (max-width: 600px) {
-        <title>Welcome to Piratage, {{ contact.FIRSTNAME | default: "Member" }}</title>
-            .mobile-padding { padding-left: 20px !important; padding-right: 20px !important; }
-            .button-stack { display: block !important; width: 100% !important; margin-bottom: 15px !important; text-align: center !important; }
-        }
-    </style>
-</head>
-<body style="margin:0; padding:0; background-color:#07070a;">
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#07070a; padding: 50px 10px;">
-        <tr>
-            <td align="center">
-                <table class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 600px; background-color: #11111a; border-radius: 30px; border: 1px solid #1f1f2e; box-shadow: 0 30px 60px rgba(0,0,0,0.8); overflow: hidden;">
+
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+                <title>Welcome to Piratage, {{ contact.FIRSTNAME | default: "Member" }}</title>
+                <style>
+                    body, table, td, p, a { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; }
+                    h1 { font-family: 'Montserrat', sans-serif !important; }
+        
+                    @media screen and (max-width: 600px) {
+                        .container { width: 100% !important; }
+                        .mobile-padding { padding-left: 20px !important; padding-right: 20px !important; }
+                        .button-container { padding-left: 20px !important; padding-right: 20px !important; }
+                        .button-stack { 
+                            display: block !important; 
+                            width: auto !important; 
+                            margin: 10px 0 !important; 
+                            text-align: center !important; 
+                            box-sizing: border-box !important;
+                        }
+                    }
+                </style>
+            </head>
+            <body style="margin:0; padding:0; background-color:#07070a;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#07070a; padding: 50px 10px;">
                     <tr>
-                        <td align="center" style="padding: 60px 40px 20px; background: radial-gradient(circle at top, #24183a 0%, #11111a 80%); border-radius: 30px 30px 0 0;">
-                            <table cellpadding="0" cellspacing="0" border="0">
+                        <td align="center">
+                            <table class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 600px; background-color: #11111a; border-radius: 30px; border: 1px solid #1f1f2e; box-shadow: 0 30px 60px rgba(0,0,0,0.8); overflow: hidden;">
                                 <tr>
-                                    <td align="center" style="width: 130px; height: 130px; background: #07070a; border: 2px solid #a855f7; border-radius: 50%; box-shadow: 0 0 30px rgba(168, 85, 247, 0.3); overflow: hidden;">
-                                        <img src="{{logo_url}}" alt="Piratage Logo" width="130" height="130" style="display: block; border-radius: 50%; object-fit: cover;" />
+                                    <td align="center" style="padding: 60px 40px 20px; background: radial-gradient(circle at top, #24183a 0%, #11111a 80%); border-radius: 30px 30px 0 0;">
+                                        <table cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td align="center" style="width: 130px; height: 130px; background: #07070a; border: 2px solid #a855f7; border-radius: 50%; box-shadow: 0 0 30px rgba(168, 85, 247, 0.3); overflow: hidden;">
+                                                    <img src="https://img.mailinblue.com/10467373/images/content_library/original/697233a71254ee178edd657b.jpg" alt="Piratage Logo" width="130" height="130" style="display: block; border-radius: 50%; object-fit: cover;" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <h1 style="margin: 30px 0 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Welcome to the Piratage Community</h1>
+                                        <p style="margin: 12px 0 0; color: #a855f7; font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;">Membership Confirmed</p>
                                     </td>
                                 </tr>
-                            </table>
-                            <h1 style="margin: 30px 0 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Welcome to the Piratage Community</h1>
-                            <p style="margin: 12px 0 0; color: #a855f7; font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;">Membership Confirmed</p>
-                        </td>
-                    </tr>
-                    
-                    <tr>
-                        <td style="padding: 20px 0 40px;">
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                 <tr>
-                                    <td width="8" style="background: linear-gradient(to bottom, #a855f7, #6d28d9); border-radius: 0 6px 6px 0; box-shadow: 4px 0 15px rgba(168, 85, 247, 0.4);">&nbsp;</td>
-                                    <td class="mobile-padding" style="padding: 0 40px;">
-                                        <p style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 8px;">
-                                            Hello {{to_name}},
-                                        </p>
-                                        <p style="color: #94a3b8; font-size: 16px; line-height: 1.8; margin-bottom: 30px;">
-                                            Your registration for <strong>{{to_email}}</strong> is complete. We're thrilled to have you at <strong>Piratage</strong>. You are now on the list for priority alerts, exclusive workshops, and deep-dive technical sessions.
-                                        </p>
-                                        
-                                        <table width="100%" cellpadding="0" cellspacing="0" style="background: #181824; border-radius: 20px; border: 1px solid #2d2d3d; border-bottom: 5px solid #08080a; box-shadow: 0 15px 30px rgba(0,0,0,0.5);">
+                                    <td style="padding: 20px 0 40px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                             <tr>
-                                                <td style="padding: 30px;">
-                                                    <p style="color: #a855f7; font-weight: 700; font-size: 12px; margin: 0 0 18px; letter-spacing: 1.5px; text-transform: uppercase;">Your Member Benefits</p>
-                                                    <table width="100%" style="color: #cbd5e1; font-size: 15px; line-height: 1.6;">
-                                                        <tr><td style="padding: 10px 0; border-bottom: 1px solid #252535;">• Early Access to Event Registrations</td></tr>
-                                                        <tr><td style="padding: 10px 0; border-bottom: 1px solid #252535;">• Advanced Ethical Hacking Workshops</td></tr>
-                                                        <tr><td style="padding: 10px 0;">• Private Community Networking</td></tr>
+                                                <td width="8" style="background: linear-gradient(to bottom, #a855f7, #6d28d9); border-radius: 0 6px 6px 0; box-shadow: 4px 0 15px rgba(168, 85, 247, 0.4);">&nbsp;</td>
+                                                <td class="mobile-padding" style="padding: 0 40px;">
+                                                    <p style="color: #ffffff; font-size: 20px; font-weight: 600; margin-bottom: 8px;">
+                                                        Hello {{ contact.FIRSTNAME | default: "Member" }},
+                                                    </p>
+                                                    <p style="color: #94a3b8; font-size: 16px; line-height: 1.8; margin-bottom: 30px;">
+                                                        Your registration is complete. We're thrilled to have you at <strong>Piratage</strong>. You are now on the list for priority alerts, exclusive workshops, and deep-dive technical sessions.
+                                                    </p>
+                                                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #181824; border-radius: 20px; border: 1px solid #2d2d3d; border-bottom: 5px solid #08080a; box-shadow: 0 15px 30px rgba(0,0,0,0.5);">
+                                                        <tr>
+                                                            <td style="padding: 30px;">
+                                                                <p style="color: #a855f7; font-weight: 700; font-size: 12px; margin: 0 0 18px; letter-spacing: 1.5px; text-transform: uppercase;">Your Member Benefits</p>
+                                                                <table width="100%" style="color: #cbd5e1; font-size: 15px; line-height: 1.6;">
+                                                                    <tr><td style="padding: 10px 0; border-bottom: 1px solid #252535;">• Early Access to Event Registrations</td></tr>
+                                                                    <tr><td style="padding: 10px 0; border-bottom: 1px solid #252535;">• Advanced Ethical Hacking Workshops</td></tr>
+                                                                    <tr><td style="padding: 10px 0;">• Private Community Networking</td></tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
                                                     </table>
                                                 </td>
                                             </tr>
                                         </table>
                                     </td>
                                 </tr>
-                            </table>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td align="center" style="padding: 0 50px 60px;">
-                            <table cellspacing="0" cellpadding="0" border="0" width="100%">
                                 <tr>
-                                    <td align="center">
-                                        <!-- Bulletproof Buttons -->
-                                        <a href="https://piratageauc.tech" style="background: #a855f7; color: #fff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: bold; display: inline-block; margin: 8px 0;">Visit Website</a>
-                                        <a href="https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G" style="background: #25d366; color: #fff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: bold; display: inline-block; margin: 8px 0;">Join WhatsApp</a>
+                                    <td align="center" class="button-container" style="padding: 0 40px 60px;">
+                                        <a href="https://piratageauc.tech" class="button-stack" style="background: #a855f7; color: #ffffff; text-decoration: none; padding: 18px 30px; border-radius: 14px; font-weight: 600; font-size: 16px; display: inline-block; border-bottom: 4px solid #7e22ce; box-shadow: 0 10px 25px rgba(168, 85, 247, 0.3); margin: 8px;">Visit Website</a>
+                                        <a href="https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G" class="button-stack" style="background: transparent; color: #ffffff; text-decoration: none; padding: 16px 30px; border-radius: 14px; font-weight: 600; font-size: 16px; display: inline-block; border: 2px solid #334155; border-bottom: 3px solid #1c1c2b; margin: 8px;">Join WhatsApp</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" style="padding: 40px 20px; background-color: #0b0b12; border-top: 1px solid #1e1e2d; border-radius: 0 0 30px 30px;">
+                                        <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 25px;">
+                                            <tr>
+                                                <td style="padding: 0 12px;"><a href="https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/"><img src="https://cdn-icons-png.flaticon.com/512/145/145807.png" width="22" alt="LinkedIn" style="filter: invert(100%); opacity: 0.6;" /></a></td>
+                                                <td style="padding: 0 12px;"><a href="https://www.instagram.com/piratage_club_auc/"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="22" alt="Instagram" style="filter: invert(100%); opacity: 0.6;" /></a></td>
+                                                <td style="padding: 0 12px;"><a href="https://discord.gg/BYcgdwHPYu"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968756.png" width="22" alt="Discord" style="filter: invert(100%); opacity: 0.6;" /></a></td>
+                                                <td style="padding: 0 12px;"><a href="https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="22" alt="WhatsApp" style="filter: invert(100%); opacity: 0.6;" /></a></td>
+                                            </tr>
+                                        </table>
+                                        <p style="margin: 0; font-size: 11px; color: #475569; line-height: 1.6; text-transform: uppercase;">
+                                            <br>&copy; 2026 PIRATAGE : THE ETHICAL HACKING CLUB</br>
+                                            <span style="color: #6d28d9; font-weight: 600; display: inline-block; margin-top: 10px; letter-spacing: 1px;">Stay Curious. Stay Ethical.</span>
+                                        </p>
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
-
-                    <tr>
-                        <td align="center" style="padding: 40px 20px; background-color: #0b0b12; border-top: 1px solid #1e1e2d; border-radius: 0 0 30px 30px;">
-                            <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 25px;">
-                                <tr>
-                                    <td style="padding: 0 12px;"><a href="https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/" style="color: #0a66c2; text-decoration: underline;">LinkedIn</a></td>
-                                    <td style="padding: 0 12px;"><a href="https://www.instagram.com/piratage_club_auc/" style="color: #e1306c; text-decoration: underline;">Instagram</a></td>
-                                    <td style="padding: 0 12px;"><a href="https://discord.gg/BYcgdwHPYu" style="color: #5865f2; text-decoration: underline;">Discord</a></td>
-                                    <td style="padding: 0 12px;"><a href="https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G" style="color: #25d366; text-decoration: underline;">WhatsApp</a></td>
-                                </tr>
-                            </table>
-                            <p style="margin: 0; font-size: 11px; color: #475569; line-height: 1.6;">
-                                &copy; {{year}} PIRATAGE : THE ETHICAL HACKING CLUB<br>
-                                <span style="color: #6d28d9; font-weight: 600; display: inline-block; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase;">Stay Curious. Stay Ethical.</span>
-                            </p>
-                        </td>
-                    </tr>
                 </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
+            </body>
+            </html>
