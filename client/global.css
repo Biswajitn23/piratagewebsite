@@ -797,11 +797,12 @@
 }
 
 /* Mobile performance helpers: disable heavy backdrop-filter and reduce paint for small screens */
+
 @media (max-width: 1023px) {
   /* Critical mobile performance optimizations */
   * {
     -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
+    /* touch-action: manipulation;  Removed to restore native scrolling */
     animation: none !important;
   }
 
@@ -814,7 +815,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeSpeed;
-    overscroll-behavior: none;
+    /* overscroll-behavior: none;  Removed to restore native scrolling */
   }
 
   /* Disable all animations on mobile */
