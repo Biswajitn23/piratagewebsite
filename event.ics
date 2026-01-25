@@ -1,0 +1,16 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Piratage Club//Event Notification//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:48bb7572-a28b-4b49-b25a-9c2c38aa0137@piratage.club
+DTSTAMP:20260125T134616Z
+DTSTART:20260128T040000Z
+DTEND:20260128T060000Z
+SUMMARY:Think Before You Click
+DESCRIPTION:This speaker session focuses on the legal side of cybersecurity\, featuring expert insights from a Law Advisor and a High Court Law Expert. The session will cover cyber crimes\, data protection\, online frauds\, and digital privacy\, along with real-world legal cases and current cyber laws in India. It aims to help participants understand how law and technology work together to ensure digital safety and legal accountability in today’s cyber-driven world.
+LOCATION:Amity University Chhattisgarh
+ORGANIZER;CN=Piratage Club:mailto:noreply@piratageauc.tech
+END:VEVENT
+END:VCALENDAR

@@ -376,16 +376,21 @@ export const createEvent: RequestHandler = async (req, res) => {
       
       res.setHeader("X-Events-Source", "firestore");
       
-      // Best-effort: process pending notifications immediately (non-blocking)
-      processPendingNotifications().catch((e) => console.warn("Email notifications processing failed:", e?.message || e));
+      // NOTE: Automatic email notifications have been disabled to require manual sends
+      // via the event-mailer website. This prevents immediate emails when events are
+      // created in the CMS or via scripts.
+      //
+      // If you want to re-enable any automation later, uncomment the corresponding
+      // function calls below.
+
+      // processPendingNotifications().catch((e) => console.warn("Email notifications processing failed:", e?.message || e));
       
       // Best-effort: add event to all authenticated Google Calendar users (non-blocking)
       triggerCalendarAddForAllUsers(id).catch((e) => console.warn("Calendar automation failed:", e?.message || e));
-      
-      // Best-effort: send calendar invites via email to all subscribers (non-blocking)
-      sendEventInvitesToSubscribers(id).catch((e) => console.warn("Event invites failed:", e?.message || e));
-      
-      // Best-effort: send Discord webhook notification (non-blocking)
+
+      // sendEventInvitesToSubscribers(id).catch((e) => console.warn("Event invites failed:", e?.message || e));
+
+      // Notify Discord about the new event (non-blocking)
       notifyDiscordNewEvent(record).catch((e) => console.warn("Discord notification failed:", e?.message || e));
       
       return res.status(201).json({ event: record } satisfies CreateEventResponse);
