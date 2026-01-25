@@ -4,102 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
-    <title>{{subject}}</title>
-    <style>
-        body, table, td, p, a {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-        }
-        h1 { font-family: 'Montserrat', sans-serif !important; }
-        @media screen and (max-width: 600px) {
-            .container { width: 100% !important; }
-            .mobile-padding { padding-left: 20px !important; padding-right: 20px !important; }
-            .button-stack { display: block !important; width: 100% !important; margin-bottom: 15px !important; margin-left: 0 !important; margin-right: 0 !important; }
-        }
-    </style>
-</head>
-<body style="margin:0; padding:0; background-color:#07070a;">
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#07070a; padding: 40px 10px;">
-        <tr>
-            <td align="center">
-                
-                <table class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 600px; background-color: #11111a; border-radius: 30px; border: 1px solid #1f1f2e; box-shadow: 0 30px 60px rgba(0,0,0,0.8); overflow: hidden;">
-                    
-                    <tr>
-                        <td style="background-color: #0d1117;">
-                            <img src="{{event_cover_url}}" alt="{{event_title}}" width="600" style="width: 100%; max-width: 600px; height: auto; display: block; object-fit: cover; aspect-ratio: 16/9;" />
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td align="center" style="padding: 40px 40px 10px; background: radial-gradient(circle at top, #24183a 0%, #11111a 100%);">
-                            <table cellpadding="0" cellspacing="0" border="0">
-                                <tr>
-                                    <td align="center" style="width: 100px; height: 100px; background: #07070a; border: 2px solid #a855f7; border-radius: 50%; box-shadow: 0 0 25px rgba(168, 85, 247, 0.3); overflow: hidden;">
-                                        <img src="{{logo_url}}" alt="Piratage Logo" width="100" height="100" style="display: block; border-radius: 50%; object-fit: cover;" />
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <tr>
-                        <td style="padding: 10px 0 30px;">
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                                <tr>
-                                    <td width="8" style="background: linear-gradient(to bottom, #a855f7, #6d28d9); border-radius: 0 6px 6px 0;">&nbsp;</td>
-                                    <td class="mobile-padding" style="padding: 0 40px;">
-                                        <p style="color: #ffffff; font-size: 19px; font-weight: 600; margin-bottom: 12px;">Hello {{to_name}},</p>
-                                        <h1 style="margin: 0 0 15px; color: #ffffff; font-size: 28px; line-height: 1.2;">{{event_title}}</h1>
-                                        
-                                        <table width="100%" cellpadding="0" cellspacing="0" style="background: #181824; border-radius: 20px; border: 1px solid #2d2d3d; border-bottom: 6px solid #000000; margin-bottom: 25px;">
-                                            <tr>
-                                                <td style="padding: 25px;">
-                                                    <table width="100%" style="color: #cbd5e1; font-size: 15px;">
-                                                        <tr><td style="padding: 10px 0; border-bottom: 1px solid #252535;"><span style="color: #a855f7; font-weight: 700;">DATE:</span> &nbsp; {{event_date_formatted}}</td></tr>
-                                                        <tr><td style="padding: 10px 0; border-bottom: 1px solid #252535;"><span style="color: #a855f7; font-weight: 700;">TIME:</span> &nbsp; {{event_time_formatted}}</td></tr>
-                                                        <tr><td style="padding: 10px 0;"><span style="color: #a855f7; font-weight: 700;">LOCATION:</span> &nbsp; {{event_location}}</td></tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-
-                                        <p style="color: #94a3b8; font-size: 15px; line-height: 1.8;">{{event_description}}</p>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <tr>
-                        <td align="center" style="padding: 10px 30px 60px;">
-                            <table cellspacing="0" cellpadding="0" border="0">
-                                <tr>
-                                    <td align="center">
-                                        <a href="{{event_url}}" class="button-stack" style="background: #a855f7; color: #ffffff; text-decoration: none; padding: 18px 30px; border-radius: 12px; font-weight: 600; font-size: 15px; display: inline-block; border-bottom: 4px solid #7e22ce; box-shadow: 0 10px 20px rgba(168, 85, 247, 0.2); margin: 5px;">
-                                            Save My Spot
-                                        </a>
-                                        
-                                        <a href="{{ics_download_url}}" class="button-stack" style="background: #1e1b4b; color: #ffffff; text-decoration: none; padding: 17px 30px; border-radius: 12px; font-weight: 600; font-size: 15px; display: inline-block; border: 1px solid #312e81; border-bottom: 4px solid #000000; margin: 5px;">
-                                            📅 Add to Calendar
-                                        </a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    
-                    <tr>
-                        <td align="center" style="padding: 40px 20px; background-color: #0b0b12; border-top: 1px solid #1e1e2d; border-radius: 0 0 30px 30px;">
-                            <p style="margin: 0 0 15px; font-size: 11px; color: #475569;">
-                                Sent to <strong>{{email}}</strong><br>
-                                &copy; 2026 PIRATAGE CLUB
-                            </p>
-                            <a href="{{unsubscribe_url}}" style="color: #6d28d9; text-decoration: underline; font-size: 11px;">Unsubscribe</a>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
+    <title>Upcoming Event: {{ params.event_title }} – Details Inside</title>
+        <style>
+            body, table, td, p, a { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; }
+            h1 { font-family: 'Montserrat', sans-serif !important; }
+            @media screen and (max-width: 600px) {
+                .container { width: 100% !important; }
+                .mobile-padding { padding-left: 20px !important; padding-right: 20px !important; }
+                .button-stack { display: block !important; width: 100% !important; margin-bottom: 15px !important; margin-left: 0 !important; margin-right: 0 !important; }
+            }
+        </style>
+    </head>
+    <body style="margin:0; padding:0; background-color:#07070a;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#07070a; padding: 40px 10px;">
+            <tr>
+                <td align="center">
+                    <table class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 600px; background-color: #11111a; border-radius: 30px; border: 1px solid #1f1f2e; box-shadow: 0 30px 60px rgba(0,0,0,0.8); overflow: hidden;">
+                        <tr>
+                            <td style="background-color: #0d1117;">
+                                <img src="{{ params.event_cover_url }}" alt="{{ params.event_title }}" width="600" style="width: 100%; max-width: 600px; height: auto; display: block; object-fit: cover; aspect-ratio: 16/9;" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding: 40px 40px 10px; background: radial-gradient(circle at top, #24183a 0%, #11111a 100%);">
+                                <table cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td align="center" style="width: 100px; height: 100px; background: #07070a; border: 2px solid #a855f7; border-radius: 50%; box-shadow: 0 0 25px rgba(168, 85, 247, 0.3); overflow: hidden;">
+                                            <img src="https://img.mailinblue.com/10467373/images/content_library/original/697324125a30bb47fe8e24ae.jpg" alt="Piratage Logo" width="100" height="100" style="display: block; border-radius: 50%; object-fit: cover;" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0 30px;">
+                                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td width="8" style="background: linear-gradient(to bottom, #a855f7, #6d28d9); border-radius: 0 6px 6px 0;">&nbsp;</td>
+                                        <td class="mobile-padding" style="padding: 0 40px;">
+                                            <p style="color: #ffffff; font-size: 19px; font-weight: 600; margin-bottom: 12px;">Hello {{ params.to_name | default:"Member" }},</p>
+                                            <h1 style="margin: 0 0 15px; color: #ffffff; font-size: 28px; line-height: 1.2;">{{ params.event_title }}</h1>
+                                            <table width="100%" cellpadding="0" cellspacing="0" style="background: #181824; border-radius: 20px; border: 1px solid #2d2d3d; border-bottom: 6px solid #000000; margin-bottom: 25px;">
+                                                <tr>
+                                                    <td style="padding: 25px;">
+                                                        <table width="100%" style="color: #cbd5e1; font-size: 15px;">
+                                                            <tr><td style="padding: 10px 0; border-bottom: 1px solid #252535;"><span style="color: #a855f7; font-weight: 700;">DATE:</span> &nbsp; {{ params.event_date_formatted }}</td></tr>
+                                                            <tr><td style="padding: 10px 0; border-bottom: 1px solid #252535;"><span style="color: #a855f7; font-weight: 700;">TIME:</span> &nbsp; {{ params.event_time_formatted }}</td></tr>
+                                                            <tr><td style="padding: 10px 0;"><span style="color: #a855f7; font-weight: 700;">LOCATION:</span> &nbsp; {{ params.event_location }}</td></tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <p style="color: #94a3b8; font-size: 15px; line-height: 1.8;">{{ params.event_description }}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding: 10px 30px 60px;">
+                                <table cellspacing="0" cellpadding="0" border="0">
+                                    <tr>
+                                        <td align="center">
+                                            <a href="https://piratageauc.vercel.app/events?utm_source=brevo&utm_campaign=Event&utm_medium=email&utm_id=2" class="button-stack" style="background: #a855f7; color: #ffffff; text-decoration: none; padding: 18px 30px; border-radius: 12px; font-weight: 600; font-size: 15px; display: inline-block; border-bottom: 4px solid #7e22ce; box-shadow: 0 10px 20px rgba(168, 85, 247, 0.2); margin: 5px;"> Save My Spot </a>
+                                            <a href="{{ params.ics_download_url | default: params.event_url | default: event_url }}?utm_source=brevo&utm_campaign=Event&utm_medium=email&utm_id=2" class="button-stack" style="background: #1e1b4b; color: #ffffff; text-decoration: none; padding: 17px 30px; border-radius: 12px; font-weight: 600; font-size: 15px; display: inline-block; border: 1px solid #312e81; border-bottom: 4px solid #000000; margin: 5px;"> 📅 Add to Calendar </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding: 40px 20px; background-color: #0b0b12; border-top: 1px solid #1e1e2d; border-radius: 0 0 30px 30px;">
+                                <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 25px;">
+                                    <tr>
+                                        <td style="padding: 0 12px;"><a href="https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/?utm_source=brevo&utm_campaign=Event&utm_medium=email&utm_id=2"><img src="https://cdn-icons-png.flaticon.com/512/145/145807.png" width="22" alt="LinkedIn" style="filter: invert(100%); opacity: 0.6;" /></a></td>
+                                        <td style="padding: 0 12px;"><a href="https://www.instagram.com/piratage_club_auc/?utm_source=brevo&utm_campaign=Event&utm_medium=email&utm_id=2"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="22" alt="Instagram" style="filter: invert(100%); opacity: 0.6;" /></a></td>
+                                        <td style="padding: 0 12px;"><a href="https://discord.gg/BYcgdwHPYu?utm_source=brevo&utm_campaign=Event&utm_medium=email&utm_id=2"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968756.png" width="22" alt="Discord" style="filter: invert(100%); opacity: 0.6;" /></a></td>
+                                        <td style="padding: 0 12px;"><a href="https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G?utm_source=brevo&utm_campaign=Event&utm_medium=email&utm_id=2"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="22" alt="WhatsApp" style="filter: invert(100%); opacity: 0.6;" /></a></td>
+                                    </tr>
+                                </table>
+                                <p style="margin: 0 0 15px; font-size: 11px; color: #475569; text-transform: uppercase;"> &copy; 2026 PIRATAGE : THE ETHICAL HACKING CLUB </p>
+                                <a href="{{ unsubscribe }}" style="color: #6d28d9; text-decoration: underline; font-size: 11px;">Unsubscribe</a>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
     </table>
 </body>
 </html>
