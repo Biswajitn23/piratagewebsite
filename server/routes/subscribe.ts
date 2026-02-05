@@ -122,19 +122,17 @@ export const subscribeEmail: RequestHandler = async (req, res) => {
       return res.status(500).json({ error: "Failed to subscribe" });
     }
 
-    // Send welcome email synchronously (wait for completion)
-    try {
-      await sendWelcomeEmail(email.toLowerCase(), name || undefined, { new: true });
-      console.log("✅ Welcome email sent successfully to:", email);
-      res.status(201).json({ message: "Successfully subscribed. Check your email for confirmation!" });
-    } catch (error: any) {
-      console.error("❌ Welcome email failed but subscription was saved:", error?.message || error);
-      // Still return success since subscription was saved, but log the error
-      res.status(201).json({ 
-        message: "Subscribed, but welcome email may be delayed. Please check your inbox and spam folder.",
-        warning: true 
+    // Send welcome email asynchronously (don't wait for it)
+    sendWelcomeEmail(email.toLowerCase(), name || undefined, { new: true })
+      .then(() => {
+        console.log("✅ Welcome email sent successfully to:", email);
+      })
+      .catch((error: any) => {
+        console.error("❌ Welcome email failed but subscription was saved:", error?.message || error);
       });
-    }
+    
+    // Return immediately after DB save
+    res.status(201).json({ message: "Successfully subscribed. Check your email for confirmation!" });
   } catch (error) {
     console.error("Subscribe error:", error);
     res.status(500).json({ error: "Internal server error" });

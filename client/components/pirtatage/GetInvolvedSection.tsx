@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type SVGProps } from "react";
-import { CalendarDays, CheckCircle2, Mail, Download, Plus } from "lucide-react";
+import { CalendarDays, CheckCircle2, Mail, Download, Plus, Loader2 } from "lucide-react";
 
 
 const WhatsApp = (props: SVGProps<SVGSVGElement>) => (
@@ -228,7 +228,14 @@ const GetInvolvedSection = () => {
                   onClick={handleEmailSubscribe}
                   disabled={subscribing}
                 >
-                  {subscribing ? "..." : "Subscribe"}
+                  {subscribing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Subscribing...
+                    </>
+                  ) : (
+                    "Subscribe"
+                  )}
                 </Button>
               </div>
               {/* hCaptcha removed */}

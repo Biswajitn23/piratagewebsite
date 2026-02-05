@@ -72,37 +72,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'Database error: ' + (dbErr?.message || dbErr) });
     }
 
-    // Send welcome email using Brevo template
+    // Send welcome email in background (don't wait for it)
     const templateId = process.env.BREVO_WELCOME_TEMPLATE_ID ? Number(process.env.BREVO_WELCOME_TEMPLATE_ID) : 1;
-    try {
-      const appUrl = process.env.APP_URL || 'https://piratageauc.tech';
-      await sendWelcomeEmailBrevo({
-        toEmail: email,
-        toName: email.split('@')[0],
-        subject: undefined, // subject handled by template
-        htmlContent: undefined, // content handled by template
-        senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratageauc.tech',
-        senderName: process.env.BREVO_SENDER_NAME || 'Piratage Team',
-        templateId,
-        params: {
-          app_url: appUrl,
-          to_email: email,
-          to_name: email.split('@')[0],
-          logo_url: 'https://piratageauc.tech/piratagelogo.webp',
-          whatsapp_link: 'https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G',
-          linkedin_link: 'https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/',
-          instagram_link: 'https://www.instagram.com/piratage_club_auc/',
-          discord_link: 'https://discord.gg/BYcgdwHPYu',
-          year: new Date().getFullYear(),
-        },
-      });
+    const appUrl = process.env.APP_URL || 'https://piratageauc.tech';
+    
+    // Fire and forget - send email asynchronously
+    sendWelcomeEmailBrevo({
+      toEmail: email,
+      toName: email.split('@')[0],
+      subject: undefined, // subject handled by template
+      htmlContent: undefined, // content handled by template
+      senderEmail: process.env.BREVO_SENDER_EMAIL || 'noreply@piratageauc.tech',
+      senderName: process.env.BREVO_SENDER_NAME || 'Piratage Team',
+      templateId,
+      params: {
+        app_url: appUrl,
+        to_email: email,
+        to_name: email.split('@')[0],
+        logo_url: 'https://piratageauc.tech/piratagelogo.webp',
+        whatsapp_link: 'https://chat.whatsapp.com/HbpsxloTU0pKJ5pPAWzA3G',
+        linkedin_link: 'https://www.linkedin.com/in/piratage-the-ethical-hacking-club-5a736a354/',
+        instagram_link: 'https://www.instagram.com/piratage_club_auc/',
+        discord_link: 'https://discord.gg/BYcgdwHPYu',
+        year: new Date().getFullYear(),
+      },
+    }).then(() => {
       console.log('Brevo: welcome email sent to', email);
-    } catch (emailErr) {
-      console.error('Email failed:', emailErr);
-      return res.status(500).json({ error: 'Email failed: ' + (emailErr?.message || emailErr) });
-    }
+    }).catch((emailErr) => {
+      console.error('Email failed (background):', emailErr);
+    });
 
-    return res.status(200).json({ success: true });
+    // Return immediately after DB save
+    return res.status(200).json({ success: true, message: 'Successfully subscribed! Check your email for confirmation.' });
   } catch (err: any) {
     console.error('Subscribe API error:', err);
     return res.status(500).json({ error: err?.message || 'Failed to subscribe/send email' });
