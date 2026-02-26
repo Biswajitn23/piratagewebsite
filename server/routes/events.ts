@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import fs from "fs";
 import path from "path";
-import { CreateEventRequest, CreateEventResponse, EventRecordDTO, ListEventsResponse } from "@shared/api";
+import { CreateEventRequest, CreateEventResponse, EventRecordDTO, ListEventsResponse, EventStatus } from "@shared/api";
 import { randomUUID } from "crypto";
 import { getFirestore, isFirestoreEnabled } from "../firebase.js";
 import { processPendingNotifications } from "./notifications.js";
@@ -58,16 +58,16 @@ async function triggerCalendarAddForAllUsers(eventId: string) {
 
   try {
     const db = getFirestore();
-    
+
     // Get all users with Google Calendar authentication
     const usersSnapshot = await db.collection("google_calendar_users").get();
-    
+
     if (usersSnapshot.empty) {
       console.log(`[Calendar Automation] No authenticated users found for event ${eventId}`);
       return;
     }
 
-    const baseUrl = process.env.VERCEL_URL 
+    const baseUrl = process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
       : process.env.BASE_URL || "http://localhost:5173";
 
@@ -177,7 +177,7 @@ async function sendEventInvitesToSubscribers(eventId: string) {
           .get();
 
         const unsubscribeToken = subscriberDoc.docs[0]?.data().unsubscribe_token || '';
-        const unsubscribeUrl = unsubscribeToken 
+        const unsubscribeUrl = unsubscribeToken
           ? `${appUrl}/api/unsubscribe?token=${unsubscribeToken}`
           : '';
 
@@ -337,10 +337,13 @@ export const listEvents: RequestHandler = async (_req, res) => {
 export const createEvent: RequestHandler = async (req, res) => {
   const payload = req.body as CreateEventRequest;
   const id = payload.id || payload.slug || randomUUID();
-  
-  // Compute the actual status based on event date/time
-  const computedStatus = getEventStatus(payload.date);
-  
+
+  // Compute the actual status based on event date/time, or use manual override
+  const payloadStatus = (payload as any).status;
+  const computedStatus = (payloadStatus && payloadStatus !== 'auto')
+    ? payloadStatus as EventStatus
+    : getEventStatus(payload.date);
+
   const record: EventRecordDTO = {
     id,
     title: payload.title,
@@ -362,7 +365,7 @@ export const createEvent: RequestHandler = async (req, res) => {
     try {
       const db = getFirestore();
       await db.collection("events").doc(id).set(record, { merge: false });
-      
+
       // Create notification entry
       const notificationId = randomUUID();
       await db.collection("email_notifications").doc(notificationId).set({
@@ -373,9 +376,9 @@ export const createEvent: RequestHandler = async (req, res) => {
         status: "pending",
         created_at: new Date().toISOString()
       });
-      
+
       res.setHeader("X-Events-Source", "firestore");
-      
+
       // NOTE: Automatic email notifications have been disabled to require manual sends
       // via the event-mailer website. This prevents immediate emails when events are
       // created in the CMS or via scripts.
@@ -384,7 +387,7 @@ export const createEvent: RequestHandler = async (req, res) => {
       // function calls below.
 
       // processPendingNotifications().catch((e) => console.warn("Email notifications processing failed:", e?.message || e));
-      
+
       // Best-effort: add event to all authenticated Google Calendar users (non-blocking)
       triggerCalendarAddForAllUsers(id).catch((e) => console.warn("Calendar automation failed:", e?.message || e));
 
@@ -392,7 +395,7 @@ export const createEvent: RequestHandler = async (req, res) => {
 
       // Notify Discord about the new event (non-blocking)
       notifyDiscordNewEvent(record).catch((e) => console.warn("Discord notification failed:", e?.message || e));
-      
+
       return res.status(201).json({ event: record } satisfies CreateEventResponse);
     } catch (err: any) {
       return res.status(400).json({ error: String(err?.message || err || "Failed to create event") });
