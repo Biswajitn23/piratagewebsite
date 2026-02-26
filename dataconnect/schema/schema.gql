@@ -1,0 +1,43 @@
+type User @table {
+  displayName: String!
+  email: String!
+  createdAt: Timestamp!
+  photoUrl: String
+  major: String
+  yearOfStudy: String
+  interests: [String]
+}
+
+type Event @table {
+  title: String!
+  description: String!
+  eventDate: Date!
+  startTime: String!
+  endTime: String!
+  location: String!
+  createdAt: Timestamp!
+  imageUrl: String
+  creator: User
+}
+
+type RSVP @table(key: ["user", "event"]) {
+  user: User!
+  event: Event!
+  createdAt: Timestamp!
+  notes: String
+}
+
+type ForumPost @table {
+  title: String!
+  content: String!
+  createdAt: Timestamp!
+  parentPost: ForumPost
+  imageUrl: String
+  author: User
+}
+
+type Interest @table {
+  name: String!
+  createdAt: Timestamp!
+  description: String
+}

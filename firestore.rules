@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Allow public reading and writing for events and gallery
+    // Note: In production, you should secure these with proper auth
+    match /events/{event} {
+      allow read, write: if true; 
+    }
+    
+    match /gallery/{photo} {
+      allow read, write: if true;
+    }
+
+    // Default: block everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,10 @@
+mutation CreateUserProfile($displayName: String!, $email: String!) @auth(level: USER) {
+  user_insert(
+    data: {
+      id_expr: "auth.uid",
+      displayName: $displayName,
+      email: $email,
+      createdAt_expr: "request.time"
+    }
+  )
+}

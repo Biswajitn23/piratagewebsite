@@ -87,24 +87,36 @@ const EventsSection = () => {
 
   /* ---------------- DB FILTERS ---------------- */
 
-  const ongoingEvents = useMemo(() => 
-    allEvents.filter((e) => e.status === "ongoing"), 
-  [allEvents]);
+  const ongoingEvents = useMemo(() =>
+    allEvents.filter((e) => e.status === "ongoing"),
+    [allEvents]);
 
   const upcomingEvents = useMemo(() => {
     const now = Date.now();
-    return allEvents.filter((e) => {
-      const t = Date.parse(e.date);
-      return e.status === "upcoming" || (!Number.isNaN(t) && t > now && e.status !== "ongoing");
-    });
+    return allEvents
+      .filter((e) => {
+        const t = Date.parse(e.date);
+        return e.status === "upcoming" || (!Number.isNaN(t) && t > now && e.status !== "ongoing");
+      })
+      .sort((a, b) => {
+        const tA = Date.parse(a.date);
+        const tB = Date.parse(b.date);
+        return tA - tB; // Soonest first
+      });
   }, [allEvents]);
 
   const pastEvents = useMemo(() => {
     const now = Date.now();
-    return allEvents.filter((e) => {
-      const t = Date.parse(e.date);
-      return e.status === "past" || (!Number.isNaN(t) && t <= now && e.status !== "ongoing");
-    });
+    return allEvents
+      .filter((e) => {
+        const t = Date.parse(e.date);
+        return e.status === "past" || (!Number.isNaN(t) && t <= now && e.status !== "ongoing");
+      })
+      .sort((a, b) => {
+        const tA = Date.parse(a.date);
+        const tB = Date.parse(b.date);
+        return tB - tA; // Most recent past first
+      });
   }, [allEvents]);
 
 
@@ -133,7 +145,7 @@ const EventsSection = () => {
       const res = await fetch(`/api/events?t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error("DB Fetch failed");
       const data = (await res.json()) as ListEventsResponse;
-      
+
       const mapped = data.events.map((e: EventRecordDTO) => ({
         ...e,
         speakers: e.speakers || [],
@@ -177,28 +189,28 @@ const EventsSection = () => {
       });
 
       // Progress Bar Logic
-if (progressRef.current) {
-  gsap.to(progressRef.current, {
-    scaleX: 1,
-    ease: "none",
-    scrollTrigger: {
-      trigger: el,
-      start: "top 15%",  // Match the start above
-      end: () => `+=${scrollDistance * 1.5}`, // Match the end above
-      scrub: 1,
-    }
-  });
-}
+      if (progressRef.current) {
+        gsap.to(progressRef.current, {
+          scaleX: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 15%",  // Match the start above
+            end: () => `+=${scrollDistance * 1.5}`, // Match the end above
+            scrub: 1,
+          }
+        });
+      }
 
-ScrollTrigger.create({
-  trigger: el,
-  start: "top 16%",      // Adjust this % to change when the heading/box pins
-  end: () => `+=${scrollDistance * 1.5}`, // Multiply scrollDistance to slow down the speed
-  pin: true,
-  scrub: 1.5,              // Increase for a smoother, less "twitchy" scroll
-  animation: mainTween,
-  onToggle: ({ isActive }) => setHorizontalActive(isActive),
-});
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 16%",      // Adjust this % to change when the heading/box pins
+        end: () => `+=${scrollDistance * 1.5}`, // Multiply scrollDistance to slow down the speed
+        pin: true,
+        scrub: 1.5,              // Increase for a smoother, less "twitchy" scroll
+        animation: mainTween,
+        onToggle: ({ isActive }) => setHorizontalActive(isActive),
+      });
     }, containerRef);
 
     return () => ctx.revert();
@@ -207,16 +219,16 @@ ScrollTrigger.create({
   return (
     <section id="events" className="relative min-h-screen bg-[#050014] py-24">
       <div className="mx-auto max-w-7xl px-6">
-        
+
         {/* HEADER */}
         <div className="flex items-center justify-between mb-16">
           <div>
             <h2 className="font-display text-5xl text-glow text-white">Events Radar</h2>
             <p className="text-white/40 mt-2">Upcoming missions you can RSVP to and a hall of past scrims captured in holographic snapshots.</p>
           </div>
-          <Button 
-            variant="outline" 
-            onClick={loadEvents} 
+          <Button
+            variant="outline"
+            onClick={loadEvents}
             disabled={isRefreshing}
             className="border-white/10 bg-white/5 text-white hover:bg-white/10"
           >
@@ -226,7 +238,7 @@ ScrollTrigger.create({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-12">
-          
+
           {/* LEFT: ACTIVE & UPCOMING */}
           <div className="space-y-10">
             {/* ACTIVE */}
@@ -246,7 +258,7 @@ ScrollTrigger.create({
                       {/* LIVE badge at top right */}
                       <div className="absolute top-3 right-3 z-10">
                         <span className="live-badge-animate text-[#00ffd0] font-bold text-xs px-3 py-1 rounded-full border-2 border-[#00ffd0] shadow-lg bg-transparent animate-blink-slow">LIVE</span>
-                      <style>{`
+                        <style>{`
                         @keyframes blink-slow {
                           0%, 100% { opacity: 1; }
                           50% { opacity: 0.3; }
@@ -268,7 +280,7 @@ ScrollTrigger.create({
                         )}
                       </div>
                       <h4 className="font-display text-lg text-center leading-tight line-clamp-4 w-full max-w-full break-words text-white font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">{e.title}</h4>
-                      <div className="font-bold rounded px-2 py-1 inline-block mb-1 mt-2" style={{color:'#00ffd0',background:'#0a192f'}}>
+                      <div className="font-bold rounded px-2 py-1 inline-block mb-1 mt-2" style={{ color: '#00ffd0', background: '#0a192f' }}>
                         {new Date(e.date).toLocaleString('en-IN', {
                           timeZone: 'Asia/Kolkata',
                           month: 'short',
@@ -285,7 +297,7 @@ ScrollTrigger.create({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="mt-2 mb-1 inline-block px-4 py-2 rounded-lg font-bold text-xs shadow-lg hover:scale-105 transition-transform animate-register-move animated-border-btn"
-                          style={{background: 'transparent', color: '#00ffd0', position: 'relative', overflow: 'hidden'}} 
+                          style={{ background: 'transparent', color: '#00ffd0', position: 'relative', overflow: 'hidden' }}
                           onClick={ev => ev.stopPropagation()}
                         >
                           <span className="relative z-10">Register Now</span>
@@ -343,7 +355,7 @@ ScrollTrigger.create({
                       </div>
                       <h4 className="font-display text-lg text-center leading-tight line-clamp-4 w-full max-w-full break-words text-white font-extrabold drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">{e.title}</h4>
                       <div className="text-[15px] text-white/70 text-center mt-2 w-full max-w-full break-words leading-tight">
-                        <div className="font-bold rounded px-2 py-1 inline-block mb-1" style={{color:'#00ffd0',background:'#0a192f'}}>
+                        <div className="font-bold rounded px-2 py-1 inline-block mb-1" style={{ color: '#00ffd0', background: '#0a192f' }}>
                           {new Date(e.date).toLocaleString('en-IN', {
                             timeZone: 'Asia/Kolkata',
                             month: 'short',
@@ -378,7 +390,7 @@ ScrollTrigger.create({
 
           {/* RIGHT: HALL OF RECORDS */}
           <div className="relative">
-            <div className="flex items-center gap-3 mb-6 sticky top-[2.5rem] z-20 bg-[#050014]/80 backdrop-blur-md py-3" style={{backdropFilter: 'blur(8px)'}}>
+            <div className="flex items-center gap-3 mb-6 sticky top-[2.5rem] z-20 bg-[#050014]/80 backdrop-blur-md py-3" style={{ backdropFilter: 'blur(8px)' }}>
               <CalendarDays className="h-4 w-4 text-blue-400" />
               <h3 className="text-[10px] uppercase tracking-[0.4em] text-white/50 font-bold">Past Events</h3>
             </div>

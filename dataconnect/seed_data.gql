@@ -1,0 +1,91 @@
+mutation CreateDemoData @transaction @auth(level: USER, insecureReason: "This is a seed data operation, and it's safe to be run by any authenticated user for testing or initialization purposes.") {
+  user_insertMany(data: [
+    {
+      id: "b2d2e1d2-0b0c-4e8d-8a2a-0a4a6b2d2e1d",
+      displayName: "Alice Smith",
+      email: "alice.smith@example.com",
+      createdAt: "2024-01-01T10:00:00Z",
+      major: "Computer Science",
+      yearOfStudy: "Senior",
+      interests: ["Programming", "Hiking", "Reading"]
+    },
+    {
+      id: "a1c1b1c1-1a1b-1c1d-1e1f-1a1b1c1d1e1f",
+      displayName: "Bob Johnson",
+      email: "bob.johnson@example.com",
+      createdAt: "2024-01-02T11:00:00Z",
+      major: "Mechanical Engineering",
+      yearOfStudy: "Junior",
+      interests: ["Robotics", "Cycling", "Cooking"]
+    }
+  ])
+  event_insertMany(data: [
+    {
+      id: "c3d3e3f3-2a2b-2c2d-2e2f-2a2b2c2d2e2f",
+      title: "Tech Talk on AI",
+      description: "An insightful discussion on the latest advancements in Artificial Intelligence.",
+      eventDate: "2024-03-15",
+      startTime: "14:00",
+      endTime: "16:00",
+      location: "University Auditorium",
+      createdAt: "2024-02-10T09:00:00Z",
+      creator: {id: "b2d2e1d2-0b0c-4e8d-8a2a-0a4a6b2d2e1d"}
+    },
+    {
+      id: "d4e4f4a4-3a3b-3c3d-3e3f-3a3b3c3d3e3f",
+      title: "Outdoor Adventure Hike",
+      description: "Explore scenic trails and enjoy nature with fellow students.",
+      eventDate: "2024-03-20",
+      startTime: "09:00",
+      endTime: "13:00",
+      location: "Local Nature Reserve",
+      createdAt: "2024-02-12T10:30:00Z",
+      creator: {id: "a1c1b1c1-1a1b-1c1d-1e1f-1a1b1c1d1e1f"}
+    }
+  ])
+  forumPost_insertMany(data: [
+    {
+      id: "e5f5a5b5-4a4b-4c4d-4e4f-4a4b4c4d4e4f",
+      title: "Best study spots on campus?",
+      content: "Looking for quiet and productive places to study. Any recommendations?",
+      createdAt: "2024-02-15T13:00:00Z",
+      author: {id: "b2d2e1d2-0b0c-4e8d-8a2a-0a4a6b2d2e1d"}
+    },
+    {
+      id: "f6a6b6c6-5a5b-5c5d-5e5f-5a5b5c5d5e5f",
+      title: "Tips for first-year engineering students",
+      content: "As a junior, I'd like to share some advice for new engineering students.",
+      createdAt: "2024-02-16T14:00:00Z",
+      author: {id: "a1c1b1c1-1a1b-1c1d-1e1f-1a1b1c1d1e1f"},
+      parentPost: {id: "e5f5a5b5-4a4b-4c4d-4e4f-4a4b4c4d4e4f"}
+    }
+  ])
+  interest_insertMany(data: [
+    {
+      id: "g7h7i7j7-6a6b-6c6d-6e6f-6a6b6c6d6e6f",
+      name: "Machine Learning",
+      createdAt: "2024-01-05T08:00:00Z",
+      description: "Study of algorithms and statistical models that computer systems use to perform a specific task without using explicit instructions."
+    },
+    {
+      id: "h8i8j8k8-7a7b-7c7d-7e7f-7a7b7c7d7e7f",
+      name: "Hiking Trails",
+      createdAt: "2024-01-06T09:00:00Z",
+      description: "Exploring various walking paths and trails in natural environments."
+    }
+  ])
+  rSVP_insertMany(data: [
+    {
+      user: {id: "b2d2e1d2-0b0c-4e8d-8a2a-0a4a6b2d2e1d"},
+      event: {id: "d4e4f4a4-3a3b-3c3d-3e3f-3a3b3c3d3e3f"},
+      createdAt: "2024-02-18T15:00:00Z",
+      notes: "Looking forward to the hike!"
+    },
+    {
+      user: {id: "a1c1b1c1-1a1b-1c1d-1e1f-1a1b1c1d1e1f"},
+      event: {id: "c3d3e3f3-2a2b-2c2d-2e2f-2a2b2c2d2e2f"},
+      createdAt: "2024-02-17T16:00:00Z",
+      notes: "Excited to learn about AI."
+    }
+  ])
+}
