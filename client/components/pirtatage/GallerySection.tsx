@@ -24,7 +24,7 @@ const GallerySection = () => {
     let mounted = true;
     (async () => {
       try {
-        const res = await fetch('/api/gallery');
+        const res = await fetch(`/api/gallery?t=${Date.now()}`);
         if (!res.ok) throw new Error('Failed to load gallery');
         const json = await res.json();
         const loaded: GalleryItem[] = (json.items || []).map((it: any) => ({

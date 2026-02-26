@@ -22,7 +22,8 @@ export const createGalleryItem: RequestHandler = async (req, res) => {
     const data = {
       ...req.body,
       id: req.body.id || newItemsRef.id,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      createdAt: new Date().toISOString() // Save both for compatibility
     };
     await newItemsRef.set(data);
     res.json({ message: "Gallery item added successfully", item: data });
@@ -37,11 +38,10 @@ export const listGallery: RequestHandler = async (_req, res) => {
     try {
       const db = getFirestore();
       const snapshot = await db.collection("gallery")
-        .orderBy("created_at", "asc")
         .get();
 
-      const items = snapshot.docs.map(doc => {
-        const data = doc.data() as GalleryRow;
+      let items = snapshot.docs.map(doc => {
+        const data = doc.data() as any;
         return {
           id: data.id || doc.id,
           title: data.title || "",
@@ -49,7 +49,13 @@ export const listGallery: RequestHandler = async (_req, res) => {
           media: data.media || "",
           orientation: data.orientation || "landscape",
           description: data.description || "",
+          date_raw: data.created_at || data.createdAt || ""
         };
+      });
+
+      // Sort by date descending (most recent first)
+      items.sort((a, b) => {
+        return b.date_raw.localeCompare(a.date_raw);
       });
 
       res.setHeader('X-Gallery-Source', 'firestore');
