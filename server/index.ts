@@ -5,7 +5,7 @@ import crypto from "crypto";
 import { handleDemo } from "./routes/demo.js";
 import { createEvent, listEvents } from "./routes/events.js";
 import { createHelpRequest, listHelpRequests } from "./routes/help.js";
-import { listGallery } from "./routes/gallery.js";
+import { listGallery, createGalleryItem } from "./routes/gallery.js";
 import { subscribeEmail, unsubscribeEmail } from "./routes/subscribe.js";
 import { sendEventNotifications, getNotificationStats } from "./routes/notifications.js";
 import { sendEventInvites, downloadEventICS } from "./routes/event-invites.js";
@@ -44,6 +44,7 @@ export function createServer() {
   app.get("/api/events", listEvents);
   app.post("/api/events", createEvent);
   app.get("/api/gallery", listGallery);
+  app.post("/api/gallery", createGalleryItem);
   app.post("/api/help", createHelpRequest);
   app.get("/api/help", listHelpRequests);
   app.post("/api/subscribe", subscribeEmail);

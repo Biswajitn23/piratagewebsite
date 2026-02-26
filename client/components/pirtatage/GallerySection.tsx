@@ -13,7 +13,7 @@ import {
 if (typeof window !== "undefined" && gsap) {
   try {
     gsap.registerPlugin(ScrollTrigger);
-  } catch {}
+  } catch { }
 }
 
 const GallerySection = () => {
@@ -244,13 +244,13 @@ const GallerySection = () => {
                   <h2 id="gallery-title" className="font-display text-xl sm:text-2xl text-foreground">
                     Gallery
                   </h2>
-                  <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.28em] text-muted-foreground/80">Field ops • Labs • Scrims</p>
+                  <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.28em] text-muted-foreground/80">Hackathons • Workshop • Speaker Session</p>
                 </div>
                 <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.28em] text-muted-foreground/70 flex-shrink-0">
                   Scroll
                 </span>
               </div>
-              <div 
+              <div
                 ref={trackRef}
                 className="gallery-track flex flex-row gap-5 px-5 py-5 h-auto min-h-[420px] md:h-[420px] md:gap-6 md:px-6 md:py-6 overflow-x-auto select-none scroll-smooth"
                 style={{ cursor: 'grab', scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}
@@ -341,13 +341,13 @@ const GallerySection = () => {
                 <h2 id="gallery-title" className="font-display text-2xl text-foreground">
                   Gallery
                 </h2>
-                <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground/80">Field ops • Labs • Scrims</p>
+                <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground/80">Hackathons • Workshop • Speaker Session</p>
               </div>
               <span className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground/70">
                 {gsapActive ? 'Scroll down' : 'Scroll or drag'}
               </span>
             </div>
-            <div 
+            <div
               ref={trackRef}
               className="gallery-track flex flex-row gap-5 px-5 py-5 h-[320px] md:h-[420px] md:gap-6 md:px-6 md:py-6 overflow-x-auto lg:overflow-visible select-none"
               style={{ cursor: gsapActive ? 'default' : 'grab', scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}

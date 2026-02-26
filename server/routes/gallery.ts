@@ -11,6 +11,27 @@ type GalleryRow = {
   created_at?: any;
 };
 
+export const createGalleryItem: RequestHandler = async (req, res) => {
+  if (!isFirestoreEnabled()) {
+    return res.status(503).json({ error: "Firestore not configured" });
+  }
+
+  try {
+    const db = getFirestore();
+    const newItemsRef = db.collection("gallery").doc();
+    const data = {
+      ...req.body,
+      id: req.body.id || newItemsRef.id,
+      created_at: new Date().toISOString()
+    };
+    await newItemsRef.set(data);
+    res.json({ message: "Gallery item added successfully", item: data });
+  } catch (err: any) {
+    res.status(500).json({ error: String(err?.message || err) });
+  }
+};
+
+
 export const listGallery: RequestHandler = async (_req, res) => {
   if (isFirestoreEnabled()) {
     try {
@@ -18,7 +39,7 @@ export const listGallery: RequestHandler = async (_req, res) => {
       const snapshot = await db.collection("gallery")
         .orderBy("created_at", "asc")
         .get();
-      
+
       const items = snapshot.docs.map(doc => {
         const data = doc.data() as GalleryRow;
         return {
