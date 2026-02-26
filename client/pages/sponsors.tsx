@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -134,19 +132,31 @@ export default function Sponsors() {
         </div>
       </section>
 
-      {/* Impact Section */}
-      <section className="relative z-10 max-w-5xl mx-auto py-8 px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-6">Past Success & Impact</h2>
-        <div className="flex flex-wrap gap-8 mb-6 justify-center">
-          <img src="/gallery1.jpg" alt="Event 1" className="w-52 h-36 object-cover rounded-2xl shadow-lg border-2 border-primary/20" />
-          <img src="/gallery2.jpg" alt="Event 2" className="w-52 h-36 object-cover rounded-2xl shadow-lg border-2 border-cyan-400/20" />
-        </div>
-        <div className="text-center text-lg text-muted-foreground mb-2">Last year, we hosted <b>5 events</b> with over <b>1,000 total attendees</b>.</div>
-        <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground max-w-2xl mx-auto">
-          “Partnering with Piratage Club AUC was a fantastic experience. Their events are well-organized and impactful.”<br />
-          <span className="text-xs">– Previous Sponsor</span>
-        </blockquote>
-      </section>
+{/* Impact Section */}
+<section className="relative z-10 max-w-5xl mx-auto py-8 px-4">
+  <h2 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-6">Past Success & Impact</h2>
+  <div className="flex flex-wrap gap-8 mb-6 justify-center">
+    {/* Event 1 Photo */}
+    <img 
+      src="https://i.ibb.co/PvzdZwK0/IMG-20260128-WA0015.jpg" 
+      alt="Piratage Event Workshop" 
+      className="w-72 h-48 object-cover object-top rounded-2xl shadow-xl border-2 border-primary/20 hover:scale-105 transition-transform duration-300" 
+    />
+    {/* Event 2 Photo */}
+    <img 
+      src="https://i.ibb.co/YBggYqfV/IMG-20260123-WA0052.jpg" 
+      alt="Piratage Team and Attendees" 
+      className="w-72 h-48 object-cover object-top rounded-2xl shadow-xl border-2 border-cyan-400/20 hover:scale-105 transition-transform duration-300" 
+    />
+  </div>
+  <div className="text-center text-lg text-muted-foreground mb-4">
+    Last year, we hosted <b>5 events</b> with over <b>1,000 total attendees</b>.
+  </div>
+  <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground max-w-2xl mx-auto bg-white/5 py-4 rounded-r-lg">
+    “Partnering with Piratage Club AUC was a fantastic experience. Their events are well-organized and impactful.”<br />
+    <span className="text-xs font-bold uppercase tracking-widest mt-2 block text-primary">— Previous Sponsor</span>
+  </blockquote>
+</section>
 
       {/* Ways to Sponsor Section */}
       <section className="relative z-10 max-w-5xl mx-auto py-8 px-4">
